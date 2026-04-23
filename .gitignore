@@ -1,0 +1,24 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+
+# Logs
+*.log
+
+# Environment
+.env
+
+# Dependencies
+node_modules/
+
+# Cache
+.cache/
+
+# PHP
+vendor/
+
+# Build
+dist/
