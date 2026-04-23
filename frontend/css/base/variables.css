@@ -1,5 +1,48 @@
-:root {
+/* :root {
     --color-primary: #d4637a;
     --color-bg: #fffafc;
     --color-text: #3a2e35;
+} */
+
+:root {
+    --pink: #F9C8D4;
+    --pink-light: #FDE8EE;
+    --pink-dark: #E8919F;
+    --pink-accent: #D4637A;
+    --lilac: #DDD0F0;
+    --lilac-light: #F0EAFA;
+    --lilac-dark: #9B7DC8;
+    --beige: #F5EFE6;
+    --beige-light: #FDFAF6;
+    --beige-dark: #C8A882;
+    --white: #FFFFFF;
+    --text: #3A2E35;
+    --text-soft: #7A6B72;
+    --text-muted: #A898A0;
+    --border: #EDE0E8;
+    --boder-lt: #F5EDF2;
+
+    --g-hero: linear-gradient(135deg, #FDE8EE 0%, #F0EAFA 50%, #F5EFE6 100%);
+    --g-pink: linear-gradient(135deg, var(--pink) 0%, var(--lilac) 100%);
+    --g-promo: linear-gradient(135deg, #F9C8D4 0%, #DDD0F0 100%);
+
+    --font-d: 'Cormorant Garamond', Georgia, serif;
+    --font-b: 'DM Sans', system-ui, sans-serif;
+
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 20px;
+    --r-xl: 28px;
+    --r-full: 9999px;
+
+    --sh-sm: 0 2px 8px rgba(180,100,120,.08);
+    --sh-md: 0 4px 20px rgba(180,100,120,.13);
+    --sh-lg: 0 8px 40px rgba(180,100,120,.17);
+    --sh-pink: 0 4px 24px rgba(212,99,122,.28);
+
+    --nav-h: 72px;
+    --side-w: 240px;
+    --max-w: 1160px;
+    --easy: 0.25s ease;
+    --easy-f: 0.15s ease;
 }
