@@ -1,0 +1,31 @@
+.services-page {
+    padding: 4rem 2rem;
+}
+
+.services-page__header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.service-card {
+    background: white;
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: var(--sh-md);
+    transition: .3s ease;
+}
+.service-card:hover {
+    transform: translateY(-5px);
+}
+
+.service-card__meta {
+    display: flex;
+    justify-content: space-between;
+    margin: 1rem 0;
+}
