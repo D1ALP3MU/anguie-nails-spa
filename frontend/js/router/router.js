@@ -6,10 +6,13 @@ import { BookingPage } from "../modules/services/booking.page.js";
 
 import { Layout } from "../components/layout/Layout.js";
 
+import { Hero } from "../modules/home/components/Hero.js"
+
 const routes = {
     "/": HomePage,
     "/": ServicesPage,
     "/": BookingPage,
+    "/": Hero,
 }
 
 export function initRouter() {

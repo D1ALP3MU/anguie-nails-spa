@@ -1,0 +1,28 @@
+.hero {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    background: #fffafc;
+}
+
+.hero__content {
+    max-width: 700px;
+}
+
+.hero h1 {
+    font-size: 4rem;
+    margin: 1rem 0;
+}
+
+.hero__badge {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: var(--pink-accent);
+    font-weight: 700;
+}
+
+.hero__actions {
+    margin-top: 2rem;
+}

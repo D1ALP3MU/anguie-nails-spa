@@ -1,8 +1,8 @@
 import { Navbar } from "./Navbar.js";
 
 export function Layout(content) {
+    
     return `
-        <div class="app-layout">
 
             ${Navbar()}
 
@@ -13,7 +13,6 @@ export function Layout(content) {
             <footer>
                 <p>&copy; 2025 Anguie Nails - Manicura & Pedicura. Todos los derechos reservados.</p>
             </footer>
-
-        </div>    
+            
     `;
 }

@@ -1,12 +1,10 @@
+import { Hero } from "./components/Hero.js";
+
 export function HomePage() {
     
     return `
-        <section>
 
-            <h2>Bienvenida</h2>
+        ${Hero()}
 
-            <p>Spa profesional</p>
-
-        </section>
     `;
 }
