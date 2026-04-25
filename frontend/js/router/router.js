@@ -2,7 +2,7 @@ import { HomePage } from "../modules/home/home.page.js";
 
 import { ServicesPage  } from "../modules/services/services.page.js";
 
-import { BookingPage } from "../modules/services/booking.page.js";
+import { BookingPage } from "../modules/booking/booking.page.js";
 
 import { Layout } from "../components/layout/Layout.js";
 
