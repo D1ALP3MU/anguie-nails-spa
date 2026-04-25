@@ -19,3 +19,13 @@
 .form-group button {
     width: 100%;
 }
+
+.form-error {
+    color: crimson;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.input-error {
+    border-color: crimson !important;
+}

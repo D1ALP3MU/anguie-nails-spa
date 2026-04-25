@@ -1,5 +1,7 @@
 import { Modal } from "../../../js/components/ui/Modal.js";
 import { BookingForm } from "../booking/components/BookingForm.js";
+import { isEmpty, isPasteDate } from "../../../js/utils/validation.js";
+import { FormError } from "../../components/ui/FormError.js";
 
 let initialized = false;
 
@@ -27,6 +29,8 @@ export function initServicesEvents() {
         }
     });
 
+    document.addEventListener("submit", handleBookingSubmit);
+
 }
 
 function openBookingModal(serviceId) {
@@ -44,4 +48,58 @@ function closeModal() {
     if (modal) {
         modal.remove();
     }
+}
+
+function handleBookingSubmit(event) {
+    const form = event.target;
+
+    if (form.id !== "booking-form") return;
+
+    event.preventDefault();
+
+    clearFormErrors(form);
+
+    const formData = new FormData(form);
+    const name = formData.get("name");
+    const date = formData.get("date");
+    let hasErrors = false;
+
+    // NAME VALIDATION
+    if (isEmpty(name)) {
+        showFieldError(form.elements.name, "El nombre es obligatorio");
+        hasErrors = true;
+    }
+
+    //DATE VALIDATION
+    if (isEmpty(date)) {
+        showFieldError(form.elements.date, "La fecha es obligatoria");
+        hasErrors = true;
+    } else if (isPasteDate(date)){
+        showFieldError(form.elements.date, "No puedes reservar fechas pasadas");
+        hasErrors = true;
+    }
+
+    if (hasErrors) return;
+
+    console.log({name, date, serviceId: formData.get("serviceId"),});
+
+    alert("Reserva creada correctamente!");
+
+    closeModal();
+    
+}
+
+function showFieldError(input, message) {
+    input.classList.add("input-error");
+    input.insertAdjacentHTML("afterend", FormError(message));
+}
+
+function clearFormErrors(form) {
+    form.querySelectorAll(".form-error").forEach(error => {
+        error.remove();
+    });
+
+    form.querySelectorAll(".input-error").forEach(input => {
+        input.classList.remove("input-error");
+    });
 }
