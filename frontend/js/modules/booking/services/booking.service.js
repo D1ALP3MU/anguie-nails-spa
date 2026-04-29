@@ -37,7 +37,7 @@ export async function removeBooking(bookingId) {
 function simulateDelay() {
 
     return new Promise(resolve => {
-        setTimeout(resolve, 400);
+        setTimeout(resolve, 1500);
     });
-    
+
 }

@@ -1,4 +1,5 @@
 import { Navbar } from "./Navbar.js";
+import { Footer } from "./Footer.js";
 
 export function Layout(content) {
     
@@ -10,9 +11,7 @@ export function Layout(content) {
                 ${content}
             </main>
 
-            <footer>
-                <p>&copy; 2025 Anguie Nails - Manicura & Pedicura. Todos los derechos reservados.</p>
-            </footer>
+            ${Footer()}
             
     `;
 }

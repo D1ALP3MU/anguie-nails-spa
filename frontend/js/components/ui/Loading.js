@@ -2,11 +2,13 @@ export function Loading() {
 
     return `
 
-        <div class="loading">
+        <section class="loading-state">
 
-            Cargando...
+            <div class="loading-spinner"></div>
+            
+            <p>Cargando...</p>
 
-        </div>
+        </section>
 
     `;
 }

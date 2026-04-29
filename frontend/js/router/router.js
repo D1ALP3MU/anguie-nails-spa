@@ -1,11 +1,14 @@
 import { HomePage } from "../modules/home/home.page.js";
 
-import { ServicesPage  } from "../modules/services/services.page.js";
+import { ServicesPage } from "../modules/services/services.page.js";
 
 import { BookingPage } from "../modules/booking/booking.page.js";
 
 import { Layout } from "../components/layout/Layout.js";
 
+import { Loading } from "../components/ui/Loading.js";
+
+import { ErrorState } from "../components/ui/ErrorState.js";
 
 const routes = {
     "/": HomePage,
@@ -14,23 +17,45 @@ const routes = {
 }
 
 export function initRouter() {
+
     window.addEventListener("hashchange", renderRoute);
 
     renderRoute();
+
+}
+
+function getCurrentPath() {
+
+    return window.location.hash.slice(1) || "/";
+
 }
 
 async function renderRoute() {
-    const path = location.hash.slice(1) || "/";
-    console.log("Current path:", path);
 
-    const page = routes[path];
-    console.log("Page found:", page);
+    try {
+        const app = document.querySelector("#app");
 
-    if (!page) return;
+        const path = getCurrentPath();
+    
+        const page = routes[path];
+    
+        if (!page) {
+            app.innerHTML = Layout(ErrorState("<h1>404 página no encontrada</h1>"));
+    
+            return;
+        }
+        // SHOW LOADING
+        app.innerHTML = Loading();
 
-    const app = document.querySelector("#app");
+        // LOAD PAGE
+        const html = Layout(await page());
 
-    app.innerHTML = Layout(
-        await page()
-    );   
+        // RENDER PAGE
+        app.innerHTML = html;
+    }
+    catch (error) {
+        console.error(error);
+
+        app.innerHTML = Layout(ErrorState("Error cargando la página"));
+    }
 }
