@@ -1,0 +1,27 @@
+.booking-page {
+    padding: 4rem 2rem;
+}
+
+.booking-page h1 {
+    margin-bottom: 2rem;
+}
+
+.booking-list {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.booking-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 20px;
+    box-shadow: var(--sh-sm);
+}
+
+.booking-card h3 {
+    margin-bottom: 1rem;
+}
+
+.booking-card p {
+    margin-bottom: 0.5rem;
+}

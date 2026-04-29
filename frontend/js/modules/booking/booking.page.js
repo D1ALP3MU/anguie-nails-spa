@@ -1,7 +1,12 @@
 import { getBookings } from "../../state/booking.store.js";
+import { initBookingEvents } from "./booking.controller.js";
 
 export function BookingPage() {
     const bookings = getBookings();
+
+    setTimeout(() => {
+        initBookingEvents();
+    }, 0);
 
     return `
 
@@ -18,6 +23,7 @@ export function BookingPage() {
                             <h3>${booking.name}</h3>
                             <p>Fecha: ${booking.date}</p>
                             <small>Servicio ID: ${booking.serviceId}</small>
+                            <button class="btn btn-outline" data-delete-booking="${booking.id}">Eliminar</button>
                         </article>
                     `).join("") : `
                         <p>No hay reservas</p>
