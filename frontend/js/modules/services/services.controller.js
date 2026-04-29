@@ -2,7 +2,7 @@ import { Modal } from "../../../js/components/ui/Modal.js";
 import { BookingForm } from "../booking/components/BookingForm.js";
 import { isEmpty, isPasteDate } from "../../../js/utils/validation.js";
 import { FormError } from "../../components/ui/FormError.js";
-import { addBooking, getBookings } from "../../state/booking.store.js";
+import { createBooking } from "../booking/services/booking.service.js";
 
 let initialized = false;
 
@@ -51,7 +51,7 @@ function closeModal() {
     }
 }
 
-function handleBookingSubmit(event) {
+async function handleBookingSubmit(event) {
     const form = event.target;
 
     if (form.id !== "booking-form") return;
@@ -83,17 +83,14 @@ function handleBookingSubmit(event) {
     if (hasErrors) return;
 
     // console.log({name, date, serviceId: formData.get("serviceId"),});
-    const booking = {
-        id: crypto.randomUUID(),
+    const booking = await createBooking({
         name,
         date,
         serviceId: formData.get("serviceId"),
-        createdAt: new Date().toISOString(),
-    };
+    });
 
-    addBooking(booking);
+    // addBooking(booking);
     console.log("BOOKING CREATED", booking);
-    console.log("CURRENT BOOKINGS", getBookings());   
 
     alert("Reserva creada correctamente!");
 

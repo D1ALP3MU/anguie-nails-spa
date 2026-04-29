@@ -19,7 +19,7 @@ export function initRouter() {
     renderRoute();
 }
 
-function renderRoute() {
+async function renderRoute() {
     const path = location.hash.slice(1) || "/";
     console.log("Current path:", path);
 
@@ -31,6 +31,6 @@ function renderRoute() {
     const app = document.querySelector("#app");
 
     app.innerHTML = Layout(
-        page()
+        await page()
     );   
 }

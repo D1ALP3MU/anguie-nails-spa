@@ -1,8 +1,9 @@
 import { getBookings } from "../../state/booking.store.js";
 import { initBookingEvents } from "./booking.controller.js";
+import { fetchBookings } from "./services/booking.service.js";
 
-export function BookingPage() {
-    const bookings = getBookings();
+export async function BookingPage() {
+    const bookings = await fetchBookings();
 
     setTimeout(() => {
         initBookingEvents();
