@@ -10,6 +10,8 @@ import { Loading } from "../components/ui/Loading.js";
 
 import { ErrorState } from "../components/ui/ErrorState.js";
 
+import { runCleanup } from "../core/cleanup.js";
+
 const routes = {
     "/": HomePage,
     "/services": ServicesPage,
@@ -33,6 +35,9 @@ function getCurrentPath() {
 async function renderRoute() {
 
     try {
+
+        runCleanup();
+
         const app = document.querySelector("#app");
 
         const path = getCurrentPath();
@@ -52,10 +57,13 @@ async function renderRoute() {
 
         // RENDER PAGE
         app.innerHTML = html;
+        
     }
     catch (error) {
+
         console.error(error);
 
         app.innerHTML = Layout(ErrorState("Error cargando la página"));
+
     }
 }

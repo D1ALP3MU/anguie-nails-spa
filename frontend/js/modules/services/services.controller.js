@@ -3,13 +3,34 @@ import { BookingForm } from "../booking/components/BookingForm.js";
 import { isEmpty, isPasteDate } from "../../../js/utils/validation.js";
 import { FormError } from "../../components/ui/FormError.js";
 import { createBooking } from "../booking/services/booking.service.js";
-
-let initialized = false;
+import { registerCleanup } from "../../core/cleanup.js";
 
 export function initServicesEvents() {
 
-    if (initialized) return;
-    initialized = true;
+    document.addEventListener(
+        "click",
+        handleDocumentClick
+    );
+
+    document.addEventListener(
+        "submit",
+        handleBookingSubmit
+    );
+
+    registerCleanup(() => {
+
+        document.removeEventListener(
+            "click",
+            handleDocumentClick
+        );
+
+        document.removeEventListener(
+            "submit",
+            handleBookingSubmit
+        );
+
+    });
+
 
     document.addEventListener("click", (event) => {
 
@@ -19,13 +40,13 @@ export function initServicesEvents() {
 
             openBookingModal(serviceId);
         }
-        
+
         const closeButton = event.target.closest("[data-close-modal]");
         if (closeButton) {
             closeModal();
         }
 
-        if(event.target.classList.contains("modal-overlay")) {
+        if (event.target.classList.contains("modal-overlay")) {
             closeModal();
         }
     });
@@ -34,11 +55,42 @@ export function initServicesEvents() {
 
 }
 
+function handleDocumentClick(event) {
+
+    const bookButton = event.target.closest(
+
+        "[data-book-service]"
+
+    );
+
+    if (bookButton) {
+
+        const serviceId = bookButton.dataset.bookService;
+
+        openBookingModal(serviceId);
+
+    }
+
+    const closeButton = event.target.closest("[data-close-modal]");
+
+    if (closeButton) {
+
+        closeModal();
+
+    }
+
+    if (event.target.classList.contains(    "modal-overlay")) {
+
+        closeModal();
+
+    }
+}
+
 function openBookingModal(serviceId) {
     const existingModal = document.querySelector(".modal-overlay");
     if (existingModal) return;
 
-    const modalHTML = Modal({title: "Reservar cita", content: BookingForm(serviceId),});
+    const modalHTML = Modal({ title: "Reservar cita", content: BookingForm(serviceId), });
 
     document.body.insertAdjacentHTML("beforeend", modalHTML);
 }
@@ -75,7 +127,7 @@ async function handleBookingSubmit(event) {
     if (isEmpty(date)) {
         showFieldError(form.elements.date, "La fecha es obligatoria");
         hasErrors = true;
-    } else if (isPasteDate(date)){
+    } else if (isPasteDate(date)) {
         showFieldError(form.elements.date, "No puedes reservar fechas pasadas");
         hasErrors = true;
     }
@@ -95,7 +147,7 @@ async function handleBookingSubmit(event) {
     alert("Reserva creada correctamente!");
 
     closeModal();
-    
+
 }
 
 function showFieldError(input, message) {
