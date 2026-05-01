@@ -1,12 +1,14 @@
-import { services } from "./services.data.js";
-
 import { ServiceCard } from "./components/ServiceCard.js";
 
 import { initServicesEvents } from "./services.controller.js";
 
+import { fetchServices } from "./services.api.js";
+
 
 export async function ServicesPage() {
     console.log("ServicesPage loaded");
+
+    const services = await fetchServices();
 
     setTimeout(() => {
         initServicesEvents();
