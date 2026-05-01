@@ -4,12 +4,17 @@ import { ServiceCard } from "./components/ServiceCard.js";
 
 import { initServicesEvents } from "./services.controller.js";
 
-export function ServicesPage() {
+
+export async function ServicesPage() {
     console.log("ServicesPage loaded");
 
     setTimeout(() => {
         initServicesEvents();
     }, 0);
+
+    await new Promise(resolve => {
+        setTimeout(resolve, 1200);
+    });
 
     return `
 
@@ -21,12 +26,10 @@ export function ServicesPage() {
             </div>
 
             <div class="services-grid">
-                ${services.map(service => {
 
-                    console.log(service);
-                    return ServiceCard(service);
-
-                }).join("")}
+                ${services.map(service => 
+                    ServiceCard(service)
+                ).join("")}
 
             </div>
 

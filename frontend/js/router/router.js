@@ -12,11 +12,17 @@ import { ErrorState } from "../components/ui/ErrorState.js";
 
 import { runCleanup } from "../core/cleanup.js";
 
+import { ServicesSkeleton } from "../modules/services/components/ServicesSkeleton.js";
+
 const routes = {
     "/": HomePage,
     "/services": ServicesPage,
     "/booking": BookingPage,
 }
+
+const routeLoaders = {
+    "/services": ServicesSkeleton,
+};
 
 export function initRouter() {
 
@@ -50,7 +56,9 @@ async function renderRoute() {
             return;
         }
         // SHOW LOADING
-        app.innerHTML = Loading();
+        const loader = routeLoaders[path];
+
+        app.innerHTML = loader ? loader() : Loading();
 
         // LOAD PAGE
         const html = Layout(await page());

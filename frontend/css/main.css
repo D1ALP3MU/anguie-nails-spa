@@ -1,5 +1,6 @@
 @import url("./base/reset.css");
 @import url("./base/variables.css");
+@import url("./base/animations.css");
 
 @import url("./layout/navbar.css");
 @import url("./layout/footer.css");
@@ -10,6 +11,7 @@
 @import url("./components/forms.css");
 @import url("./components/loading.css");
 @import url("./components/error-state.css");
+@import url("./components/skeleton.css");
 
 @import url("./pages/home.css");
 @import url("./pages/services.css");
