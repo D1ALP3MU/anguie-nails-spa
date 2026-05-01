@@ -9,6 +9,9 @@ echo "STEP 1 <br>";
 require_once
 __DIR__ . "/../app/routes/api.php";
 
+require_once
+__DIR__ . "/../app/config/env.php";
+
 echo "STEP 2";
 
 //ini_set('display_errors', 1);

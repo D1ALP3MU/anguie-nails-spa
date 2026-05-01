@@ -1,10 +1,18 @@
 <?php
 
 class Database {
-    private string $host = "localhost";
-    private string $db_name = "spa_db";
-    private string $username = "root";
-    private string $password = "admindap*";
+    private string $host;
+    private string $db_name;
+    private string $username;
+    private string $password;
+
+    public function __construct() {
+        $this->host = $_ENV["DB_HOST"];
+        $this->db_name = $_ENV["DB_NAME"];
+        $this->username = $_ENV["DB_USER"];
+        $this->password = $_ENV["DB_PASS"]; 
+    }
+
     public function connect(): PDO {
 
         try {
