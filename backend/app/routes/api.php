@@ -1,12 +1,11 @@
 <?php
 
+use App\Config\Database;
+use App\Controllers\ServiceController;
+use App\Repositories\ServiceRepository;
+use App\Services\ServiceService;
+
 require_once __DIR__ . "/../config/database.php";
-
-require_once __DIR__ . "/../repositories/ServiceRepository.php";
-
-require_once __DIR__ . "/../services/ServiceService.php";
-
-require_once __DIR__ . "/../controllers/ServiceController.php";
 
 $database = new Database();
 

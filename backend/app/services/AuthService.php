@@ -1,5 +1,15 @@
 <?php
 
+namespace App\Services;
+
+use App\Helpers\PasswordHelper;
+use App\Repositories\UserRepository;
+use App\Repositories\ClientRepository;
+use App\Validators\UserValidator;
+
+use PDO;
+use Throwable;
+
 /**
  * ---------------------------------------------------------
  * Proyecto : Anguie Nails

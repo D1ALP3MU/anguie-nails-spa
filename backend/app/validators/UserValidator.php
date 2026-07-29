@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Validators;
+
 /**
  * ---------------------------------------------------------
  * Proyecto : Anguie Nails

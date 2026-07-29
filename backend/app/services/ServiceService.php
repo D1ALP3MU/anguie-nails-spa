@@ -1,5 +1,11 @@
 <?php
 
+namespace App\Services;
+
+use App\Repositories\ServiceRepository;
+
+#use PDO;
+
 class ServiceService {
 
     public function __construct(

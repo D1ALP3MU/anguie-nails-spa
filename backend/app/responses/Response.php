@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Responses;
+
 /**
  * ---------------------------------------------------------
  * Proyecto : Anguie Nails

@@ -1,5 +1,10 @@
 <?php
 
+namespace App\Repositories;
+
+use PDO;
+use RuntimeException;
+
 /**
  * ---------------------------------------------------------
  * Proyecto : Anguie Nails

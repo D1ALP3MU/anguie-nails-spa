@@ -1,7 +1,9 @@
 <?php
 
-require_once
-__DIR__ . "/../helpers/response.php";
+namespace App\Controllers;
+
+use App\Services\ServiceService;
+use App\Responses\Response;
 
 class ServiceController {
 
@@ -10,11 +12,10 @@ class ServiceController {
     ){}
 
     public function index(): void {
+
         $services = $this->service->getServices();
 
-        jsonResponse(
-            true,
-            $services
-        );
+        Response::success($services);
+        
     }
 }

@@ -1,5 +1,12 @@
 <?php
 
+namespace App\Controllers;
+
+use App\Services\AuthService;
+use App\Responses\Response;
+
+use PDO;
+
 /**
  * ---------------------------------------------------------
  * Proyecto : Anguie Nails
