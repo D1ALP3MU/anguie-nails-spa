@@ -134,7 +134,9 @@ class AuthService
 
         } catch (Throwable $e) {
             // 8. Si algo falla, revertimos todos los cambios
-            $this->connection->rollBack();
+            if ($this->connection->inTransaction()) {
+                $this->connection->rollBack();
+            }
 
             return [
                 'success' => false,
