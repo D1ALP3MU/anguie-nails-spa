@@ -58,4 +58,35 @@ class UserValidator
             "errors" => $errors
         ];
     }
+
+    /**
+     * Valida los datos enviados para el inicio de sesión.
+     * 
+     * @param array $data Datos enviados por el cliente.
+     * 
+     * @return array Resultado de la validación.
+     */
+    public static function validateLogin(array $data): array
+    {
+        $errors = [];
+
+        // Validar correo electrónico
+        if (empty(trim($data['email']))) {
+            $errors['email'] = "El correo electrónico es obligatorio.";
+        }
+
+        if (!empty($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = "El correo electrónico no es válido.";
+        }
+
+        // Validar contraseña
+        if (empty($data['password'])) {
+            $errors['password'] = "La contraseña es obligatoria.";
+        }
+
+        return [
+            "valid" => empty($errors),
+            "errors" => $errors
+        ];
+    }
 }

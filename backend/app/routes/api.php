@@ -19,6 +19,11 @@ $database = new Database();
 $pdo = $database->connect();
 
 switch ("$method $path") {
+    /*
+    |--------------------------------------------------------------------------
+    | Servicios
+    |--------------------------------------------------------------------------
+    */
     case 'GET /':
         
         $repository = new ServiceRepository($pdo);
@@ -31,11 +36,24 @@ switch ("$method $path") {
 
         break;
 
+    /*
+    |--------------------------------------------------------------------------
+    | Autenticación
+    |--------------------------------------------------------------------------
+    */
     case 'POST /api/auth/register':
 
         $controller = new AuthController($pdo);
 
         $controller->register();
+
+        break;
+
+    case 'POST /api/auth/login':
+        
+        $controller = new AuthController($pdo);
+
+        $controller->login();
 
         break;
 

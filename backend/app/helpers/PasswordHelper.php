@@ -33,15 +33,20 @@ class PasswordHelper
     }
 
     /**
-     * Verifica si una contraseña corresponde a un hash.
+     * Verifica si una contraseña coincide con un hash almacenado.
      *
-     * @param string $password Contraseña en texto plano.
+     * @param string $password Contraseña ingresada por el usuario.
      * @param string $hash Hash almacenado en la base de datos.
      *
-     * @return bool
+     * @return bool True si la contraseña es válida, false en caso contrario.
      */
-    public static function verify(string $password, string $hash): bool
-    {
-        return password_verify($password, $hash);
+    public static function verify(
+        string $password,
+        string $hash
+    ): bool {
+        return password_verify(
+            $password,
+            $hash
+        );
     }
 }

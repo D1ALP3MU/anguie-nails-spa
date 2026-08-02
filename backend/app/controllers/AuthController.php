@@ -62,4 +62,24 @@ class AuthController
             $result['status']
         );
     }
+
+    /**
+     * Inicia sesión de un usuario.
+     *
+     * @return void
+     */
+    public function login(): void
+    {
+        $data = json_decode(
+            file_get_contents('php://input'),
+            true
+        );
+
+        $result = $this->authService->login($data);
+
+        Response::json(
+            $result,
+            $result['status']
+        );
+    }
 }

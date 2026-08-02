@@ -145,4 +145,60 @@ class AuthService
             ];
         }
     }
+
+    /**
+     * Autentica un usuario mediante correo y contraseña.
+     *
+     * @param array $data Datos enviados por el cliente.
+     *
+     * @return array Resultado del proceso de autenticación.
+     */
+    public function login(array $data): array
+    {
+        $validation = UserValidator::validateLogin($data);
+
+        if (!$validation['valid']) {
+            return [
+                'success' => false,
+                'status' => 422,
+                'message' => 'Los datos enviados no son válidos.',
+                'errors' => $validation['errors']
+            ];
+        }
+
+        $user = $this->userRepository->findByEmail($data['email']);
+
+        if ($user === null) {
+            return [
+                'success' => false,
+                'status' => 401,
+                'message' => 'Credenciales inválidas.'
+            ];
+        }
+
+        $isValid = PasswordHelper::verify(
+            $data['password'],
+            $user['password_hash']
+        );
+
+        if (!$isValid) {
+            return [
+                'success' => false,
+                'status' => 401,
+                'message' => 'Credenciales inválidas.'
+            ];
+        }
+
+        return [
+            'success' => true,
+            'status' => 200,
+            'message' => 'Inicio de sesión exitoso.',
+            'data' => [
+                'id_usuario' => $user['id_usuario'],
+                'nombre' => $user['nombre'],
+                'email' => $user['email'],
+                'id_rol' => $user['id_rol']
+            ]
+        ];
+    }
 }

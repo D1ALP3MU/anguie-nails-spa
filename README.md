@@ -1,312 +1,244 @@
 # Anguie Nails
 
-Aplicación web para la gestión de un spa de manicure y pedicure, desarrollada como proyecto Full Stack utilizando JavaScript Vanilla en el frontend y PHP con arquitectura en capas en el backend.
+Sistema web para la gestión integral de un salón de belleza especializado en manicure y pedicure.
 
-El proyecto está siendo construido siguiendo principios de Clean Architecture, separación de responsabilidades y buenas prácticas de desarrollo para facilitar su mantenimiento y escalabilidad.
+El proyecto está siendo desarrollado con una arquitectura por capas utilizando PHP, JavaScript y MySQL, siguiendo principios de organización, mantenibilidad y escalabilidad.
 
 ---
 
-# Características
+## Objetivo
 
-Actualmente el proyecto incluye:
+Desarrollar una plataforma que permita administrar el proceso completo de reservas del salón, incluyendo:
 
-- Landing Page
-- Catálogo dinámico de servicios
-- Sistema de reservas
-- Modal reutilizable
-- Validaciones de formularios
-- SPA (Single Page Application)
-- Router propio
-- Arquitectura modular
-- Backend PHP REST API
-- Conexión con MySQL
-- Arquitectura Repository-Service-Controller
-- Variables de entorno (.env)
-
-Próximamente:
-
-- Login
-- Registro de usuarios
-- Gestión de clientes
-- Catálogo de productos
-- Carrito de compras
-- Checkout
+- Registro de clientes
+- Inicio de sesión
+- Catálogo de servicios
+- Agenda de citas
+- Administración de profesionales
 - Panel administrativo
-- Gestión de profesionales
-- Gestión de citas
-- Pagos
+- Gestión de usuarios
+- Reportes
 
 ---
 
-# Tecnologías
+## Arquitectura
 
-## Frontend
+El backend implementa una arquitectura por capas:
 
-- HTML5
-- CSS3
-- JavaScript ES6+
-- SPA Vanilla JS
+```
+Cliente
+    │
+HTTP
+    │
+Router
+    │
+Controller
+    │
+Service
+    │
+Repository
+    │
+MySQL
+```
 
-## Backend
+Cada capa tiene una única responsabilidad.
 
-- PHP 8
-- Apache
+---
+
+## Tecnologías utilizadas
+
+### Backend
+
+- PHP 8.2
+- Composer
 - MySQL
 - PDO
 
-## Herramientas
+### Frontend
 
+- HTML5
+- CSS3
+- JavaScript ES6
+
+### Herramientas
+
+- Visual Studio Code
+- Postman
 - Git
 - GitHub
 - XAMPP
-- MySQL Workbench
-- VS Code
 
 ---
 
-# Arquitectura del proyecto
+## Estructura del proyecto
 
 ```
 anguie-nails/
 
 backend/
-app/
-config/
-controllers/
-repositories/
-services/
-routes/
-public/
+│
+├── app/
+│   ├── config/
+│   ├── controllers/
+│   ├── helpers/
+│   ├── repositories/
+│   ├── responses/
+│   ├── routes/
+│   ├── services/
+│   └── validators/
+│
+├── database/
+│
+└── public/
 
 frontend/
-assets/
-css/
-js/
-modules/
-pages/
+│
+├── assets/
+├── css/
+├── js/
+└── pages/
 
-database/
+vendor/
 
-docs/
+composer.json
+README.md
 ```
 
 ---
 
-# Arquitectura Backend
+## Requisitos
 
-El backend sigue una arquitectura por capas.
-
-```
-Request
-
-↓
-
-Route
-
-↓
-
-Controller
-
-↓
-
-Service
-
-↓
-
-Repository
-
-↓
-
-Database
-```
-
-Cada capa tiene una responsabilidad única.
+- PHP 8.2 o superior
+- Composer
+- MySQL
+- Git
 
 ---
 
-# Arquitectura Frontend
+## Instalación
 
-El frontend está construido como una SPA.
-
-```
-Router
-
-↓
-
-Page
-
-↓
-
-Components
-
-↓
-
-Controller
-
-↓
-
-Services
-
-↓
-
-API
-```
-
----
-
-# Base de datos
-
-El proyecto utiliza MySQL.
-
-Actualmente contiene módulos para:
-
-- Usuarios
-- Roles
-- Clientes
-- Profesionales
-- Servicios
-- Citas
-- Productos
-- Pagos
-- Carrito (próximamente)
-
----
-
-# Instalación
-
-## 1. Clonar repositorio
+### Clonar el repositorio
 
 ```bash
-git clone https://github.com/TU-USUARIO/anguie-nails.git
+git clone <url-del-repositorio>
+```
+
+Entrar al proyecto
+
+```bash
+cd anguie-nails
+```
+
+Instalar dependencias
+
+```bash
+composer install
 ```
 
 ---
 
-## 2. Abrir el proyecto
+## Configuración
 
-Puede abrirse con Visual Studio Code.
+Crear el archivo:
+
+```
+backend/app/config/env.php
+```
+
+Con la configuración de la base de datos.
 
 ---
 
-## 3. Instalar XAMPP
+## Base de datos
 
-Iniciar:
+1. Crear la base de datos.
 
-- Apache
-- MySQL
-
----
-
-## 4. Crear la base de datos
-
-Ejecutar el script ubicado en:
+2. Ejecutar el script ubicado en:
 
 ```
-database/
+database/schema/
 ```
 
-desde MySQL Workbench.
-
----
-
-## 5. Configurar variables de entorno
-
-Crear un archivo:
+3. Ejecutar los datos iniciales:
 
 ```
-.env
-```
-
-Ejemplo:
-
-```env
-DB_HOST=localhost
-DB_NAME=spa_db
-DB_USER=root
-DB_PASSWORD=tu_password
+database/seeds/roles.sql
 ```
 
 ---
 
-## 6. Ejecutar frontend
+## Ejecutar el backend
 
-Abrir:
-
-```
-frontend/index.html
+```bash
+php -S localhost:8000 -t backend/public
 ```
 
-con Live Server.
-
----
-
-## 7. Ejecutar backend
-
-Mover el proyecto a:
+Backend disponible en
 
 ```
-xampp/htdocs/
-```
-
-y acceder mediante:
-
-```
-http://localhost/anguie-nails/backend/api/services
+http://localhost:8000
 ```
 
 ---
 
-# API
+## Ejecutar el frontend
 
-Actualmente disponibles:
-
-```
-GET /api/services
-```
-
-Próximamente:
-
-```
-POST /api/bookings
-
-GET /api/products
-
-POST /api/cart
-
-POST /api/login
-
-POST /api/register
-```
+Puede utilizarse Live Server o cualquier servidor estático.
 
 ---
 
-# Buenas prácticas implementadas
+## Endpoints implementados
 
-- Arquitectura modular
-- Componentes reutilizables
-- Variables de entorno
-- Repository Pattern
-- Service Layer
-- Controladores independientes
-- Validaciones Frontend
-- Validaciones Backend
-- Código desacoplado
-- SPA Vanilla JS
+### Servicios
+
+| Método | Endpoint | Estado       |
+| ------ | -------- | ------------ |
+| GET    | /        | Implementado |
+
+### Autenticación
+
+| Método | Endpoint           | Estado       |
+| ------ | ------------------ | ------------ |
+| POST   | /api/auth/register | Implementado |
 
 ---
 
-# Estado del proyecto
+## Estado del proyecto
 
-En desarrollo activo.
+Actualmente se encuentra en desarrollo.
 
-Actualmente se está implementando:
+### Funcionalidades implementadas
 
-- Integración completa Frontend ↔ Backend
-- Persistencia en MySQL
-- Catálogo de productos
-- Carrito de compras
-- Checkout
-- Autenticación
+- Arquitectura por capas
+- Router básico
+- Autoload PSR-4
+- Registro de usuarios
+- Validaciones
+- Transacciones
+- Catálogo de servicios
+
+### Próximas funcionalidades
+
+- Login
+- JWT / Sesiones
+- Reserva de citas
+- Panel administrativo
+- Gestión de profesionales
+- Historial de reservas
+
+---
+
+## Buenas prácticas aplicadas
+
+- PSR-4
+- Composer
+- Separación de responsabilidades
+- Validaciones en backend
+- Respuestas JSON uniformes
+- Transacciones en base de datos
+- Repositorios
+- Servicios
+- Controladores
 
 ---
 
