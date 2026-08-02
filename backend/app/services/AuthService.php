@@ -6,6 +6,7 @@ use App\Helpers\PasswordHelper;
 use App\Repositories\UserRepository;
 use App\Repositories\ClientRepository;
 use App\Validators\UserValidator;
+use App\Helpers\JwtHelper;
 
 use PDO;
 use Throwable;
@@ -189,15 +190,25 @@ class AuthService
             ];
         }
 
+        $token = JwtHelper::generate([
+            'id_usuario' => $user['id_usuario'],
+            'nombre' => $user['nombre'],
+            'email' => $user['email'],
+            'id_rol' => $user['id_rol']
+        ]);
+
         return [
             'success' => true,
             'status' => 200,
             'message' => 'Inicio de sesión exitoso.',
             'data' => [
-                'id_usuario' => $user['id_usuario'],
-                'nombre' => $user['nombre'],
-                'email' => $user['email'],
-                'id_rol' => $user['id_rol']
+                'token' => $token,
+                'user' => [
+                    'id_usuario' => $user['id_usuario'],
+                    'nombre' => $user['nombre'],
+                    'email' => $user['email'],
+                    'id_rol' => $user['id_rol']
+                ]
             ]
         ];
     }
