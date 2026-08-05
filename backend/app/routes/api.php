@@ -6,6 +6,7 @@ use App\Controllers\ServiceController;
 use App\Repositories\ServiceRepository;
 use App\Services\ServiceService;
 use App\Responses\Response;
+use App\Middleware\AuthMiddleware;
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -54,6 +55,16 @@ switch ("$method $path") {
         $controller = new AuthController($pdo);
 
         $controller->login();
+
+        break;
+
+    case 'GET /api/profile':
+        $user = AuthMiddleware::handle();
+
+        Response::json([
+            'success' => true,
+            'user' => $user
+        ]);
 
         break;
 

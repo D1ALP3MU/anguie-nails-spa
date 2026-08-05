@@ -80,6 +80,8 @@ class Response
             "success" => false,
             "message" => $message
         ]);
+
+        exit;
     }
 
     /**

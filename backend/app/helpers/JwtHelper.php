@@ -4,6 +4,10 @@ namespace App\Helpers;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Firebase\JWT\ExpiredException;
+use Firebase\JWT\SignatureInvalidException;
+use UnexpectedValueException;
+use App\Exceptions\AuthException;
 
 class JwtHelper
 {
@@ -37,7 +41,7 @@ class JwtHelper
      */
     public static function generate(array $payload): string
     {
-        $issuedAt = time(); // Guardar el tiempo actual en que se genera el token
+        $issuedAt = time();
 
         $expiresAt = $issuedAt + self::getExpiration();
 
@@ -56,5 +60,37 @@ class JwtHelper
             self::getSecret(),
             'HS256'
         );
+    }
+
+    /**
+     * Valida un token JWT y devuelve su contenido si es válido.
+     * 
+     * @param string $token Token JWT a validar.
+     * 
+     * @return array Contenido del token si es válido.
+     */
+    public static function validate(string $token): array
+    {
+        try {
+
+            $decoded = JWT::decode(
+                $token,
+                new Key(
+                    self::getSecret(),
+                    'HS256'
+                )
+            );
+
+            return (array) $decoded;
+        } catch (
+            ExpiredException |
+            SignatureInvalidException |
+            UnexpectedValueException $e
+        ) {
+
+            throw new AuthException(
+                'Token inválido o expirado.'
+            );
+        }
     }
 }
