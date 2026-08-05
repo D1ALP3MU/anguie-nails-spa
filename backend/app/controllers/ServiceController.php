@@ -13,9 +13,29 @@ class ServiceController {
 
     public function index(): void {
 
-        $services = $this->service->getServices();
+        $result = $this->service->getServices();
 
-        Response::success($services);
+        Response::json(
+            $result,
+            $result['status']
+        );
         
+    }
+
+    /**
+     * Obtiene un servicio por su ID.
+     *
+     * @param int $id
+     *
+     * @return void
+     */
+    public function show(int $id): void
+    {
+        $result = $this->service->getServiceById($id);
+
+        Response::json(
+            $result,
+            $result['status']
+        );
     }
 }

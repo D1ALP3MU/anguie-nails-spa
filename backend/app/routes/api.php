@@ -7,6 +7,7 @@ use App\Repositories\ServiceRepository;
 use App\Services\ServiceService;
 use App\Responses\Response;
 use App\Middleware\AuthMiddleware;
+use App\Middleware\RoleMiddleware;
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -19,13 +20,32 @@ $database = new Database();
 
 $pdo = $database->connect();
 
+// Rutas de servicios
+if (
+    $method === 'GET' &&
+    preg_match('#^/api/services/(\d+)$#', $path, $matches)
+) {
+
+    $repository = new ServiceRepository($pdo);
+
+    $service = new ServiceService($repository);
+
+    $controller = new ServiceController($service);
+
+    $controller->show(
+        (int) $matches[1]
+    );
+
+    return;
+}
+
 switch ("$method $path") {
     /*
     |--------------------------------------------------------------------------
     | Servicios
     |--------------------------------------------------------------------------
     */
-    case 'GET /':
+    case 'GET /api/services':
         
         $repository = new ServiceRepository($pdo);
 
@@ -60,6 +80,11 @@ switch ("$method $path") {
 
     case 'GET /api/profile':
         $user = AuthMiddleware::handle();
+
+        RoleMiddleware::handle(
+            $user,
+            [1]
+        );
 
         Response::json([
             'success' => true,

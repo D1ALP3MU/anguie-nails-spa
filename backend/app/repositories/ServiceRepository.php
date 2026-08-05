@@ -29,4 +29,35 @@ class ServiceRepository {
 
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Obtiene un servicio por su ID.
+     *
+     * @param int $id
+     *
+     * @return array|null
+     */
+    public function findById(int $id): ?array
+    {
+        $sql = "
+            SELECT
+                id_servicio,
+                nombre,
+                duracion,
+                precio
+            FROM servicios
+            WHERE id_servicio = :id
+            LIMIT 1
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
+            'id' => $id
+        ]);
+
+        $service = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $service ?: null;
+    }
 }
