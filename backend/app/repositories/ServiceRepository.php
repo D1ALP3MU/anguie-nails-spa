@@ -5,13 +5,15 @@ namespace App\Repositories;
 use PDO;
 #use RuntimeException;
 
-class ServiceRepository {
+class ServiceRepository
+{
 
     public function __construct(
         private PDO $db
     ) {}
 
-    public function findAll(): array {
+    public function findAll(): array
+    {
 
         $query = "
             SELECT
@@ -59,5 +61,41 @@ class ServiceRepository {
         $service = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $service ?: null;
+    }
+
+    /**
+     * Crea un nuevo servicio.
+     *
+     * @param array $data Datos del servicio.
+     *
+     * @return int ID del servicio creado.
+     */
+    public function create(array $data): int
+    {
+        $sql = "
+            INSERT INTO servicios (
+                nombre,
+                descripcion,
+                duracion,
+                precio
+            )
+            VALUES (
+                :nombre,
+                :descripcion,
+                :duracion,
+                :precio
+            )
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
+            'nombre'   => $data['nombre'],
+            'descripcion' => $data['descripcion'] ?? null,
+            'duracion' => $data['duracion'],
+            'precio'   => $data['precio']
+        ]);
+
+        return (int) $this->db->lastInsertId();
     }
 }

@@ -38,4 +38,25 @@ class ServiceController {
             $result['status']
         );
     }
+
+    /**
+     * Crea un nuevo servicio.
+     *
+     * @return void
+     */
+    public function store(): void
+    {
+
+        $data = json_decode(
+            file_get_contents('php://input'),
+            true
+        );
+
+        $result = $this->service->create($data);
+
+        Response::json(
+            $result,
+            $result['status']
+        );
+    }
 }

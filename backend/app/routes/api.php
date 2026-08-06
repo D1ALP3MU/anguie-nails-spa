@@ -12,7 +12,7 @@ use App\Middleware\RoleMiddleware;
 $method = $_SERVER['REQUEST_METHOD'];
 
 $path = parse_url(
-    $_SERVER['REQUEST_URI'], 
+    $_SERVER['REQUEST_URI'],
     PHP_URL_PATH
 );
 
@@ -20,7 +20,11 @@ $database = new Database();
 
 $pdo = $database->connect();
 
-// Rutas de servicios
+/*
+|--------------------------------------------------------------------------
+| Rutas dinámicas
+|--------------------------------------------------------------------------
+*/
 if (
     $method === 'GET' &&
     preg_match('#^/api/services/(\d+)$#', $path, $matches)
@@ -46,7 +50,7 @@ switch ("$method $path") {
     |--------------------------------------------------------------------------
     */
     case 'GET /api/services':
-        
+
         $repository = new ServiceRepository($pdo);
 
         $service = new ServiceService($repository);
@@ -54,6 +58,18 @@ switch ("$method $path") {
         $controller = new ServiceController($service);
 
         $controller->index();
+
+        break;
+
+    case 'POST /api/services':
+
+        $repository = new ServiceRepository($pdo);
+
+        $service = new ServiceService($repository);
+
+        $controller = new ServiceController($service);
+
+        $controller->store();
 
         break;
 
@@ -71,7 +87,7 @@ switch ("$method $path") {
         break;
 
     case 'POST /api/auth/login':
-        
+
         $controller = new AuthController($pdo);
 
         $controller->login();
@@ -98,5 +114,4 @@ switch ("$method $path") {
             'Ruta no encontrada',
             404
         );
-
 }
