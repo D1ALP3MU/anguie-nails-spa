@@ -26,7 +26,6 @@ $pdo = $database->connect();
 |--------------------------------------------------------------------------
 */
 if (
-    $method === 'GET' &&
     preg_match('#^/api/services/(\d+)$#', $path, $matches)
 ) {
 
@@ -36,11 +35,20 @@ if (
 
     $controller = new ServiceController($service);
 
-    $controller->show(
-        (int) $matches[1]
-    );
+    switch ($method) {
 
-    return;
+        case 'GET':
+            $controller->show(
+                (int) $matches[1]
+            );
+            return;
+
+        case 'PUT':
+            $controller->update(
+                (int) $matches[1]
+            );
+            return;
+    }
 }
 
 switch ("$method $path") {

@@ -5,13 +5,15 @@ namespace App\Controllers;
 use App\Services\ServiceService;
 use App\Responses\Response;
 
-class ServiceController {
+class ServiceController
+{
 
     public function __construct(
         private ServiceService $service
-    ){}
+    ) {}
 
-    public function index(): void {
+    public function index(): void
+    {
 
         $result = $this->service->getServices();
 
@@ -19,7 +21,6 @@ class ServiceController {
             $result,
             $result['status']
         );
-        
     }
 
     /**
@@ -53,6 +54,31 @@ class ServiceController {
         );
 
         $result = $this->service->create($data);
+
+        Response::json(
+            $result,
+            $result['status']
+        );
+    }
+
+    /**
+     * Actualiza un servicio existente.
+     *
+     * @param int $id ID del servicio.
+     *
+     * @return void
+     */
+    public function update(int $id): void
+    {
+        $data = json_decode(
+            file_get_contents('php://input'),
+            true
+        );
+
+        $result = $this->service->update(
+            $id,
+            $data
+        );
 
         Response::json(
             $result,

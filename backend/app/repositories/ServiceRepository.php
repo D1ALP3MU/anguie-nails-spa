@@ -98,4 +98,37 @@ class ServiceRepository
 
         return (int) $this->db->lastInsertId();
     }
+
+    /**
+     * Actualiza un servicio existente.
+     *
+     * @param int $id ID del servicio.
+     * @param array $data Datos del servicio.
+     *
+     * @return void
+     */
+    public function update(
+        int $id,
+        array $data
+    ): void {
+        $sql = "
+            UPDATE servicios
+            SET
+                nombre = :nombre,
+                descripcion = :descripcion,
+                duracion = :duracion,
+                precio = :precio
+            WHERE id_servicio = :id
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
+            'id' => $id,
+            'nombre' => $data['nombre'],
+            'descripcion' => $data['descripcion'],
+            'duracion' => $data['duracion'],
+            'precio' => $data['precio']
+        ]);
+    }
 }

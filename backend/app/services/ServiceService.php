@@ -111,4 +111,71 @@ class ServiceService
             ];
         }
     }
+
+    /**
+     * Actualiza un servicio existente.
+     *
+     * @param int $id ID del servicio.
+     * @param array $data Datos del servicio.
+     *
+     * @return array
+     */
+    public function update(
+        int $id,
+        array $data
+    ): array {
+        $service = $this->repository->findById($id);
+
+        if ($service === null) {
+            return [
+                'success' => false,
+                'status' => 404,
+                'message' => 'Servicio no encontrado.'
+            ];
+        }
+
+        $validation = ServiceValidator::validateCreate($data);
+
+        if (!$validation['valid']) {
+            return [
+                'success' => false,
+                'status' => 422,
+                'message' => 'Los datos enviados no son válidos.',
+                'errors' => $validation['errors']
+            ];
+        }
+
+        $nombre = trim($data['nombre'] ?? '');
+        $descripcion = trim($data['descripcion'] ?? '');
+
+        $serviceData = [
+            'nombre' => $nombre,
+            'descripcion' => empty($descripcion)
+                ? null
+                : $descripcion,
+            'duracion' => (int) $data['duracion'],
+            'precio' => $data['precio']
+        ];
+
+        try {
+
+            $this->repository->update(
+                $id,
+                $serviceData
+            );
+
+            return [
+                'success' => true,
+                'status' => 200,
+                'message' => 'Servicio actualizado correctamente.'
+            ];
+        } catch (Throwable $e) {
+
+            return [
+                'success' => false,
+                'status' => 500,
+                'message' => 'Ocurrió un error al actualizar el servicio.'
+            ];
+        }
+    }
 }
