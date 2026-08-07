@@ -178,4 +178,50 @@ class ServiceService
             ];
         }
     }
+
+    /**
+     * Desactiva un servicio.
+     *
+     * @param int $id ID del servicio.
+     *
+     * @return array
+     */
+    public function delete(int $id): array
+    {
+        $service = $this->repository->findById($id);
+
+        if ($service === null) {
+            return [
+                'success' => false,
+                'status' => 404,
+                'message' => 'Servicio no encontrado.'
+            ];
+        }
+
+        if (!$service['activo']) {
+            return [
+                'success' => false,
+                'status' => 409,
+                'message' => 'El servicio ya se encuentra desactivado.'
+            ];
+        }
+
+        try {
+
+            $this->repository->delete($id);
+
+            return [
+                'success' => true,
+                'status' => 200,
+                'message' => 'Servicio desactivado correctamente.'
+            ];
+        } catch (Throwable $e) {
+
+            return [
+                'success' => false,
+                'status' => 500,
+                'message' => 'Ocurrió un error al desactivar el servicio.'
+            ];
+        }
+    }
 }

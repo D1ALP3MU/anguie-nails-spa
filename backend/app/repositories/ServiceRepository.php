@@ -45,8 +45,10 @@ class ServiceRepository
             SELECT
                 id_servicio,
                 nombre,
+                descripcion,
                 duracion,
-                precio
+                precio,
+                activo
             FROM servicios
             WHERE id_servicio = :id
             LIMIT 1
@@ -129,6 +131,28 @@ class ServiceRepository
             'descripcion' => $data['descripcion'],
             'duracion' => $data['duracion'],
             'precio' => $data['precio']
+        ]);
+    }
+
+    /**
+     * Desactiva un servicio.
+     *
+     * @param int $id ID del servicio.
+     *
+     * @return void
+     */
+    public function delete(int $id): void
+    {
+        $sql = "
+            UPDATE servicios
+            SET activo = 0
+            WHERE id_servicio = :id
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
+            'id' => $id
         ]);
     }
 }

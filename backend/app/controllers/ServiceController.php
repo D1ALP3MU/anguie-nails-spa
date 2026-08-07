@@ -85,4 +85,21 @@ class ServiceController
             $result['status']
         );
     }
+
+    /**
+     * Desactiva un servicio.
+     *
+     * @param int $id ID del servicio.
+     *
+     * @return void
+     */
+    public function delete(int $id): void
+    {
+        $result = $this->service->delete($id);
+
+        Response::json(
+            $result,
+            $result['status']
+        );
+    }
 }
