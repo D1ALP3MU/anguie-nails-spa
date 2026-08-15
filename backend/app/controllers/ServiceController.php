@@ -15,12 +15,9 @@ class ServiceController
     public function index(): void
     {
 
-        $result = $this->service->getServices();
+        $services = $this->service->getServices();
 
-        Response::json(
-            $result,
-            $result['status']
-        );
+        Response::success($services);
     }
 
     /**
@@ -70,15 +67,11 @@ class ServiceController
             true
         );
 
-        $result = $this->service->update(
-            $id,
-            $data
-        );
+        $this->service->update($id, $data);
 
-        Response::json(
-            $result,
-            $result['status']
-        );
+        Response::success([
+            'message' => 'Servicio actualizado correctamente.'
+        ]);
     }
 
     /**
@@ -90,11 +83,10 @@ class ServiceController
      */
     public function delete(int $id): void
     {
-        $result = $this->service->delete($id);
+        $this->service->delete($id);
 
-        Response::json(
-            $result,
-            $result['status']
-        );
+        Response::success([
+            'message' => 'Servicio desactivado correctamente.'
+        ]);
     }
 }

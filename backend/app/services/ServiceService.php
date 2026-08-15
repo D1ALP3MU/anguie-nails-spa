@@ -6,6 +6,7 @@ use App\Repositories\ServiceRepository;
 use App\Validators\ServiceValidator;
 use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
+use App\Exceptions\ConflictException;
 use Throwable;
 
 #use PDO;
@@ -24,13 +25,8 @@ class ServiceService
      */
     public function getServices(): array
     {
-        $services = $this->repository->findAll();
 
-        return [
-            'success' => true,
-            'status' => 200,
-            'data' => $services
-        ];
+        return $this->repository->findAll();
     }
 
     /**
@@ -65,11 +61,7 @@ class ServiceService
     public function create(array $data): int
     {
 
-        $errors = ServiceValidator::validate($data);
-
-        if (!empty($errors)) {
-            throw new ValidationException($errors);
-        }
+        ServiceValidator::validate($data);
 
         $serviceData = $this->prepareServiceData($data);
 
@@ -82,57 +74,22 @@ class ServiceService
      * @param int $id ID del servicio.
      * @param array $data Datos del servicio.
      *
-     * @return array
+     * @return void
      */
     public function update(
         int $id,
         array $data
-    ): array {
-        $service = $this->findExistingService($id);
+    ): void {
+        $this->findExistingService($id);
 
-        if ($service === null) {
-            return [
-                'success' => false,
-                'status' => 404,
-                'message' => 'Servicio no encontrado.'
-            ];
-        }
-
-        $validation = ServiceValidator::validate($data);
-
-        if (!$validation['valid']) {
-            return [
-                'success' => false,
-                'status' => 422,
-                'message' => 'Los datos enviados no son válidos.',
-                'errors' => $validation['errors']
-            ];
-        }
+        ServiceValidator::validate($data);
 
         $serviceData = $this->prepareServiceData($data);
 
-        try {
-
-            $this->executeRepositoryOperation(
-                fn() => $this->repository->update(
-                    $id,
-                    $serviceData
-                )
-            );
-
-            return [
-                'success' => true,
-                'status' => 200,
-                'message' => 'Servicio actualizado correctamente.'
-            ];
-        } catch (Throwable $e) {
-
-            return [
-                'success' => false,
-                'status' => 500,
-                'message' => 'Ocurrió un error al actualizar el servicio.'
-            ];
-        }
+        $this->repository->update(
+            $id,
+            $serviceData
+        );
     }
 
     /**
@@ -140,47 +97,19 @@ class ServiceService
      *
      * @param int $id ID del servicio.
      *
-     * @return array
+     * @return void
      */
-    public function delete(int $id): array
+    public function delete(int $id): void
     {
         $service = $this->findExistingService($id);
 
-        if ($service === null) {
-            return [
-                'success' => false,
-                'status' => 404,
-                'message' => 'Servicio no encontrado.'
-            ];
-        }
-
         if (!$service['activo']) {
-            return [
-                'success' => false,
-                'status' => 409,
-                'message' => 'El servicio ya se encuentra desactivado.'
-            ];
-        }
-
-        try {
-
-            $this->executeRepositoryOperation(
-                fn() => $this->repository->delete($id)
+            throw new ConflictException(
+                'El servicio ya se encuentra desactivado.'
             );
-
-            return [
-                'success' => true,
-                'status' => 200,
-                'message' => 'Servicio desactivado correctamente.'
-            ];
-        } catch (Throwable $e) {
-
-            return [
-                'success' => false,
-                'status' => 500,
-                'message' => 'Ocurrió un error al desactivar el servicio.'
-            ];
         }
+
+        $this->repository->delete($id);
     }
 
     /**
@@ -214,7 +143,15 @@ class ServiceService
      */
     private function findExistingService(int $id): ?array
     {
-        return $this->repository->findById($id);
+        $service = $this->repository->findById($id);
+
+        if ($service === null) {
+            throw new NotFoundException(
+                'Servicio no encontrado.'
+            );
+        }
+
+        return $service;
     }
 
     /**

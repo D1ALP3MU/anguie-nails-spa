@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Validators;
+use App\Exceptions\ValidationException;
 
 class ServiceValidator
 {
@@ -36,7 +37,7 @@ class ServiceValidator
      *
      * @return array Resultado de la validación.
      */
-    public static function validate(array $data): array
+    public static function validate(array $data): void
     {
         $errors = [];
         
@@ -109,6 +110,8 @@ class ServiceValidator
                 . '.';
         }
 
-        return $errors;
+        if (!empty($errors)) {
+            throw new ValidationException($errors);
+        }
     }
 }
