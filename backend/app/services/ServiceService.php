@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Repositories\ServiceRepository;
 use App\Validators\ServiceValidator;
+use App\Exceptions\NotFoundException;
+use App\Exceptions\ValidationException;
 use Throwable;
 
 #use PDO;
@@ -43,18 +45,12 @@ class ServiceService
         $service = $this->repository->findById($id);
 
         if ($service === null) {
-            return [
-                'success' => false,
-                'status' => 404,
-                'message' => 'Servicio no encontrado.'
-            ];
+            throw new NotFoundException(
+                'Servicio no encontrado.'
+            );
         }
 
-        return [
-            'success' => true,
-            'status' => 200,
-            'data' => $service
-        ];
+        return $service;
     }
 
     /**
@@ -62,54 +58,22 @@ class ServiceService
      *
      * @param array $data Datos del servicio.
      *
-     * @return array
+     * @return int ID del servicio creado.
+     *
+     * @throws ValidationException
      */
-    public function create(array $data): array
+    public function create(array $data): int
     {
 
-        $validation = ServiceValidator::validateCreate($data);
+        $errors = ServiceValidator::validate($data);
 
-        if (!$validation['valid']) {
-            return [
-                'success' => false,
-                'status' => 422,
-                'message' => 'Los datos enviados no son válidos.',
-                'errors' => $validation['errors']
-            ];
+        if (!empty($errors)) {
+            throw new ValidationException($errors);
         }
 
-        $nombre = trim($data['nombre'] ?? '');
-        $descripcion = trim($data['descripcion'] ?? '');
+        $serviceData = $this->prepareServiceData($data);
 
-        $serviceData = [
-            'nombre' => $nombre,
-            'descripcion' => empty($descripcion)
-                ? null
-                : $descripcion,
-            'duracion' => (int) $data['duracion'],
-            'precio' => $data['precio']
-        ];
-
-        try {
-
-            $serviceId = $this->repository->create($serviceData);
-
-            return [
-                'success' => true,
-                'status' => 201,
-                'message' => 'Servicio creado correctamente.',
-                'data' => [
-                    'id_servicio' => $serviceId
-                ]
-            ];
-        } catch (Throwable $e) {
-
-            return [
-                'success' => false,
-                'status' => 500,
-                'message' => 'Ocurrió un error al crear el servicio.'
-            ];
-        }
+        return $this->repository->create($serviceData);
     }
 
     /**
@@ -124,7 +88,7 @@ class ServiceService
         int $id,
         array $data
     ): array {
-        $service = $this->repository->findById($id);
+        $service = $this->findExistingService($id);
 
         if ($service === null) {
             return [
@@ -134,7 +98,7 @@ class ServiceService
             ];
         }
 
-        $validation = ServiceValidator::validateCreate($data);
+        $validation = ServiceValidator::validate($data);
 
         if (!$validation['valid']) {
             return [
@@ -145,23 +109,15 @@ class ServiceService
             ];
         }
 
-        $nombre = trim($data['nombre'] ?? '');
-        $descripcion = trim($data['descripcion'] ?? '');
-
-        $serviceData = [
-            'nombre' => $nombre,
-            'descripcion' => empty($descripcion)
-                ? null
-                : $descripcion,
-            'duracion' => (int) $data['duracion'],
-            'precio' => $data['precio']
-        ];
+        $serviceData = $this->prepareServiceData($data);
 
         try {
 
-            $this->repository->update(
-                $id,
-                $serviceData
+            $this->executeRepositoryOperation(
+                fn() => $this->repository->update(
+                    $id,
+                    $serviceData
+                )
             );
 
             return [
@@ -188,7 +144,7 @@ class ServiceService
      */
     public function delete(int $id): array
     {
-        $service = $this->repository->findById($id);
+        $service = $this->findExistingService($id);
 
         if ($service === null) {
             return [
@@ -208,7 +164,9 @@ class ServiceService
 
         try {
 
-            $this->repository->delete($id);
+            $this->executeRepositoryOperation(
+                fn() => $this->repository->delete($id)
+            );
 
             return [
                 'success' => true,
@@ -222,6 +180,58 @@ class ServiceService
                 'status' => 500,
                 'message' => 'Ocurrió un error al desactivar el servicio.'
             ];
+        }
+    }
+
+    /**
+     * Normaliza y prepara los datos de un servicio antes de persistirlos.
+     *
+     * @param array $data Datos enviados por el cliente.
+     *
+     * @return array Datos normalizados.
+     */
+    private function prepareServiceData(array $data): array
+    {
+        $nombre = trim($data['nombre'] ?? '');
+        $descripcion = trim($data['descripcion'] ?? '');
+
+        return [
+            'nombre' => $nombre,
+            'descripcion' => $descripcion === ''
+                ? null
+                : $descripcion,
+            'duracion' => (int) $data['duracion'],
+            'precio' => $data['precio']
+        ];
+    }
+
+    /**
+     * Obtiene un servicio existente por su ID.
+     *
+     * @param int $id
+     *
+     * @return array|null
+     */
+    private function findExistingService(int $id): ?array
+    {
+        return $this->repository->findById($id);
+    }
+
+    /**
+     * Ejecuta una operación del repositorio capturando posibles excepciones.
+     *
+     * @param callable $operation Operación a ejecutar.
+     *
+     * @return mixed
+     *
+     * @throws Throwable
+     */
+    private function executeRepositoryOperation(callable $operation): mixed
+    {
+        try {
+            return $operation();
+        } catch (Throwable $e) {
+            throw $e;
         }
     }
 }

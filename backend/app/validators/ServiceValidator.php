@@ -30,13 +30,13 @@ class ServiceValidator
     private const MAX_PRICE = 1000000;
 
     /**
-     * Valida los datos para crear un servicio.
+     * Valida los datos de un servicio.
      *
      * @param array $data Datos enviados por el cliente.
      *
      * @return array Resultado de la validación.
      */
-    public static function validateCreate(array $data): array
+    public static function validate(array $data): array
     {
         $errors = [];
         
@@ -109,9 +109,6 @@ class ServiceValidator
                 . '.';
         }
 
-        return [
-            'valid' => empty($errors),
-            'errors' => $errors
-        ];
+        return $errors;
     }
 }

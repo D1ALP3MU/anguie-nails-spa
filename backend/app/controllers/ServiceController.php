@@ -32,12 +32,9 @@ class ServiceController
      */
     public function show(int $id): void
     {
-        $result = $this->service->getServiceById($id);
+        $service = $this->service->getServiceById($id);
 
-        Response::json(
-            $result,
-            $result['status']
-        );
+        Response::success($service);
     }
 
     /**
@@ -47,18 +44,16 @@ class ServiceController
      */
     public function store(): void
     {
-
         $data = json_decode(
             file_get_contents('php://input'),
             true
         );
 
-        $result = $this->service->create($data);
+        $id = $this->service->create($data);
 
-        Response::json(
-            $result,
-            $result['status']
-        );
+        Response::created([
+            'id_servicio' => $id
+        ]);
     }
 
     /**
