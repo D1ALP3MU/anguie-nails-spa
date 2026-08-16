@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use PDO;
-use RuntimeException;
 
 /**
  * ---------------------------------------------------------
@@ -37,11 +36,11 @@ class UserRepository
     /**
      * Constructor del repositorio.
      *
-     * @param PDO $connection Conexión activa a MySQL.
+     * @param PDO $db Conexión activa a MySQL.
      */
-    public function __construct(PDO $connection)
+    public function __construct(PDO $db)
     {
-        $this->connection = $connection;
+        $this->connection = $db;
     }
 
     /**
@@ -54,23 +53,25 @@ class UserRepository
     public function findByEmail(string $email): ?array
     {
         $sql = "
-            SELECT *
+            SELECT
+                id_usuario,
+                nombre,
+                email,
+                password_hash,
+                id_rol,
+                activo
             FROM usuarios
             WHERE email = :email
             LIMIT 1
         ";
 
-        $statement = $this->connection->prepare($sql);
+        $stmt = $this->connection->prepare($sql);
 
-        $statement->bindValue(
-            ':email',
-            $email,
-            PDO::PARAM_STR
-        );
+        $stmt->execute([
+            ':email' => $email
+        ]);
 
-        $statement->execute();
-
-        $user = $statement->fetch(PDO::FETCH_ASSOC);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $user ?: null;
     }
@@ -82,7 +83,6 @@ class UserRepository
      *
      * @return int ID del usuario creado.
      *
-     * @throws RuntimeException Si ocurre un error al crear el usuario.
      */
     public function create(array $userData): int
     {
@@ -91,29 +91,24 @@ class UserRepository
                 nombre,
                 email,
                 password_hash,
-                id_rol,
-                activo
+                id_rol
             )
             VALUES (
                 :nombre,
                 :email,
                 :password_hash,
-                :id_rol,
-                :activo
+                :id_rol
             )
         ";
 
-        $statement = $this->connection->prepare($sql);
+        $stmt = $this->connection->prepare($sql);
 
-        $statement->bindValue(':nombre', $userData['nombre']);
-        $statement->bindValue(':email', $userData['email']);
-        $statement->bindValue(':password_hash', $userData['password_hash']);
-        $statement->bindValue(':id_rol', $userData['id_rol'], PDO::PARAM_INT);
-        $statement->bindValue(':activo', $userData['activo'], PDO::PARAM_BOOL);
-
-        if (!$statement->execute()) {
-            throw new RuntimeException('No fue posible crear el usuario.');
-        }
+        $stmt->execute([
+            ':nombre' => $userData['nombre'],
+            ':email' => $userData['email'],
+            ':password_hash' => $userData['password_hash'],
+            ':id_rol' => $userData['id_rol']
+        ]);
 
         return (int) $this->connection->lastInsertId();
     }

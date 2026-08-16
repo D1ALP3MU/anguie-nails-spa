@@ -8,13 +8,15 @@ class ValidationException extends Exception
 {
     /**
      * @param array<string, string> $errors
-     */
+    */
     public function __construct(
         private array $errors
     ) {
         parent::__construct(
             'Los datos enviados no son válidos.'
         );
+
+        $this->errors = $errors;
     }
 
     /**

@@ -8,6 +8,10 @@ use App\Services\ServiceService;
 use App\Responses\Response;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
+use App\Controllers\ClientController;
+use App\Repositories\ClientRepository;
+use App\Repositories\UserRepository;
+use App\Services\ClientService;
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -82,6 +86,29 @@ switch ("$method $path") {
         $service = new ServiceService($repository);
 
         $controller = new ServiceController($service);
+
+        $controller->store();
+
+        break;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clientes
+    |--------------------------------------------------------------------------
+    */
+    case 'POST /api/clients':
+
+        $userRepository = new UserRepository($pdo);
+
+        $clientRepository = new ClientRepository($pdo);
+
+        $service = new ClientService(
+            $pdo,
+            $userRepository,
+            $clientRepository
+        );
+
+        $controller = new ClientController($service);
 
         $controller->store();
 

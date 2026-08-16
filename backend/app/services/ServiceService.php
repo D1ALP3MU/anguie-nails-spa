@@ -7,9 +7,6 @@ use App\Validators\ServiceValidator;
 use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
 use App\Exceptions\ConflictException;
-use Throwable;
-
-#use PDO;
 
 class ServiceService
 {
@@ -152,23 +149,5 @@ class ServiceService
         }
 
         return $service;
-    }
-
-    /**
-     * Ejecuta una operación del repositorio capturando posibles excepciones.
-     *
-     * @param callable $operation Operación a ejecutar.
-     *
-     * @return mixed
-     *
-     * @throws Throwable
-     */
-    private function executeRepositoryOperation(callable $operation): mixed
-    {
-        try {
-            return $operation();
-        } catch (Throwable $e) {
-            throw $e;
-        }
     }
 }

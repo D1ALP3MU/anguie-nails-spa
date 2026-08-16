@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use PDO;
-use RuntimeException;
 
 /**
  * ---------------------------------------------------------
@@ -24,53 +23,40 @@ use RuntimeException;
 
 class ClientRepository
 {
-    /**
-     * Conexión a la base de datos.
-     *
-     * @var PDO
-     */
-    private PDO $connection;
+    public function __construct(
+        private PDO $db
+    ) {}
 
     /**
-     * Constructor del repositorio.
+     * Crea un nuevo cliente.
      *
-     * @param PDO $connection Conexión activa a MySQL.
+     * @param array $data Datos del cliente.
+     *
+     * @return int ID del cliente creado.
      */
-    public function __construct(PDO $connection)
-    {
-        $this->connection = $connection;
-    }
-
-    /**
-     * Crea un cliente asociado a un usuario.
-     *
-     * @param int $userId ID del usuario.
-     *
-     * @return bool
-     *
-     * @throws RuntimeException
-     */
-    public function create(int $userId): bool
+    public function create(array $data): int
     {
         $sql = "
-            INSERT INTO clientes (id_usuario)
-            VALUES (:id_usuario)
+            INSERT INTO clientes (
+                id_usuario,
+                telefono,
+                direccion
+            )
+            VALUES (
+                :id_usuario,
+                :telefono,
+                :direccion
+            )
         ";
 
-        $statement = $this->connection->prepare($sql);
+        $stmt = $this->db->prepare($sql);
 
-        $statement->bindValue(
-            ':id_usuario',
-            $userId,
-            PDO::PARAM_INT
-        );
+        $stmt->execute([
+            'id_usuario' => $data['id_usuario'],
+            'telefono'   => $data['telefono'],
+            'direccion'  => $data['direccion'] ?? null
+        ]);
 
-        if (!$statement->execute()) {
-            throw new RuntimeException(
-                'No fue posible crear el cliente.'
-            );
-        }
-
-        return true;
+        return (int) $this->db->lastInsertId();
     }
 }
