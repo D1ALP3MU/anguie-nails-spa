@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost/anguie-nails/backend/api";
+const API_BASE_URL = "http://localhost:8001/api";
 
 export async function httpGet(endpoint) {
     const response = await fetch(`${API_BASE_URL}${endpoint}`);

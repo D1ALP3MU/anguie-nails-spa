@@ -117,4 +117,14 @@ class ClientService
                 : $direccion
         ];
     }
+
+    /**
+     * Obtiene todos los clientes activos.
+     *
+     * @return array
+     */
+    public function findAll(): array
+    {
+        return $this->clientRepository->findAll();
+    }
 }

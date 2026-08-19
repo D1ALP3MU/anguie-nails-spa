@@ -59,4 +59,35 @@ class ClientRepository
 
         return (int) $this->db->lastInsertId();
     }
+
+    /**
+     * Obtiene todos los clientes activos.
+     *
+     * @return array
+     */
+    public function findAll(): array
+    {
+        $sql = "
+            SELECT
+                c.id_cliente,
+                c.id_usuario,
+                u.nombre,
+                u.email,
+                c.telefono,
+                c.direccion,
+                c.created_at,
+                c.updated_at
+            FROM clientes c
+            INNER JOIN usuarios u
+                ON u.id_usuario = c.id_usuario
+            WHERE u.activo = 1
+            ORDER BY c.id_cliente DESC
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

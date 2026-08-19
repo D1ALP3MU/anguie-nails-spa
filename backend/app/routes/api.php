@@ -96,6 +96,24 @@ switch ("$method $path") {
     | Clientes
     |--------------------------------------------------------------------------
     */
+    case 'GET /api/clients':
+
+        $userRepository = new UserRepository($pdo);
+
+        $clientRepository = new ClientRepository($pdo);
+
+        $service = new ClientService(
+            $pdo,
+            $userRepository,
+            $clientRepository
+        );
+
+        $controller = new ClientController($service);
+
+        $controller->index();
+
+        break;
+
     case 'POST /api/clients':
 
         $userRepository = new UserRepository($pdo);

@@ -1,0 +1,22 @@
+footer {
+    padding: 1.5rem 2rem;
+    text-align: center;
+}
+
+footer p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+/**
+ * Responsive styles
+ */
+@media (max-width: 768px) {
+    footer {
+        padding: 1.5rem 1rem;
+    }
+
+    footer p {
+        max-width: 100%;
+    }
+}

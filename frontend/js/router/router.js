@@ -14,10 +14,13 @@ import { runCleanup } from "../core/cleanup.js";
 
 import { ServicesSkeleton } from "../modules/services/components/ServicesSkeleton.js";
 
+import { ClientsPage } from "../modules/admin/clients/clients.page.js";
+
 const routes = {
     "/": HomePage,
     "/services": ServicesPage,
     "/booking": BookingPage,
+    "/clients": ClientsPage,
 }
 
 const routeLoaders = {

@@ -2,7 +2,7 @@
     position: sticky;
     top: 0;
     z-index: 1000;
-    background: rgba(255,255,255,.9);
+    background: rgba(255, 255, 255, .9);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid #eee;
 }
@@ -39,4 +39,26 @@
 .navbar__actions {
     display: flex;
     gap: 1rem;
+}
+
+/**
+ * Responsive styles
+ */
+@media (max-width: 768px) {
+    .navbar__container {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .navbar__menu {
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .navbar__actions {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
 }

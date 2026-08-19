@@ -29,4 +29,19 @@ class ClientController
             'id_cliente' => $id
         ]);
     }
+
+    /**
+     * Obtiene todos los clientes.
+     *
+     * @return void
+     */
+    public function index(): void
+    {
+        $clients = $this->service->findAll();
+
+        Response::json([
+            'success' => true,
+            'data' => $clients
+        ], 200);
+    }
 }
