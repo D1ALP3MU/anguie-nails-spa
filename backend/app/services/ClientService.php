@@ -9,12 +9,15 @@ use App\Repositories\UserRepository;
 use App\Repositories\ClientRepository;
 use App\Validators\ClientValidator;
 use App\Exceptions\ConflictException;
+use App\Exceptions\NotFoundException;
 
 /**
  * Servicio para manejar la lógica de negocio relacionada con los clientes.
  * 
  * Responsabilidades:
  * - Registrar nuevos clientes.
+ * - Obtener información de clientes.
+ * - Obtener un cliente por su ID.
  * 
  * Esta clase NO contiene lógica de acceso a datos.
  * ---------------------------------------------------------
@@ -126,5 +129,25 @@ class ClientService
     public function findAll(): array
     {
         return $this->clientRepository->findAll();
+    }
+
+    /**
+     * Obtiene un cliente activo por su ID.
+     *
+     * @param int $id ID del cliente.
+     *
+     * @return array
+     */
+    public function findById(int $id): array
+    {
+        $client = $this->clientRepository->findById($id);
+
+        if ($client === null) {
+            throw new NotFoundException(
+                'Cliente no encontrado.'
+            );
+        }
+
+        return $client;
     }
 }

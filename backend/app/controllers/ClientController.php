@@ -44,4 +44,18 @@ class ClientController
             'data' => $clients
         ], 200);
     }
+
+    /**
+     * Obtiene un cliente por su ID.
+     *
+     * @param int $id ID del cliente.
+     *
+     * @return void
+     */
+    public function show(int $id): void
+    {
+        $client = $this->service->findById($id);
+
+        Response::success($client);
+    }
 }

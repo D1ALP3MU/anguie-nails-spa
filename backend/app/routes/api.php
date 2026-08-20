@@ -61,6 +61,32 @@ if (
     }
 }
 
+if (
+    preg_match('#^/api/clients/(\d+)$#', $path, $matches)
+) {
+
+    $userRepository = new UserRepository($pdo);
+
+    $clientRepository = new ClientRepository($pdo);
+
+    $service = new ClientService(
+        $pdo,
+        $userRepository,
+        $clientRepository
+    );
+
+    $controller = new ClientController($service);
+
+    switch ($method) {
+
+        case 'GET':
+            $controller->show(
+                (int) $matches[1]
+            );
+            return;
+    }
+}
+
 switch ("$method $path") {
     /*
     |--------------------------------------------------------------------------

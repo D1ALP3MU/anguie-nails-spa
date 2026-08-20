@@ -90,4 +90,42 @@ class ClientRepository
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Obtiene un cliente activo por su ID.
+     *
+     * @param int $id ID del cliente.
+     *
+     * @return array|null
+     */
+    public function findById(int $id): ?array
+    {
+        $sql = "
+        SELECT
+            c.id_cliente,
+            c.id_usuario,
+            u.nombre,
+            u.email,
+            c.telefono,
+            c.direccion,
+            c.created_at,
+            c.updated_at
+        FROM clientes c
+        INNER JOIN usuarios u
+            ON u.id_usuario = c.id_usuario
+        WHERE c.id_cliente = :id
+            AND u.activo = 1
+        LIMIT 1
+    ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
+            'id' => $id
+        ]);
+
+        $client = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $client ?: null;
+    }
 }
