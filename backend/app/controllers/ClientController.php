@@ -39,10 +39,7 @@ class ClientController
     {
         $clients = $this->service->findAll();
 
-        Response::json([
-            'success' => true,
-            'data' => $clients
-        ], 200);
+        Response::success($clients);
     }
 
     /**
