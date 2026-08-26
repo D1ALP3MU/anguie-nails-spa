@@ -60,6 +60,22 @@ class ClientController
     }
 
     /**
+     * Desactiva un cliente existente.
+     *
+     * @param int $id ID del cliente.
+     *
+     * @return void
+     */
+    public function delete(int $id): void
+    {
+        $this->service->delete($id);
+
+        Response::success([
+            'message' => 'Cliente eliminado correctamente.'
+        ]);
+    }
+
+    /**
      * Actualiza un cliente existente.
      *
      * @param int $id ID del cliente.

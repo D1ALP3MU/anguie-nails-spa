@@ -130,6 +130,45 @@ class ClientRepository
     }
 
     /**
+     * Obtiene un cliente por su ID,
+     * independientemente de su estado.
+     *
+     * @param int $id ID del cliente.
+     *
+     * @return array|null
+     */
+    public function findByIdIncludingInactive(int $id): ?array
+    {
+        $sql = "
+            SELECT
+                c.id_cliente,
+                c.id_usuario,
+                u.nombre,
+                u.email,
+                u.activo,
+                c.telefono,
+                c.direccion,
+                c.created_at,
+                c.updated_at
+            FROM clientes c
+            INNER JOIN usuarios u
+                ON u.id_usuario = c.id_usuario
+            WHERE c.id_cliente = :id
+            LIMIT 1
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
+            'id' => $id
+        ]);
+
+        $client = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $client ?: null;
+    }
+
+    /**
      * Actualiza los datos de un cliente.
      *
      * @param int $clientId ID del cliente.

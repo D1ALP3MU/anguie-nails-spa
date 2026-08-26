@@ -90,6 +90,12 @@ if (
                 (int) $matches[1]
             );
             return;
+
+        case 'DELETE':
+            $controller->delete(
+                (int) $matches[1]
+            );
+            return;
     }
 }
 

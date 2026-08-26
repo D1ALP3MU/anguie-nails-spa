@@ -139,4 +139,26 @@ class UserRepository
             ':id_usuario' => $userId
         ]);
     }
+
+    /**
+     * Desactiva un usuario mediante eliminación lógica.
+     *
+     * @param int $userId ID del usuario.
+     *
+     * @return bool
+     */
+    public function deactivate(int $userId): bool
+    {
+        $sql = "
+            UPDATE usuarios
+            SET activo = FALSE
+            WHERE id_usuario = :id_usuario
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+
+        return $stmt->execute([
+            'id_usuario' => $userId
+        ]);
+    }
 }

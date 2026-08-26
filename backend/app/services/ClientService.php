@@ -186,6 +186,49 @@ class ClientService
     }
 
     /**
+     * Desactiva un cliente mediante eliminación lógica.
+     *
+     * @param int $id ID del cliente.
+     *
+     * @return void
+     */
+    public function delete(int $id): void
+    {
+        $client = $this->clientRepository
+            ->findByIdIncludingInactive($id);
+
+        if ($client === null) {
+            throw new NotFoundException(
+                'Cliente no encontrado.'
+            );
+        }
+
+        if (!(bool) $client['activo']) {
+            throw new ConflictException(
+                'El cliente ya se encuentra desactivado.'
+            );
+        }
+
+        $this->db->beginTransaction();
+
+        try {
+
+            $this->userRepository->deactivate(
+                (int) $client['id_usuario']
+            );
+
+            $this->db->commit();
+        } catch (Throwable $e) {
+
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+
+            throw $e;
+        }
+    }
+
+    /**
      * Actualiza un cliente existente.
      *
      * @param int $id ID del cliente.
