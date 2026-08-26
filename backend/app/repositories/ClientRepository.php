@@ -128,4 +128,31 @@ class ClientRepository
 
         return $client ?: null;
     }
+
+    /**
+     * Actualiza los datos de un cliente.
+     *
+     * @param int $clientId ID del cliente.
+     * @param array $clientData Datos a actualizar.
+     *
+     * @return bool
+     */
+    public function update(int $clientId, array $clientData): bool
+    {
+        $sql = "
+            UPDATE clientes
+            SET
+                telefono = :telefono,
+                direccion = :direccion
+            WHERE id_cliente = :id_cliente
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        return $stmt->execute([
+            ':telefono' => $clientData['telefono'],
+            ':direccion' => $clientData['direccion'] ?? null,
+            ':id_cliente' => $clientId
+        ]);
+    }
 }

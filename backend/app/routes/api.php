@@ -84,6 +84,12 @@ if (
                 (int) $matches[1]
             );
             return;
+
+        case 'PUT':
+            $controller->update(
+                (int) $matches[1]
+            );
+            return;
     }
 }
 

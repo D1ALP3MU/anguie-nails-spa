@@ -112,4 +112,31 @@ class UserRepository
 
         return (int) $this->connection->lastInsertId();
     }
+
+    /**
+     * Actualiza los datos de un usuario.
+     *
+     * @param int $userId ID del usuario.
+     * @param array $userData Datos a actualizar.
+     *
+     * @return bool
+     */
+    public function update(int $userId, array $userData): bool
+    {
+        $sql = "
+            UPDATE usuarios
+            SET
+                nombre = :nombre,
+                email = :email
+            WHERE id_usuario = :id_usuario
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+
+        return $stmt->execute([
+            ':nombre' => $userData['nombre'],
+            ':email' => $userData['email'],
+            ':id_usuario' => $userId
+        ]);
+    }
 }

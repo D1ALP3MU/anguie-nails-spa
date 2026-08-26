@@ -40,6 +40,27 @@ class ClientValidator
         }
     }
 
+    /**
+     * Valida los datos para actualizar un cliente.
+     *
+     * @param array $data
+     *
+     * @return void
+     */
+    public static function validateUpdate(array $data): void
+    {
+        $errors = [];
+
+        self::validateName($data, $errors);
+        self::validateEmail($data, $errors);
+        self::validatePhone($data, $errors);
+        self::validateAddress($data, $errors);
+
+        if (!empty($errors)) {
+            throw new ValidationException($errors);
+        }
+    }
+
     private static function validateName(array $data, array &$errors): void
     {
         $name = trim($data['nombre'] ?? '');

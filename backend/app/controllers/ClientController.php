@@ -58,4 +58,25 @@ class ClientController
 
         Response::success($client);
     }
+
+    /**
+     * Actualiza un cliente existente.
+     *
+     * @param int $id ID del cliente.
+     *
+     * @return void
+     */
+    public function update(int $id): void
+    {
+        $data = json_decode(
+            file_get_contents('php://input'),
+            true
+        );
+
+        $this->service->update($id, $data);
+
+        Response::success([
+            'message' => 'Cliente actualizado correctamente.'
+        ]);
+    }
 }

@@ -99,6 +99,21 @@ class ClientService
     }
 
     /**
+     * Prepara los datos del usuario para actualización.
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    private function prepareUserUpdateData(array $data): array
+    {
+        return [
+            'nombre' => trim($data['nombre']),
+            'email' => trim($data['email'])
+        ];
+    }
+
+    /**
      * Prepara los datos del cliente.
      *
      * @param int $userId
@@ -114,6 +129,25 @@ class ClientService
         $direccion = trim($data['direccion'] ?? '');
         return [
             'id_usuario' => $userId,
+            'telefono' => trim($data['telefono']),
+            'direccion' => $direccion === ''
+                ? null
+                : $direccion
+        ];
+    }
+
+    /**
+     * Prepara los datos del cliente para actualización.
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    private function prepareClientUpdateData(array $data): array
+    {
+        $direccion = trim($data['direccion'] ?? '');
+
+        return [
             'telefono' => trim($data['telefono']),
             'direccion' => $direccion === ''
                 ? null
@@ -149,5 +183,70 @@ class ClientService
         }
 
         return $client;
+    }
+
+    /**
+     * Actualiza un cliente existente.
+     *
+     * @param int $id ID del cliente.
+     * @param array $data Datos a actualizar.
+     *
+     * @return array
+     */
+    public function update(int $id, array $data): array
+    {
+        ClientValidator::validateUpdate($data);
+
+        $client = $this->clientRepository->findById($id);
+
+        if ($client === null) {
+            throw new NotFoundException(
+                'Cliente no encontrado.'
+            );
+        }
+
+        $email = trim($data['email']);
+
+        $existingUser = $this->userRepository->findByEmail($email);
+
+        if (
+            $existingUser !== null
+            && (int) $existingUser['id_usuario']
+            !== (int) $client['id_usuario']
+        ) {
+            throw new ConflictException(
+                'El correo electrónico ya se encuentra registrado.'
+            );
+        }
+
+        $this->db->beginTransaction();
+
+        try {
+
+            $userData = $this->prepareUserUpdateData($data);
+
+            $this->userRepository->update(
+                (int) $client['id_usuario'],
+                $userData
+            );
+
+            $clientData = $this->prepareClientUpdateData($data);
+
+            $this->clientRepository->update(
+                $id,
+                $clientData
+            );
+
+            $this->db->commit();
+
+            return $this->findById($id);
+        } catch (Throwable $e) {
+
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+
+            throw $e;
+        }
     }
 }
