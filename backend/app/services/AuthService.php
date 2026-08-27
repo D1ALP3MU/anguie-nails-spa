@@ -2,14 +2,13 @@
 
 namespace App\Services;
 
-use App\Helpers\PasswordHelper;
-use App\Repositories\UserRepository;
-use App\Repositories\ClientRepository;
-use App\Validators\UserValidator;
-use App\Helpers\JwtHelper;
-
 use PDO;
-use Throwable;
+use App\Helpers\PasswordHelper;
+use App\Helpers\JwtHelper;
+use App\Repositories\UserRepository;
+use App\Validators\UserValidator;
+use App\Exceptions\UnauthorizedException;
+
 
 /**
  * ---------------------------------------------------------
@@ -20,13 +19,13 @@ use Throwable;
  *
  * Descripción:
  * Contiene la lógica de negocio relacionada con la
- * autenticación y registro de usuarios.
+ * autenticación de usuarios.
  *
  * Responsabilidades:
- * - Registrar usuarios.
+ * - Autenticar usuarios.
  * - Coordinar validaciones.
- * - Coordinar repositorios.
- * - Gestionar transacciones.
+ * - Verificar credenciales.
+ * - Generar tokens JWT.
  *
  * Esta clase NO genera respuestas HTTP.
  * ---------------------------------------------------------
@@ -35,13 +34,6 @@ use Throwable;
 class AuthService
 {
     /**
-     * Conexión a la base de datos.
-     *
-     * @var PDO
-     */
-    private PDO $connection;
-
-    /**
      * Repositorio de usuarios.
      *
      * @var UserRepository
@@ -49,102 +41,13 @@ class AuthService
     private UserRepository $userRepository;
 
     /**
-     * Repositorio de clientes.
+     * Constructor del servicio.
      *
-     * @var ClientRepository
-     */
-    private ClientRepository $clientRepository;
-
-    /**
-     * Constructor.
-     *
-     * @param PDO $connection
+     * @param PDO $connection Conexión activa a MySQL.
      */
     public function __construct(PDO $connection)
     {
-        $this->connection = $connection;
-
         $this->userRepository = new UserRepository($connection);
-        $this->clientRepository = new ClientRepository($connection);
-    }
-
-    /**
-     * Registra un nuevo usuario
-     * 
-     * @param array $data Datos del formulario.
-     * 
-     * @return array Resultado del proceso.
-     */
-    public function register(array $data): array
-    {
-        // 1. Validar datos
-        $validation = UserValidator::validateRegister($data);
-
-        if (!$validation['valid']) {
-            return [
-                'success' => false,
-                'status' => 422,
-                'message' => 'Los datos enviados no son válidos.',
-                'errors' => $validation['errors']
-            ];
-        }
-
-        // 2. Verificar si el correo ya está registrado
-        $user = $this->userRepository->findByEmail($data['email']);
-
-        if ($user !== null) {
-            return [
-                'success' => false,
-                'status' => 409,
-                'message' => 'El correo electrónico ya está registrado.'
-            ];
-        }
-
-        // 3. Encriptar la contraseña
-        $hashedPassword = PasswordHelper::hash($data['password']);
-
-        $userData = [
-            'nombre' => $data['nombre'],
-            'email' => $data['email'],
-            'password_hash' => $hashedPassword,
-            'id_rol' => 2, // Asignar rol de cliente
-            'activo' => true
-        ];
-
-        try {
-            // 4. Iniciar transacción
-            $this->connection->beginTransaction();
-
-            // 5. Crear usuario
-            $userId = $this->userRepository->create($userData);
-
-            // 6. Crear cliente asociado al usuario
-            $this->clientRepository->create($userId);
-
-            // 7. Confirmar transacción
-            $this->connection->commit();
-
-            return [
-                'success' => true,
-                'status' => 201,
-                'message' => 'Usuario registrado correctamente.',
-                'data' => [
-                    'id_usuario' => $userId
-                ]
-            ];
-
-        } catch (Throwable $e) {
-            // 8. Si algo falla, revertimos todos los cambios
-            if ($this->connection->inTransaction()) {
-                $this->connection->rollBack();
-            }
-
-            return [
-                'success' => false,
-                'status' => 500,
-                'message' => 'Ocurrió un error al registrar el usuario.'
-            ];
-        }
     }
 
     /**
@@ -152,29 +55,28 @@ class AuthService
      *
      * @param array $data Datos enviados por el cliente.
      *
-     * @return array Resultado del proceso de autenticación.
+     * @return array Datos necesarios para la respuesta.
+     *
+     * @throws UnauthorizedException
      */
     public function login(array $data): array
     {
-        $validation = UserValidator::validateLogin($data);
+        UserValidator::validateLogin($data);
 
-        if (!$validation['valid']) {
-            return [
-                'success' => false,
-                'status' => 422,
-                'message' => 'Los datos enviados no son válidos.',
-                'errors' => $validation['errors']
-            ];
-        }
+        $email = trim($data['email']);
 
-        $user = $this->userRepository->findByEmail($data['email']);
+        $user = $this->userRepository->findByEmail($email);
 
         if ($user === null) {
-            return [
-                'success' => false,
-                'status' => 401,
-                'message' => 'Credenciales inválidas.'
-            ];
+            throw new UnauthorizedException(
+                'Credenciales inválidas.'
+            );
+        }
+
+        if (!(bool) $user['activo']) {
+            throw new UnauthorizedException(
+                'El usuario se encuentra desactivado.'
+            );
         }
 
         $isValid = PasswordHelper::verify(
@@ -183,11 +85,9 @@ class AuthService
         );
 
         if (!$isValid) {
-            return [
-                'success' => false,
-                'status' => 401,
-                'message' => 'Credenciales inválidas.'
-            ];
+            throw new UnauthorizedException(
+                'Credenciales inválidas.'
+            );
         }
 
         $token = JwtHelper::generate([
@@ -198,17 +98,12 @@ class AuthService
         ]);
 
         return [
-            'success' => true,
-            'status' => 200,
-            'message' => 'Inicio de sesión exitoso.',
-            'data' => [
-                'token' => $token,
-                'user' => [
-                    'id_usuario' => $user['id_usuario'],
-                    'nombre' => $user['nombre'],
-                    'email' => $user['email'],
-                    'id_rol' => $user['id_rol']
-                ]
+            'token' => $token,
+            'user' => [
+                'id_usuario' => $user['id_usuario'],
+                'nombre' => $user['nombre'],
+                'email' => $user['email'],
+                'id_rol' => $user['id_rol']
             ]
         ];
     }

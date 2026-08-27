@@ -175,14 +175,6 @@ switch ("$method $path") {
     | Autenticación
     |--------------------------------------------------------------------------
     */
-    case 'POST /api/auth/register':
-
-        $controller = new AuthController($pdo);
-
-        $controller->register();
-
-        break;
-
     case 'POST /api/auth/login':
 
         $controller = new AuthController($pdo);
