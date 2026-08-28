@@ -6,17 +6,12 @@ import { fetchServices } from "./services.api.js";
 
 
 export async function ServicesPage() {
+
     console.log("ServicesPage loaded");
 
     const services = await fetchServices();
 
-    setTimeout(() => {
-        initServicesEvents();
-    }, 0);
-
-    await new Promise(resolve => {
-        setTimeout(resolve, 1200);
-    });
+    initServicesEvents();
 
     return `
 
@@ -29,9 +24,9 @@ export async function ServicesPage() {
 
             <div class="services-grid">
 
-                ${services.map(service => 
-                    ServiceCard(service)
-                ).join("")}
+                ${services.map(service =>
+        ServiceCard(service)
+    ).join("")}
 
             </div>
 

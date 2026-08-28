@@ -31,28 +31,6 @@ export function initServicesEvents() {
 
     });
 
-
-    document.addEventListener("click", (event) => {
-
-        const bookButton = event.target.closest("[data-book-service]");
-        if (bookButton) {
-            const serviceId = bookButton.dataset.bookService;
-
-            openBookingModal(serviceId);
-        }
-
-        const closeButton = event.target.closest("[data-close-modal]");
-        if (closeButton) {
-            closeModal();
-        }
-
-        if (event.target.classList.contains("modal-overlay")) {
-            closeModal();
-        }
-    });
-
-    document.addEventListener("submit", handleBookingSubmit);
-
 }
 
 function handleDocumentClick(event) {
@@ -79,7 +57,7 @@ function handleDocumentClick(event) {
 
     }
 
-    if (event.target.classList.contains(    "modal-overlay")) {
+    if (event.target.classList.contains("modal-overlay")) {
 
         closeModal();
 
