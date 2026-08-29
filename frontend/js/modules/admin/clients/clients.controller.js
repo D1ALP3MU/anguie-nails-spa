@@ -3,7 +3,8 @@ import { ClientForm } from "./components/ClientForm.js";
 import {
     createClient,
     fetchClient,
-    updateClient
+    updateClient,
+    deleteClient
 } from "./clients.api.js";
 import { registerCleanup } from "../../../core/cleanup.js";
 import { renderRoute } from "../../../router/router.js";
@@ -53,6 +54,17 @@ function handleDocumentClick(event) {
     if (editButton) {
         openEditClientModal(
             Number(editButton.dataset.editClient)
+        );
+        return;
+    }
+
+    const deleteButton = event.target.closest(
+        "[data-delete-client]"
+    );
+
+    if (deleteButton) {
+        handleClientDelete(
+            Number(deleteButton.dataset.deleteClient)
         );
         return;
     }
@@ -126,6 +138,37 @@ async function handleClientSubmit(event) {
 
         alert(
             "No fue posible guardar el cliente."
+        );
+    }
+}
+
+async function handleClientDelete(id) {
+
+    const confirmed = window.confirm(
+        "¿Está seguro de eliminar este cliente?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+
+        await deleteClient(id);
+
+        alert("Cliente eliminado correctamente.");
+
+        await renderRoute();
+
+    } catch (error) {
+
+        console.error(
+            "Error al eliminar cliente:",
+            error
+        );
+
+        alert(
+            "No fue posible eliminar el cliente."
         );
     }
 }
