@@ -29,3 +29,14 @@
     background: var(--pink-accent);
     color: var(--white);
 }
+
+.btn-danger {
+    background: transparent;
+    border: 1px solid crimson;
+    color: crimson;
+}
+
+.btn-danger:hover {
+    background: crimson;
+    color: var(--white);
+}

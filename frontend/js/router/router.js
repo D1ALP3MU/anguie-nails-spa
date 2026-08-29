@@ -41,7 +41,7 @@ function getCurrentPath() {
 
 }
 
-async function renderRoute() {
+export async function renderRoute() {
 
     try {
 

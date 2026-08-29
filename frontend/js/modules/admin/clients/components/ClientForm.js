@@ -1,7 +1,20 @@
-export function ClientForm() {
+import { escapeHtml } from "../../../../utils/html.js";
+
+export function ClientForm(client = null) {
+
+    const isEdit = client !== null;
+
+    const name = escapeHtml(client?.name ?? "");
+    const email = escapeHtml(client?.email ?? "");
+    const phone = escapeHtml(client?.phone ?? "");
+    const address = escapeHtml(client?.address ?? "");
 
     return `
-        <form class="client-form" id="client-form">
+        <form
+            class="client-form"
+            id="client-form"
+            ${isEdit ? `data-client-id="${client.id}"` : ""}
+        >
 
             <div class="form-group">
                 <label for="client-name">Nombre</label>
@@ -10,6 +23,7 @@ export function ClientForm() {
                     id="client-name"
                     name="nombre"
                     placeholder="Nombre completo"
+                    value="${name}"
                     required
                 >
             </div>
@@ -21,20 +35,23 @@ export function ClientForm() {
                     id="client-email"
                     name="email"
                     placeholder="correo@ejemplo.com"
+                    value="${email}"
                     required
                 >
             </div>
 
-            <div class="form-group">
-                <label for="client-password">Contraseña</label>
-                <input
-                    type="password"
-                    id="client-password"
-                    name="password"
-                    placeholder="Mínimo 8 caracteres"
-                    required
-                >
-            </div>
+            ${!isEdit ? `
+                <div class="form-group">
+                    <label for="client-password">Contraseña</label>
+                    <input
+                        type="password"
+                        id="client-password"
+                        name="password"
+                        placeholder="Mínimo 8 caracteres"
+                        required
+                    >
+                </div>
+            ` : ""}
 
             <div class="form-group">
                 <label for="client-phone">Teléfono</label>
@@ -43,6 +60,7 @@ export function ClientForm() {
                     id="client-phone"
                     name="telefono"
                     placeholder="Número de teléfono"
+                    value="${phone}"
                     required
                 >
             </div>
@@ -54,6 +72,7 @@ export function ClientForm() {
                     id="client-address"
                     name="direccion"
                     placeholder="Dirección"
+                    value="${address}"
                 >
             </div>
 
@@ -61,7 +80,7 @@ export function ClientForm() {
                 type="submit"
                 class="btn btn-primary"
             >
-                Crear cliente
+                ${isEdit ? "Actualizar cliente" : "Crear cliente"}
             </button>
 
         </form>
