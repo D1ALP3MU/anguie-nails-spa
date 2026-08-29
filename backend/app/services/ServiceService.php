@@ -5,12 +5,10 @@ namespace App\Services;
 use App\Repositories\ServiceRepository;
 use App\Validators\ServiceValidator;
 use App\Exceptions\NotFoundException;
-use App\Exceptions\ValidationException;
 use App\Exceptions\ConflictException;
 
 class ServiceService
 {
-
     public function __construct(
         private ServiceRepository $repository
     ) {}
@@ -20,9 +18,8 @@ class ServiceService
      *
      * @return array
      */
-    public function getServices(): array
+    public function findAll(): array
     {
-
         return $this->repository->findAll();
     }
 
@@ -33,7 +30,7 @@ class ServiceService
      *
      * @return array
      */
-    public function getServiceById(int $id): array
+    public function findById(int $id): array
     {
         $service = $this->repository->findById($id);
 
@@ -52,12 +49,9 @@ class ServiceService
      * @param array $data Datos del servicio.
      *
      * @return int ID del servicio creado.
-     *
-     * @throws ValidationException
      */
     public function create(array $data): int
     {
-
         ServiceValidator::validate($data);
 
         $serviceData = $this->prepareServiceData($data);
@@ -71,12 +65,12 @@ class ServiceService
      * @param int $id ID del servicio.
      * @param array $data Datos del servicio.
      *
-     * @return void
+     * @return array Servicio actualizado.
      */
     public function update(
         int $id,
         array $data
-    ): void {
+    ): array {
         $this->findExistingService($id);
 
         ServiceValidator::validate($data);
@@ -87,6 +81,8 @@ class ServiceService
             $id,
             $serviceData
         );
+
+        return $this->findById($id);
     }
 
     /**
@@ -110,7 +106,7 @@ class ServiceService
     }
 
     /**
-     * Normaliza y prepara los datos de un servicio antes de persistirlos.
+     * Normaliza y prepara los datos antes de persistirlos.
      *
      * @param array $data Datos enviados por el cliente.
      *
@@ -136,9 +132,9 @@ class ServiceService
      *
      * @param int $id
      *
-     * @return array|null
+     * @return array
      */
-    private function findExistingService(int $id): ?array
+    private function findExistingService(int $id): array
     {
         $service = $this->repository->findById($id);
 

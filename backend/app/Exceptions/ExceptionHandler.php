@@ -45,6 +45,8 @@ class ExceptionHandler
                     'success' => false,
                     'message' => 'Ha ocurrido un error interno del servidor.'
                 ], 500);
+
+                break;
         }
     }
 }

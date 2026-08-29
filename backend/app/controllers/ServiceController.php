@@ -7,15 +7,18 @@ use App\Responses\Response;
 
 class ServiceController
 {
-
     public function __construct(
         private ServiceService $service
     ) {}
 
+    /**
+     * Obtiene todos los servicios activos.
+     *
+     * @return void
+     */
     public function index(): void
     {
-
-        $services = $this->service->getServices();
+        $services = $this->service->findAll();
 
         Response::success($services);
     }
@@ -29,7 +32,7 @@ class ServiceController
      */
     public function show(int $id): void
     {
-        $service = $this->service->getServiceById($id);
+        $service = $this->service->findById($id);
 
         Response::success($service);
     }
@@ -67,11 +70,12 @@ class ServiceController
             true
         );
 
-        $this->service->update($id, $data);
+        $service = $this->service->update(
+            $id,
+            $data
+        );
 
-        Response::success([
-            'message' => 'Servicio actualizado correctamente.'
-        ]);
+        Response::success($service);
     }
 
     /**

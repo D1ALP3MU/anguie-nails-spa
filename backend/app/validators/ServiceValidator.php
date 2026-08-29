@@ -78,10 +78,10 @@ class ServiceValidator
         if (!isset($data['duracion']) || $data['duracion'] === '') {
             $errors['duracion'] = 'La duración del servicio es obligatoria.';
         } elseif (
-            !filter_var(
+            filter_var(
                 $data['duracion'],
                 FILTER_VALIDATE_INT
-            )
+            ) === false
         ) {
             $errors['duracion'] = 'La duración del servicio debe ser un número entero.';
         } elseif ($data['duracion'] <= 0) {
