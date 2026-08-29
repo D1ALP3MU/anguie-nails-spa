@@ -12,6 +12,9 @@ use App\Controllers\ClientController;
 use App\Repositories\ClientRepository;
 use App\Repositories\UserRepository;
 use App\Services\ClientService;
+use App\Controllers\AppointmentController;
+use App\Repositories\AppointmentRepository;
+use App\Services\AppointmentService;
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -76,6 +79,38 @@ if (
     );
 
     $controller = new ClientController($service);
+
+    switch ($method) {
+
+        case 'GET':
+            $controller->show(
+                (int) $matches[1]
+            );
+            return;
+
+        case 'PUT':
+            $controller->update(
+                (int) $matches[1]
+            );
+            return;
+
+        case 'DELETE':
+            $controller->delete(
+                (int) $matches[1]
+            );
+            return;
+    }
+}
+
+if (
+    preg_match('#^/api/appointments/(\d+)$#', $path, $matches)
+) {
+
+    $repository = new AppointmentRepository($pdo);
+
+    $service = new AppointmentService($repository);
+
+    $controller = new AppointmentController($service);
 
     switch ($method) {
 
@@ -195,6 +230,35 @@ switch ("$method $path") {
             'success' => true,
             'user' => $user
         ]);
+
+        break;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Citas
+    |--------------------------------------------------------------------------
+    */
+    case 'GET /api/appointments':
+
+        $repository = new AppointmentRepository($pdo);
+
+        $service = new AppointmentService($repository);
+
+        $controller = new AppointmentController($service);
+
+        $controller->index();
+
+        break;
+
+    case 'POST /api/appointments':
+
+        $repository = new AppointmentRepository($pdo);
+
+        $service = new AppointmentService($repository);
+
+        $controller = new AppointmentController($service);
+
+        $controller->store();
 
         break;
 
