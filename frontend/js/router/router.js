@@ -1,24 +1,18 @@
 import { HomePage } from "../modules/home/home.page.js";
-
 import { ServicesPage } from "../modules/services/services.page.js";
-
 import { BookingPage } from "../modules/booking/booking.page.js";
-
 import { Layout } from "../components/layout/Layout.js";
-
 import { Loading } from "../components/ui/Loading.js";
-
 import { ErrorState } from "../components/ui/ErrorState.js";
-
 import { runCleanup } from "../core/cleanup.js";
-
 import { ServicesSkeleton } from "../modules/services/components/ServicesSkeleton.js";
-
 import { ClientsPage } from "../modules/admin/clients/clients.page.js";
+import { ProfessionalsPage } from "../modules/professionals/professionals.page.js";
 
 const routes = {
     "/": HomePage,
     "/services": ServicesPage,
+    "/professionals": ProfessionalsPage,
     "/booking": BookingPage,
     "/clients": ClientsPage,
 }
@@ -50,12 +44,12 @@ export async function renderRoute() {
         const app = document.querySelector("#app");
 
         const path = getCurrentPath();
-    
+
         const page = routes[path];
-    
+
         if (!page) {
             app.innerHTML = Layout(ErrorState("<h1>404 página no encontrada</h1>"));
-    
+
             return;
         }
         // SHOW LOADING
@@ -68,7 +62,7 @@ export async function renderRoute() {
 
         // RENDER PAGE
         app.innerHTML = html;
-        
+
     }
     catch (error) {
 

@@ -15,6 +15,9 @@ use App\Services\ClientService;
 use App\Controllers\AppointmentController;
 use App\Repositories\AppointmentRepository;
 use App\Services\AppointmentService;
+use App\Controllers\ProfessionalController;
+use App\Repositories\ProfessionalRepository;
+use App\Services\ProfessionalService;
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -96,6 +99,26 @@ if (
 
         case 'DELETE':
             $controller->delete(
+                (int) $matches[1]
+            );
+            return;
+    }
+}
+
+if (
+    preg_match('#^/api/professionals/(\d+)$#', $path, $matches)
+) {
+
+    $repository = new ProfessionalRepository($pdo);
+
+    $service = new ProfessionalService($repository);
+
+    $controller = new ProfessionalController($service);
+
+    switch ($method) {
+
+        case 'GET':
+            $controller->show(
                 (int) $matches[1]
             );
             return;
@@ -230,6 +253,23 @@ switch ("$method $path") {
             'success' => true,
             'user' => $user
         ]);
+
+        break;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Profesionales
+    |--------------------------------------------------------------------------
+    */
+    case 'GET /api/professionals':
+
+        $repository = new ProfessionalRepository($pdo);
+
+        $service = new ProfessionalService($repository);
+
+        $controller = new ProfessionalController($service);
+
+        $controller->index();
 
         break;
 
