@@ -4,6 +4,8 @@ import { isEmpty, isPasteDate } from "../../../js/utils/validation.js";
 import { FormError } from "../../components/ui/FormError.js";
 import { createBooking } from "../booking/services/booking.service.js";
 import { registerCleanup } from "../../core/cleanup.js";
+import { getProfessionals } from "../professionals/professionals.service.js";
+import { createClient } from "../admin/clients/clients.api.js";
 
 export function initServicesEvents() {
 
@@ -33,7 +35,7 @@ export function initServicesEvents() {
 
 }
 
-function handleDocumentClick(event) {
+async function handleDocumentClick(event) {
 
     const bookButton = event.target.closest(
 
@@ -45,7 +47,7 @@ function handleDocumentClick(event) {
 
         const serviceId = bookButton.dataset.bookService;
 
-        openBookingModal(serviceId);
+        await openBookingModal(serviceId);
 
     }
 
@@ -64,11 +66,21 @@ function handleDocumentClick(event) {
     }
 }
 
-function openBookingModal(serviceId) {
+async function openBookingModal(serviceId) {
+
     const existingModal = document.querySelector(".modal-overlay");
+
     if (existingModal) return;
 
-    const modalHTML = Modal({ title: "Reservar cita", content: BookingForm(serviceId), });
+    const professionals = await getProfessionals();
+
+    const modalHTML = Modal({
+        title: "Reservar cita",
+        content: BookingForm(
+            serviceId,
+            professionals
+        ),
+    });
 
     document.body.insertAdjacentHTML("beforeend", modalHTML);
 }
@@ -82,6 +94,7 @@ function closeModal() {
 }
 
 async function handleBookingSubmit(event) {
+
     const form = event.target;
 
     if (form.id !== "booking-form") return;
@@ -91,41 +104,122 @@ async function handleBookingSubmit(event) {
     clearFormErrors(form);
 
     const formData = new FormData(form);
+
     const name = formData.get("name");
+    const email = formData.get("email");
+    const phone = formData.get("phone");
+    const professionalId = formData.get("professionalId");
     const date = formData.get("date");
+    const time = formData.get("time");
+    const notes = formData.get("notes");
+    const serviceId = formData.get("serviceId");
+
     let hasErrors = false;
 
-    // NAME VALIDATION
     if (isEmpty(name)) {
-        showFieldError(form.elements.name, "El nombre es obligatorio");
+        showFieldError(
+            form.elements.name,
+            "El nombre es obligatorio"
+        );
+
         hasErrors = true;
     }
 
-    //DATE VALIDATION
-    if (isEmpty(date)) {
-        showFieldError(form.elements.date, "La fecha es obligatoria");
+    if (isEmpty(email)) {
+        showFieldError(
+            form.elements.email,
+            "El correo electrónico es obligatorio"
+        );
+
         hasErrors = true;
+    }
+
+    if (isEmpty(phone)) {
+        showFieldError(
+            form.elements.phone,
+            "El teléfono es obligatorio"
+        );
+
+        hasErrors = true;
+    }
+
+    if (isEmpty(professionalId)) {
+        showFieldError(
+            form.elements.professionalId,
+            "Debes seleccionar un profesional"
+        );
+
+        hasErrors = true;
+    }
+
+    if (isEmpty(date)) {
+
+        showFieldError(
+            form.elements.date,
+            "La fecha es obligatoria"
+        );
+
+        hasErrors = true;
+
     } else if (isPasteDate(date)) {
-        showFieldError(form.elements.date, "No puedes reservar fechas pasadas");
+
+        showFieldError(
+            form.elements.date,
+            "No puedes reservar fechas pasadas"
+        );
+
+        hasErrors = true;
+    }
+
+    if (isEmpty(time)) {
+
+        showFieldError(
+            form.elements.time,
+            "La hora es obligatoria"
+        );
+
         hasErrors = true;
     }
 
     if (hasErrors) return;
 
-    // console.log({name, date, serviceId: formData.get("serviceId"),});
-    const booking = await createBooking({
-        name,
-        date,
-        serviceId: formData.get("serviceId"),
-    });
+    try {
 
-    // addBooking(booking);
-    console.log("BOOKING CREATED", booking);
+        const password = crypto.randomUUID();
 
-    alert("Reserva creada correctamente!");
+        const client = await createClient({
+            nombre: name,
+            email,
+            password,
+            telefono: phone
+        });
 
-    closeModal();
+        const booking = await createBooking({
+            id_cliente: client.id_cliente,
+            id_servicio: Number(serviceId),
+            id_profesional: Number(professionalId),
+            fecha: date,
+            hora: time,
+            estado: "pendiente",
+            notas: notes || null
+        });
 
+        console.log("CLIENT CREATED", client);
+        console.log("BOOKING CREATED", booking);
+
+        alert("Cita creada correctamente.");
+
+        closeModal();
+
+    } catch (error) {
+
+        console.error("Error al crear la cita:", error);
+
+        alert(
+            error.message ||
+            "No fue posible crear la cita."
+        );
+    }
 }
 
 function showFieldError(input, message) {

@@ -115,13 +115,41 @@ class ClientRepository
             ON u.id_usuario = c.id_usuario
         WHERE c.id_cliente = :id
             AND u.activo = 1
-        LIMIT 1
-    ";
+        LIMIT 1";
 
         $stmt = $this->db->prepare($sql);
 
         $stmt->execute([
             'id' => $id
+        ]);
+
+        $client = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $client ?: null;
+    }
+
+    /**
+     * Obtiene un cliente por el ID de usuario asociado.
+     *
+     * @param int $userId ID del usuario.
+     *
+     * @return array|null
+     */
+    public function findByUserId(int $userId): ?array
+    {
+        $sql = "
+            SELECT
+                id_cliente,
+                id_usuario
+            FROM clientes
+            WHERE id_usuario = :id_usuario
+            LIMIT 1
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
+            'id_usuario' => $userId
         ]);
 
         $client = $stmt->fetch(PDO::FETCH_ASSOC);

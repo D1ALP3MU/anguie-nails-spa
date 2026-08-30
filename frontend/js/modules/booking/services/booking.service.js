@@ -1,43 +1,48 @@
-import { addBooking, getBookings, deleteBooking } from "../../../state/booking.store.js";
+import {
+    httpGet,
+    httpPost,
+    httpDelete
+} from "../../../api/http.js";
 
-// CREATE BOOKING
-export async function createBooking(bookingData) {
-
-    await simulateDelay();
-
-    const booking = {
-        id: crypto.randomUUID(), ...bookingData,
-        createdAt: new Date().toISOString(),
-    };
-
-    addBooking(booking);
-
-    return booking;
-}
-
-// FETCH BOOKINGS
+/**
+ * Obtiene todas las citas.
+ *
+ * @returns {Promise<Array>}
+ */
 export async function fetchBookings() {
 
-    await simulateDelay();
+    const response = await httpGet("/appointments");
 
-    return getBookings();
-
+    return response.data;
 }
 
-// DELETE BOOKING
+/**
+ * Crea una nueva cita.
+ *
+ * @param {Object} bookingData
+ * @returns {Promise<Object>}
+ */
+export async function createBooking(bookingData) {
+
+    const response = await httpPost(
+        "/appointments",
+        bookingData
+    );
+
+    return response.data;
+}
+
+/**
+ * Cancela una cita.
+ *
+ * @param {number|string} bookingId
+ * @returns {Promise<Object>}
+ */
 export async function removeBooking(bookingId) {
 
-    await simulateDelay();
+    const response = await httpDelete(
+        `/appointments/${bookingId}`
+    );
 
-    deleteBooking(bookingId);
-
-}
-
-// SIMULATE API DELAY
-function simulateDelay() {
-
-    return new Promise(resolve => {
-        setTimeout(resolve, 1500);
-    });
-
+    return response.data;
 }
