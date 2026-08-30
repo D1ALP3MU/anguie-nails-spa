@@ -5,8 +5,6 @@ namespace App\Controllers;
 use App\Services\AuthService;
 use App\Responses\Response;
 
-use PDO;
-
 /**
  * ---------------------------------------------------------
  * Proyecto : Anguie Nails
@@ -39,11 +37,11 @@ class AuthController
     /**
      * Constructor del controlador.
      *
-     * @param PDO $connection Conexión activa a MySQL.
+     * @param AuthService $authService Servicio de autenticación.
      */
-    public function __construct(PDO $connection)
+    public function __construct(AuthService $authService)
     {
-        $this->authService = new AuthService($connection);
+        $this->authService = $authService;
     }
 
     /**

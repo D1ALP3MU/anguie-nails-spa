@@ -2,6 +2,7 @@
 
 use App\Config\Database;
 use App\Controllers\AuthController;
+use App\Services\AuthService;
 use App\Controllers\ServiceController;
 use App\Repositories\ServiceRepository;
 use App\Services\ServiceService;
@@ -235,7 +236,11 @@ switch ("$method $path") {
     */
     case 'POST /api/auth/login':
 
-        $controller = new AuthController($pdo);
+        $repository = new UserRepository($pdo);
+
+        $service = new AuthService($repository);
+
+        $controller = new AuthController($service);
 
         $controller->login();
 

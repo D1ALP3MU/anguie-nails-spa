@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use PDO;
 use App\Helpers\PasswordHelper;
 use App\Helpers\JwtHelper;
 use App\Repositories\UserRepository;
@@ -43,11 +42,11 @@ class AuthService
     /**
      * Constructor del servicio.
      *
-     * @param PDO $connection Conexión activa a MySQL.
+     * @param UserRepository $userRepository Repositorio de usuarios.
      */
-    public function __construct(PDO $connection)
+    public function __construct(UserRepository $userRepository)
     {
-        $this->userRepository = new UserRepository($connection);
+        $this->userRepository = $userRepository;
     }
 
     /**
