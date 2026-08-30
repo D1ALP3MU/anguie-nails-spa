@@ -18,8 +18,14 @@ use App\Exceptions\NotFoundException;
  * - Registrar nuevos clientes.
  * - Obtener información de clientes.
  * - Obtener un cliente por su ID.
+ * - Actualizar información de clientes.
+ * - Desactivar clientes mediante eliminación lógica.
+ * - Gestionar transacciones para garantizar la consistencia de los datos.
+ * - Coordinar con los repositorios de usuarios y clientes para realizar operaciones de base de datos.
  * 
- * Esta clase NO contiene lógica de acceso a datos.
+ * Esta clase no contiene consultas SQL.
+ * La gestión de transacciones se realiza aquí para garantizar
+ * la consistencia entre usuarios y clientes.
  * ---------------------------------------------------------
  */
 

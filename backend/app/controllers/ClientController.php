@@ -86,10 +86,8 @@ class ClientController
             true
         );
 
-        $this->service->update($id, $data);
+        $client = $this->service->update($id, $data);
 
-        Response::success([
-            'message' => 'Cliente actualizado correctamente.'
-        ]);
+        Response::success($client);
     }
 }
