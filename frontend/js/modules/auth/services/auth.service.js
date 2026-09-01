@@ -56,3 +56,15 @@ export function logout() {
         USER_KEY
     );
 }
+
+
+export function initAuth() {
+
+    const user = getCurrentUser();
+
+    if (user) {
+        return user;
+    }
+
+    return null;
+}

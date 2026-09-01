@@ -1,16 +1,8 @@
 import {
-    initAuthEvents
-} from "./auth.controller.js";
-
-import {
     LoginForm
 } from "./components/LoginForm.js";
 
 export async function LoginPage() {
-
-    setTimeout(() => {
-        initAuthEvents();
-    }, 0);
 
     return `
 

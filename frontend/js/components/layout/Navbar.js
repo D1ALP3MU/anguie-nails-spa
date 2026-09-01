@@ -1,10 +1,15 @@
+import { store } from "../../state/store.js";
+
 export function Navbar() {
+
+    const user = store.user;
 
     return `
 
         <nav class="navbar">
 
             <div class="navbar__container">
+
                 <a href="#/" class="navbar__logo">
                     Anguie Nails
                 </a>
@@ -33,17 +38,39 @@ export function Navbar() {
 
                 <div class="navbar__actions">
 
-                    <button class="btn btn-outline">
-                        Iniciar Sesión
-                    </button>
+                    ${user
+            ? `
+                                <span class="navbar__user">
+                                    Hola, ${user.nombre}
+                                </span>
 
-                    <button class="btn btn-primary">
-                        Registrarse
-                    </button>
+                                <button
+                                    class="btn btn-outline"
+                                    data-action="logout"
+                                >
+                                    Cerrar sesión
+                                </button>
+                            `
+            : `
+                                <button
+                                    class="btn btn-outline"
+                                    data-action="login"
+                                >
+                                    Iniciar Sesión
+                                </button>
+
+                                <button
+                                    class="btn btn-primary"
+                                    data-action="register"
+                                >
+                                    Registrarse
+                                </button>
+                            `
+        }
 
                 </div>
-                
-            </div> 
+
+            </div>
 
         </nav>
 

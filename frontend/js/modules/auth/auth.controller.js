@@ -1,5 +1,6 @@
 import {
-    login
+    login,
+    logout
 } from "./services/auth.service.js";
 
 import {
@@ -11,6 +12,11 @@ export function initAuthEvents() {
     document.addEventListener(
         "submit",
         handleLoginSubmit
+    );
+
+    document.addEventListener(
+        "click",
+        handleAuthClick
     );
 
 }
@@ -70,4 +76,35 @@ async function handleLoginSubmit(event) {
         button.textContent = "Iniciar sesión";
 
     }
+}
+
+function handleAuthClick(event) {
+
+    const action = event.target.dataset.action;
+
+    if (!action) return;
+
+    if (action === "login") {
+
+        window.location.hash = "#/login";
+
+        return;
+    }
+
+    if (action === "register") {
+
+        // Pendiente hasta implementar la página de registro.
+        return;
+    }
+
+    if (action === "logout") {
+
+        logout();
+
+        store.user = null;
+
+        window.location.hash = "#/";
+
+    }
+
 }
