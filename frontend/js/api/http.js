@@ -1,15 +1,25 @@
 const API_BASE_URL = "http://localhost:8001/api";
 
+const TOKEN_KEY = "anguie_token";
+
 async function request(endpoint, options = {}) {
+
+    const token = sessionStorage.getItem(TOKEN_KEY);
+
+    const headers = {
+        "Content-Type": "application/json",
+        ...options.headers
+    };
+
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
 
     const response = await fetch(
         `${API_BASE_URL}${endpoint}`,
         {
             ...options,
-            headers: {
-                "Content-Type": "application/json",
-                ...options.headers
-            },
+            headers
         }
     );
 
