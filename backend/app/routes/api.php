@@ -9,6 +9,7 @@ use App\Services\ServiceService;
 use App\Responses\Response;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\RoleMiddleware;
+use App\Constants\Roles;
 use App\Controllers\ClientController;
 use App\Repositories\ClientRepository;
 use App\Repositories\UserRepository;
@@ -49,21 +50,47 @@ if (
     switch ($method) {
 
         case 'GET':
+
+            AuthMiddleware::handle();
+
             $controller->show(
                 (int) $matches[1]
             );
+
             return;
 
         case 'PUT':
+
+            $user = AuthMiddleware::handle();
+
+            RoleMiddleware::handle(
+                $user,
+                [
+                    Roles::ADMIN
+                ]
+            );
+
             $controller->update(
                 (int) $matches[1]
             );
+
             return;
 
         case 'DELETE':
+
+            $user = AuthMiddleware::handle();
+
+            RoleMiddleware::handle(
+                $user,
+                [
+                    Roles::ADMIN
+                ]
+            );
+
             $controller->delete(
                 (int) $matches[1]
             );
+
             return;
     }
 }
@@ -166,6 +193,8 @@ switch ("$method $path") {
     */
     case 'GET /api/services':
 
+        AuthMiddleware::handle();
+
         $repository = new ServiceRepository($pdo);
 
         $service = new ServiceService($repository);
@@ -177,6 +206,15 @@ switch ("$method $path") {
         break;
 
     case 'POST /api/services':
+
+        $user = AuthMiddleware::handle();
+
+        RoleMiddleware::handle(
+            $user,
+            [
+                Roles::ADMIN
+            ]
+        );
 
         $repository = new ServiceRepository($pdo);
 
@@ -247,12 +285,8 @@ switch ("$method $path") {
         break;
 
     case 'GET /api/profile':
-        $user = AuthMiddleware::handle();
 
-        RoleMiddleware::handle(
-            $user,
-            [1]
-        );
+        $user = AuthMiddleware::handle();
 
         Response::json([
             'success' => true,

@@ -11,8 +11,10 @@
 }
 
 .modal {
-    width: 100%;
-    max-width: 520;
+    width: min(100%, 520px);
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
     background: var(--white);
     border-radius: 24px;
     padding: 2rem;

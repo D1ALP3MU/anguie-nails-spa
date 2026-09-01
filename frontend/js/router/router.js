@@ -8,6 +8,7 @@ import { runCleanup } from "../core/cleanup.js";
 import { ServicesSkeleton } from "../modules/services/components/ServicesSkeleton.js";
 import { ClientsPage } from "../modules/admin/clients/clients.page.js";
 import { ProfessionalsPage } from "../modules/professionals/professionals.page.js";
+import { LoginPage } from "../modules/auth/auth.page.js";
 
 const routes = {
     "/": HomePage,
@@ -15,6 +16,7 @@ const routes = {
     "/professionals": ProfessionalsPage,
     "/booking": BookingPage,
     "/clients": ClientsPage,
+    "/login": LoginPage,
 }
 
 const routeLoaders = {
