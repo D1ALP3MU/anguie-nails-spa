@@ -2,41 +2,40 @@
 
 namespace App\Middleware;
 
-use App\Responses\Response;
+use App\Exceptions\AuthException;
+use App\Exceptions\ForbiddenException;
 
+/**
+ * Verifica que el usuario tenga alguno de los roles permitidos.
+ *
+ * No genera respuestas HTTP: lanza excepciones de dominio y deja
+ * que ExceptionHandler decida el formato y el código.
+ */
 class RoleMiddleware
 {
-
     /**
-     * Verifica que el usuario tenga alguno de los roles permitidos.
-     *
      * @param array $user Información del usuario autenticado.
      * @param array $allowedRoles Roles que pueden acceder.
      *
      * @return void
+     *
+     * @throws AuthException Si el token no trae el rol.
+     * @throws ForbiddenException Si el rol no está autorizado.
      */
     public static function handle(
         array $user,
         array $allowedRoles
-    ): void
-    {
+    ): void {
         if (!isset($user['id_rol'])) {
-            Response::error(
-                'No fue posible identificar el rol del usuario.',
-                401
+            throw new AuthException(
+                'No fue posible identificar el rol del usuario.'
             );
-
-            return;
         }
 
-        if (!in_array($user['id_rol'], $allowedRoles, true)) {
-            Response::error(
-                'No tienes permisos para realizar esta acción.',
-                403
+        if (!in_array((int) $user['id_rol'], $allowedRoles, true)) {
+            throw new ForbiddenException(
+                'No tienes permisos para realizar esta acción.'
             );
-
-            return;
         }
     }
-
 }

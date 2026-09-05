@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Request;
 use App\Services\ClientService;
 use App\Responses\Response;
 
@@ -14,16 +15,13 @@ class ClientController
     /**
      * Registra un nuevo cliente.
      *
+     * @param Request $request Petición entrante.
+     *
      * @return void
      */
-    public function store(): void
+    public function store(Request $request): void
     {
-        $data = json_decode(
-            file_get_contents('php://input'),
-            true
-        );
-
-        $id = $this->service->register($data);
+        $id = $this->service->register($request->body());
 
         Response::created([
             'id_cliente' => $id
@@ -46,12 +44,13 @@ class ClientController
      * Obtiene un cliente por su ID.
      *
      * @param int $id ID del cliente.
+     * @param array $authUser Usuario autenticado.
      *
      * @return void
      */
-    public function show(int $id): void
+    public function show(int $id, array $authUser): void
     {
-        $client = $this->service->findById($id);
+        $client = $this->service->findById($id, $authUser);
 
         Response::success($client);
     }
@@ -76,17 +75,21 @@ class ClientController
      * Actualiza un cliente existente.
      *
      * @param int $id ID del cliente.
+     * @param Request $request Petición entrante.
+     * @param array $authUser Usuario autenticado.
      *
      * @return void
      */
-    public function update(int $id): void
-    {
-        $data = json_decode(
-            file_get_contents('php://input'),
-            true
+    public function update(
+        int $id,
+        Request $request,
+        array $authUser
+    ): void {
+        $client = $this->service->update(
+            $id,
+            $request->body(),
+            $authUser
         );
-
-        $client = $this->service->update($id, $data);
 
         Response::success($client);
     }

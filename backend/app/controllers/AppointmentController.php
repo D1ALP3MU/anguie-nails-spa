@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Request;
 use App\Services\AppointmentService;
 use App\Responses\Response;
 
@@ -10,6 +11,9 @@ use App\Responses\Response;
  * Controlador para gestionar las citas.
  *
  * Este controlador proporciona métodos para manejar las solicitudes relacionadas con las citas.
+ *
+ * Todas las acciones requieren un usuario autenticado, que se recibe
+ * como parámetro y se delega al servicio para aplicar las reglas de acceso.
  */
 class AppointmentController
 {
@@ -20,16 +24,17 @@ class AppointmentController
     /**
      * Registra una nueva cita.
      *
+     * @param Request $request Petición entrante.
+     * @param array $authUser Usuario autenticado.
+     *
      * @return void
      */
-    public function store(): void
+    public function store(Request $request, array $authUser): void
     {
-        $data = json_decode(
-            file_get_contents('php://input'),
-            true
+        $id = $this->service->create(
+            $request->body(),
+            $authUser
         );
-
-        $id = $this->service->create($data);
 
         Response::created([
             'id_cita' => $id
@@ -37,13 +42,15 @@ class AppointmentController
     }
 
     /**
-     * Obtiene todas las citas.
+     * Obtiene las citas visibles para el usuario autenticado.
+     *
+     * @param array $authUser Usuario autenticado.
      *
      * @return void
      */
-    public function index(): void
+    public function index(array $authUser): void
     {
-        $appointments = $this->service->findAll();
+        $appointments = $this->service->findAll($authUser);
 
         Response::success($appointments);
     }
@@ -52,12 +59,16 @@ class AppointmentController
      * Obtiene una cita por su ID.
      *
      * @param int $id ID de la cita.
+     * @param array $authUser Usuario autenticado.
      *
      * @return void
      */
-    public function show(int $id): void
+    public function show(int $id, array $authUser): void
     {
-        $appointment = $this->service->findById($id);
+        $appointment = $this->service->findById(
+            $id,
+            $authUser
+        );
 
         Response::success($appointment);
     }
@@ -66,19 +77,20 @@ class AppointmentController
      * Actualiza una cita existente.
      *
      * @param int $id ID de la cita.
+     * @param Request $request Petición entrante.
+     * @param array $authUser Usuario autenticado.
      *
      * @return void
      */
-    public function update(int $id): void
-    {
-        $data = json_decode(
-            file_get_contents('php://input'),
-            true
-        );
-
+    public function update(
+        int $id,
+        Request $request,
+        array $authUser
+    ): void {
         $appointment = $this->service->update(
             $id,
-            $data
+            $request->body(),
+            $authUser
         );
 
         Response::success($appointment);
@@ -88,12 +100,13 @@ class AppointmentController
      * Cancela una cita existente.
      *
      * @param int $id ID de la cita.
+     * @param array $authUser Usuario autenticado.
      *
      * @return void
      */
-    public function delete(int $id): void
+    public function delete(int $id, array $authUser): void
     {
-        $this->service->delete($id);
+        $this->service->delete($id, $authUser);
 
         Response::success([
             'message' => 'Cita cancelada correctamente.'

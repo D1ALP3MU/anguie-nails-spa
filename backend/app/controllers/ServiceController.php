@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Request;
 use App\Services\ServiceService;
 use App\Responses\Response;
 
@@ -40,16 +41,13 @@ class ServiceController
     /**
      * Crea un nuevo servicio.
      *
+     * @param Request $request Petición entrante.
+     *
      * @return void
      */
-    public function store(): void
+    public function store(Request $request): void
     {
-        $data = json_decode(
-            file_get_contents('php://input'),
-            true
-        );
-
-        $id = $this->service->create($data);
+        $id = $this->service->create($request->body());
 
         Response::created([
             'id_servicio' => $id
@@ -60,19 +58,15 @@ class ServiceController
      * Actualiza un servicio existente.
      *
      * @param int $id ID del servicio.
+     * @param Request $request Petición entrante.
      *
      * @return void
      */
-    public function update(int $id): void
+    public function update(int $id, Request $request): void
     {
-        $data = json_decode(
-            file_get_contents('php://input'),
-            true
-        );
-
         $service = $this->service->update(
             $id,
-            $data
+            $request->body()
         );
 
         Response::success($service);

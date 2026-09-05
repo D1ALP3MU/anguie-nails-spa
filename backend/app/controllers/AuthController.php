@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Request;
 use App\Services\AuthService;
 use App\Responses\Response;
 
@@ -20,6 +21,10 @@ use App\Responses\Response;
  * - Recibir peticiones HTTP.
  * - Invocar el servicio de autenticación.
  * - Retornar respuestas JSON.
+ *
+ * El registro de cuentas no vive aquí: crear una cuenta equivale
+ * a crear un cliente, así que POST /api/auth/register se atiende
+ * con ClientController::store() y comparte una única transacción.
  *
  * Esta clase NO contiene lógica de negocio.
  * ---------------------------------------------------------
@@ -47,17 +52,26 @@ class AuthController
     /**
      * Inicia sesión de un usuario.
      *
+     * @param Request $request Petición entrante.
+     *
      * @return void
      */
-    public function login(): void
+    public function login(Request $request): void
     {
-        $data = json_decode(
-            file_get_contents('php://input'),
-            true
-        );
-
-        $result = $this->authService->login($data);
+        $result = $this->authService->login($request->body());
 
         Response::success($result);
+    }
+
+    /**
+     * Devuelve los datos del usuario autenticado.
+     *
+     * @param array $authUser Usuario autenticado.
+     *
+     * @return void
+     */
+    public function profile(array $authUser): void
+    {
+        Response::success($authUser);
     }
 }

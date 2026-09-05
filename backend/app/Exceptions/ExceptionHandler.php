@@ -40,7 +40,28 @@ class ExceptionHandler
                 ], 401);
                 break;
 
+            case $exception instanceof ForbiddenException:
+                Response::json([
+                    'success' => false,
+                    'message' => $exception->getMessage()
+                ], 403);
+                break;
+
+            case $exception instanceof MethodNotAllowedException:
+                Response::json([
+                    'success' => false,
+                    'message' => $exception->getMessage()
+                ], 405);
+                break;
+
             default:
+                error_log(
+                    'Error no controlado: '
+                    . $exception->getMessage()
+                    . ' en ' . $exception->getFile()
+                    . ':' . $exception->getLine()
+                );
+
                 Response::json([
                     'success' => false,
                     'message' => 'Ha ocurrido un error interno del servidor.'

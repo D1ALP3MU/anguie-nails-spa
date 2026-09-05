@@ -1,349 +1,118 @@
 <?php
 
-use App\Config\Database;
-use App\Controllers\AuthController;
-use App\Services\AuthService;
-use App\Controllers\ServiceController;
-use App\Repositories\ServiceRepository;
-use App\Services\ServiceService;
-use App\Responses\Response;
-use App\Middleware\AuthMiddleware;
-use App\Middleware\RoleMiddleware;
+use App\Core\Route;
 use App\Constants\Roles;
-use App\Controllers\ClientController;
-use App\Repositories\ClientRepository;
-use App\Repositories\UserRepository;
-use App\Services\ClientService;
 use App\Controllers\AppointmentController;
-use App\Repositories\AppointmentRepository;
-use App\Services\AppointmentService;
+use App\Controllers\AuthController;
+use App\Controllers\ClientController;
 use App\Controllers\ProfessionalController;
-use App\Repositories\ProfessionalRepository;
-use App\Services\ProfessionalService;
-
-$method = $_SERVER['REQUEST_METHOD'];
-
-$path = parse_url(
-    $_SERVER['REQUEST_URI'],
-    PHP_URL_PATH
-);
-
-$database = new Database();
-
-$pdo = $database->connect();
+use App\Controllers\ServiceController;
 
 /*
 |--------------------------------------------------------------------------
-| Rutas dinámicas
+| Tabla de rutas
 |--------------------------------------------------------------------------
+| Cada ruta declara junto a sí misma lo que exige:
+|
+|   (sin nada)      público.
+|   requireAuth()   necesita un token válido.
+|   allowRoles(...) además restringe por rol.
+|
+| Los segmentos {id} se inyectan en el método del controlador por
+| nombre, igual que un parámetro llamado $authUser recibe el
+| usuario autenticado.
+|
+| Política general:
+|   Público      : catálogo, equipo, login y registro.
+|   Autenticado  : citas y perfil propio. El servicio filtra
+|                  además por pertenencia.
+|   Administrador: alta/baja de servicios y gestión de clientes.
 */
-if (
-    preg_match('#^/api/services/(\d+)$#', $path, $matches)
-) {
 
-    $repository = new ServiceRepository($pdo);
+return [
 
-    $service = new ServiceService($repository);
-
-    $controller = new ServiceController($service);
-
-    switch ($method) {
-
-        case 'GET':
-
-            AuthMiddleware::handle();
-
-            $controller->show(
-                (int) $matches[1]
-            );
-
-            return;
-
-        case 'PUT':
-
-            $user = AuthMiddleware::handle();
-
-            RoleMiddleware::handle(
-                $user,
-                [
-                    Roles::ADMIN
-                ]
-            );
-
-            $controller->update(
-                (int) $matches[1]
-            );
-
-            return;
-
-        case 'DELETE':
-
-            $user = AuthMiddleware::handle();
-
-            RoleMiddleware::handle(
-                $user,
-                [
-                    Roles::ADMIN
-                ]
-            );
-
-            $controller->delete(
-                (int) $matches[1]
-            );
-
-            return;
-    }
-}
-
-if (
-    preg_match('#^/api/clients/(\d+)$#', $path, $matches)
-) {
-
-    $userRepository = new UserRepository($pdo);
-
-    $clientRepository = new ClientRepository($pdo);
-
-    $service = new ClientService(
-        $pdo,
-        $userRepository,
-        $clientRepository
-    );
-
-    $controller = new ClientController($service);
-
-    switch ($method) {
-
-        case 'GET':
-            $controller->show(
-                (int) $matches[1]
-            );
-            return;
-
-        case 'PUT':
-            $controller->update(
-                (int) $matches[1]
-            );
-            return;
-
-        case 'DELETE':
-            $controller->delete(
-                (int) $matches[1]
-            );
-            return;
-    }
-}
-
-if (
-    preg_match('#^/api/professionals/(\d+)$#', $path, $matches)
-) {
-
-    $repository = new ProfessionalRepository($pdo);
-
-    $service = new ProfessionalService($repository);
-
-    $controller = new ProfessionalController($service);
-
-    switch ($method) {
-
-        case 'GET':
-            $controller->show(
-                (int) $matches[1]
-            );
-            return;
-    }
-}
-
-if (
-    preg_match('#^/api/appointments/(\d+)$#', $path, $matches)
-) {
-
-    $repository = new AppointmentRepository($pdo);
-
-    $service = new AppointmentService($repository);
-
-    $controller = new AppointmentController($service);
-
-    switch ($method) {
-
-        case 'GET':
-            $controller->show(
-                (int) $matches[1]
-            );
-            return;
-
-        case 'PUT':
-            $controller->update(
-                (int) $matches[1]
-            );
-            return;
-
-        case 'DELETE':
-            $controller->delete(
-                (int) $matches[1]
-            );
-            return;
-    }
-}
-
-switch ("$method $path") {
     /*
     |--------------------------------------------------------------------------
     | Servicios
     |--------------------------------------------------------------------------
+    | El catálogo es público: debe poder consultarse sin cuenta.
     */
-    case 'GET /api/services':
+    Route::get('/api/services', ServiceController::class, 'index'),
+    Route::get('/api/services/{id}', ServiceController::class, 'show'),
 
-        AuthMiddleware::handle();
+    Route::post('/api/services', ServiceController::class, 'store')
+        ->allowRoles(Roles::ADMIN),
 
-        $repository = new ServiceRepository($pdo);
+    Route::put('/api/services/{id}', ServiceController::class, 'update')
+        ->allowRoles(Roles::ADMIN),
 
-        $service = new ServiceService($repository);
-
-        $controller = new ServiceController($service);
-
-        $controller->index();
-
-        break;
-
-    case 'POST /api/services':
-
-        $user = AuthMiddleware::handle();
-
-        RoleMiddleware::handle(
-            $user,
-            [
-                Roles::ADMIN
-            ]
-        );
-
-        $repository = new ServiceRepository($pdo);
-
-        $service = new ServiceService($repository);
-
-        $controller = new ServiceController($service);
-
-        $controller->store();
-
-        break;
-
-    /*
-    |--------------------------------------------------------------------------
-    | Clientes
-    |--------------------------------------------------------------------------
-    */
-    case 'GET /api/clients':
-
-        $userRepository = new UserRepository($pdo);
-
-        $clientRepository = new ClientRepository($pdo);
-
-        $service = new ClientService(
-            $pdo,
-            $userRepository,
-            $clientRepository
-        );
-
-        $controller = new ClientController($service);
-
-        $controller->index();
-
-        break;
-
-    case 'POST /api/clients':
-
-        $userRepository = new UserRepository($pdo);
-
-        $clientRepository = new ClientRepository($pdo);
-
-        $service = new ClientService(
-            $pdo,
-            $userRepository,
-            $clientRepository
-        );
-
-        $controller = new ClientController($service);
-
-        $controller->store();
-
-        break;
-
-    /*
-    |--------------------------------------------------------------------------
-    | Autenticación
-    |--------------------------------------------------------------------------
-    */
-    case 'POST /api/auth/login':
-
-        $repository = new UserRepository($pdo);
-
-        $service = new AuthService($repository);
-
-        $controller = new AuthController($service);
-
-        $controller->login();
-
-        break;
-
-    case 'GET /api/profile':
-
-        $user = AuthMiddleware::handle();
-
-        Response::json([
-            'success' => true,
-            'user' => $user
-        ]);
-
-        break;
+    Route::delete('/api/services/{id}', ServiceController::class, 'delete')
+        ->allowRoles(Roles::ADMIN),
 
     /*
     |--------------------------------------------------------------------------
     | Profesionales
     |--------------------------------------------------------------------------
     */
-    case 'GET /api/professionals':
+    Route::get('/api/professionals', ProfessionalController::class, 'index'),
+    Route::get('/api/professionals/{id}', ProfessionalController::class, 'show'),
 
-        $repository = new ProfessionalRepository($pdo);
+    /*
+    |--------------------------------------------------------------------------
+    | Autenticación
+    |--------------------------------------------------------------------------
+    | Registrarse y ser cliente son lo mismo en este dominio, así que
+    | el registro público comparte controlador con el alta de clientes:
+    | un único camino que crea el usuario y su perfil en una transacción.
+    */
+    Route::post('/api/auth/login', AuthController::class, 'login'),
+    Route::post('/api/auth/register', ClientController::class, 'store'),
 
-        $service = new ProfessionalService($repository);
+    Route::get('/api/profile', AuthController::class, 'profile')
+        ->requireAuth(),
 
-        $controller = new ProfessionalController($service);
+    /*
+    |--------------------------------------------------------------------------
+    | Clientes
+    |--------------------------------------------------------------------------
+    | Ver y editar admiten al propio cliente además del administrador;
+    | la comprobación de pertenencia vive en ClientService.
+    */
+    Route::get('/api/clients', ClientController::class, 'index')
+        ->allowRoles(Roles::ADMIN),
 
-        $controller->index();
+    Route::post('/api/clients', ClientController::class, 'store')
+        ->allowRoles(Roles::ADMIN),
 
-        break;
+    Route::get('/api/clients/{id}', ClientController::class, 'show')
+        ->requireAuth(),
+
+    Route::put('/api/clients/{id}', ClientController::class, 'update')
+        ->requireAuth(),
+
+    Route::delete('/api/clients/{id}', ClientController::class, 'delete')
+        ->allowRoles(Roles::ADMIN),
 
     /*
     |--------------------------------------------------------------------------
     | Citas
     |--------------------------------------------------------------------------
+    | Un cliente solo ve y modifica las suyas: AppointmentService
+    | filtra por el id_cliente que resuelve desde el token.
     */
-    case 'GET /api/appointments':
+    Route::get('/api/appointments', AppointmentController::class, 'index')
+        ->requireAuth(),
 
-        $repository = new AppointmentRepository($pdo);
+    Route::post('/api/appointments', AppointmentController::class, 'store')
+        ->requireAuth(),
 
-        $service = new AppointmentService($repository);
+    Route::get('/api/appointments/{id}', AppointmentController::class, 'show')
+        ->requireAuth(),
 
-        $controller = new AppointmentController($service);
+    Route::put('/api/appointments/{id}', AppointmentController::class, 'update')
+        ->requireAuth(),
 
-        $controller->index();
+    Route::delete('/api/appointments/{id}', AppointmentController::class, 'delete')
+        ->requireAuth(),
 
-        break;
-
-    case 'POST /api/appointments':
-
-        $repository = new AppointmentRepository($pdo);
-
-        $service = new AppointmentService($repository);
-
-        $controller = new AppointmentController($service);
-
-        $controller->store();
-
-        break;
-
-    default:
-        Response::error(
-            'Ruta no encontrada',
-            404
-        );
-}
+];
