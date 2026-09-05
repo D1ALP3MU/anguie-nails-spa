@@ -2,6 +2,10 @@ import {
     LoginForm
 } from "./components/LoginForm.js";
 
+import {
+    RegisterForm
+} from "./components/RegisterForm.js";
+
 export async function LoginPage() {
 
     return `
@@ -25,4 +29,20 @@ export async function LoginPage() {
         </section>
 
     `;
+}
+
+export async function RegisterPage() {
+
+    return `
+
+        <section class="auth-page">
+        
+            <h1>Crear cuenta</h1>
+
+            ${RegisterForm()}
+
+        </section>
+
+    `;
+
 }
