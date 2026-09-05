@@ -174,11 +174,31 @@ class ClientService
     /**
      * Obtiene un cliente activo por su ID.
      *
+     * Un administrador puede consultar cualquier cliente;
+     * un cliente solo puede consultar su propio perfil.
+     *
+     * @param int $id ID del cliente.
+     * @param array $authUser Usuario autenticado.
+     *
+     * @return array
+     */
+    public function findById(int $id, array $authUser): array
+    {
+        $client = $this->getClientOrFail($id);
+
+        $this->assertOwnership($client, $authUser);
+
+        return $client;
+    }
+
+    /**
+     * Obtiene un cliente o lanza una excepción si no existe.
+     *
      * @param int $id ID del cliente.
      *
      * @return array
      */
-    public function findById(int $id): array
+    private function getClientOrFail(int $id): array
     {
         $client = $this->clientRepository->findById($id);
 
@@ -189,6 +209,49 @@ class ClientService
         }
 
         return $client;
+    }
+
+    /**
+     * Indica si el usuario autenticado es administrador.
+     *
+     * @param array $authUser Usuario autenticado.
+     *
+     * @return bool
+     */
+    private function isAdmin(array $authUser): bool
+    {
+        return (int) ($authUser['id_rol'] ?? 0) === Roles::ADMIN;
+    }
+
+    /**
+     * Verifica que el usuario autenticado pueda operar sobre el cliente.
+     *
+     * Se responde "no encontrado" en lugar de "prohibido" para no
+     * revelar qué identificadores existen en la base de datos.
+     *
+     * @param array $client Cliente consultado.
+     * @param array $authUser Usuario autenticado.
+     *
+     * @return void
+     *
+     * @throws NotFoundException
+     */
+    private function assertOwnership(
+        array $client,
+        array $authUser
+    ): void {
+        if ($this->isAdmin($authUser)) {
+            return;
+        }
+
+        if (
+            (int) $client['id_usuario']
+            !== (int) ($authUser['id_usuario'] ?? 0)
+        ) {
+            throw new NotFoundException(
+                'Cliente no encontrado.'
+            );
+        }
     }
 
     /**
@@ -239,20 +302,20 @@ class ClientService
      *
      * @param int $id ID del cliente.
      * @param array $data Datos a actualizar.
+     * @param array $authUser Usuario autenticado.
      *
      * @return array
      */
-    public function update(int $id, array $data): array
-    {
+    public function update(
+        int $id,
+        array $data,
+        array $authUser
+    ): array {
+        $client = $this->getClientOrFail($id);
+
+        $this->assertOwnership($client, $authUser);
+
         ClientValidator::validateUpdate($data);
-
-        $client = $this->clientRepository->findById($id);
-
-        if ($client === null) {
-            throw new NotFoundException(
-                'Cliente no encontrado.'
-            );
-        }
 
         $email = trim($data['email']);
 
@@ -288,7 +351,7 @@ class ClientService
 
             $this->db->commit();
 
-            return $this->findById($id);
+            return $this->getClientOrFail($id);
         } catch (Throwable $e) {
 
             if ($this->db->inTransaction()) {

@@ -31,16 +31,32 @@ class Database {
                 PDO::ATTR_ERRMODE,
                 PDO::ERRMODE_EXCEPTION
             );
+
+            $pdo->setAttribute(
+                PDO::ATTR_EMULATE_PREPARES,
+                false
+            );
+
             return $pdo;
         }
         catch (PDOException $error) {
-            http_response_code(500);
-            die(
 
+            // El detalle del error se registra en el servidor.
+            // NUNCA se devuelve al cliente: contiene host,
+            // usuario y en ocasiones la contraseña de la base de datos.
+            error_log(
+                'Fallo de conexión a la base de datos: '
+                . $error->getMessage()
+            );
+
+            http_response_code(500);
+
+            header('Content-Type: application/json; charset=utf-8');
+
+            die(
                 json_encode([
                     "success" => false,
-                    "message" => "Database connection failed",
-                    "error" => $error->getMessage()
+                    "message" => "Ha ocurrido un error interno del servidor."
                 ])
             );
         }

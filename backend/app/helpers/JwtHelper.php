@@ -4,9 +4,7 @@ namespace App\Helpers;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use Firebase\JWT\ExpiredException;
-use Firebase\JWT\SignatureInvalidException;
-use UnexpectedValueException;
+use Throwable;
 use App\Exceptions\AuthException;
 
 class JwtHelper
@@ -82,11 +80,18 @@ class JwtHelper
             );
 
             return (array) $decoded;
-        } catch (
-            ExpiredException |
-            SignatureInvalidException |
-            UnexpectedValueException $e
-        ) {
+        } catch (Throwable $e) {
+
+            // Cualquier fallo al decodificar significa lo mismo para
+            // quien llama: el token no sirve. Se captura Throwable
+            // porque la librería lanza además DomainException
+            // (JSON malformado) e InvalidArgumentException, que de
+            // otro modo escaparían y producirían un 500 en lugar de un 401.
+            error_log(
+                'Token JWT rechazado ('
+                . get_class($e) . '): '
+                . $e->getMessage()
+            );
 
             throw new AuthException(
                 'Token inválido o expirado.'
