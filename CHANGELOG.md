@@ -20,6 +20,9 @@ El proyecto todavía no publica versiones etiquetadas. El detalle commit a commi
 
 ### Añadido
 
+- CRUD completo de profesionales, con panel de administración. Era el único módulo a medias: solo lectura y sin forma de dar de alta a nadie salvo con SQL a mano. No se puede dar de baja a quien tiene citas pendientes, porque dejaría a clientas esperando.
+- Se elimina el rol Empleado, que no llegó a usarse. La constante no coincidía con el identificador de la base y ningún código la referenciaba.
+
 - Detección de cruce de horarios en la agenda, calculada con la duración de cada servicio. Una cita de 60 minutos a las 10:00 bloquea cualquier solicitud entre las 10:00 y las 11:00; una contigua se acepta y una cancelada libera el horario.
 - Índice `uq_citas_agenda` como red de seguridad ante peticiones simultáneas, con una columna generada que excluye las citas canceladas. Migración en `database/migrations/001_citas_agenda_unica.sql`.
 - Validación de que el servicio y el profesional existan y estén activos, y de que el horario no esté en el pasado.
@@ -27,7 +30,7 @@ El proyecto todavía no publica versiones etiquetadas. El detalle commit a commi
 - Interceptor de 401 en el cliente HTTP: limpia la sesión y redirige a login. Antes, con el token vencido, la interfaz seguía mostrando al usuario como conectado mientras todo fallaba.
 - Enrutador declarativo con contenedor de dependencias. La protección de las 21 rutas se lee de un vistazo en `backend/app/routes/api.php`.
 - Respuesta `405` cuando la ruta existe pero no con ese método.
-- Suite de 210 pruebas: 137 unitarias sin base de datos y 73 de integración contra MySQL real. `composer test`.
+- Suite de 253 pruebas: 158 unitarias sin base de datos y 95 de integración contra MySQL real. `composer test`.
 - Objeto `Request` inyectado por el enrutador. Los controladores dejan de leer `php://input`, el análisis del cuerpo se centraliza y un JSON malformado se rechaza con un mensaje claro en lugar de reportarse como campos obligatorios.
 - `.env.example` y documentación de arquitectura, API y decisiones técnicas.
 

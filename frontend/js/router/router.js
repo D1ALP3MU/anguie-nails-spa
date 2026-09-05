@@ -7,6 +7,7 @@ import { ErrorState } from "../components/ui/ErrorState.js";
 import { runCleanup } from "../core/cleanup.js";
 import { ServicesSkeleton } from "../modules/services/components/ServicesSkeleton.js";
 import { ClientsPage } from "../modules/admin/clients/clients.page.js";
+import { ProfessionalsAdminPage } from "../modules/admin/professionals/professionals.page.js";
 import { ProfessionalsPage } from "../modules/professionals/professionals.page.js";
 import { store } from "../state/store.js";
 import { ROLES } from "../constants/roles.js";
@@ -32,7 +33,8 @@ const routes = {
     "/services": { page: ServicesPage },
     "/professionals": { page: ProfessionalsPage },
     "/booking": { page: BookingPage, auth: true },
-    "/clients": { page: ClientsPage, roles: [ROLES.ADMIN] },
+    "/admin/clients": { page: ClientsPage, roles: [ROLES.ADMIN] },
+    "/admin/professionals": { page: ProfessionalsAdminPage, roles: [ROLES.ADMIN] },
     "/login": { page: LoginPage, guestOnly: true },
     "/register": { page: RegisterPage, guestOnly: true },
 };

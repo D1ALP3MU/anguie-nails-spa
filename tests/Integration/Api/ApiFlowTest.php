@@ -722,6 +722,117 @@ class ApiFlowTest extends IntegrationTestCase
         $this->assertSame('3009998877', $response['data']['telefono']);
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Equipo del salón
+    |--------------------------------------------------------------------------
+    */
+
+    #[Test]
+    public function el_alta_de_profesionales_exige_administrador(): void
+    {
+        $this->asClient();
+
+        $this->expectException(ForbiddenException::class);
+
+        $this->post('/api/professionals', [
+            'nombre' => 'Intrusa',
+            'especialidad' => 'Manicura'
+        ]);
+    }
+
+    #[Test]
+    public function el_alta_de_profesionales_exige_sesion(): void
+    {
+        $this->expectException(AuthException::class);
+
+        $this->post('/api/professionals', ['nombre' => 'Anónima']);
+    }
+
+    #[Test]
+    public function el_administrador_da_de_alta_un_profesional(): void
+    {
+        $this->asAdmin();
+
+        $antes = $this->countRows('profesionales');
+
+        $response = $this->post('/api/professionals', [
+            'nombre' => 'Marta Ríos',
+            'especialidad' => 'Pedicura',
+            'telefono' => '3004445566'
+        ]);
+
+        $this->assertTrue($response['success']);
+        $this->assertSame($antes + 1, $this->countRows('profesionales'));
+    }
+
+    #[Test]
+    public function el_alta_de_profesionales_valida_los_datos(): void
+    {
+        $this->asAdmin();
+
+        $this->expectException(ValidationException::class);
+
+        $this->post('/api/professionals', ['nombre' => 'X']);
+    }
+
+    #[Test]
+    public function el_administrador_edita_un_profesional(): void
+    {
+        $this->asAdmin();
+
+        $response = $this->put('/api/professionals/' . $this->professionalId, [
+            'nombre' => 'Laura Gómez Ruiz',
+            'especialidad' => 'Nail art',
+            'telefono' => '3009998877'
+        ]);
+
+        $this->assertSame('Laura Gómez Ruiz', $response['data']['nombre']);
+    }
+
+    #[Test]
+    public function el_alta_aparece_en_el_listado_publico(): void
+    {
+        $this->asAdmin();
+
+        $this->post('/api/professionals', ['nombre' => 'Marta Ríos']);
+
+        unset($_SERVER['HTTP_AUTHORIZATION']);
+
+        // El equipo se consulta sin sesión: es información del salón.
+        $this->assertCount(2, $this->get('/api/professionals')['data']);
+    }
+
+    #[Test]
+    public function no_se_da_de_baja_a_un_profesional_con_agenda(): void
+    {
+        $this->createAppointment(
+            $this->clientId,
+            $this->serviceId,
+            $this->professionalId,
+            $this->futureDate(),
+            '10:00'
+        );
+
+        $this->asAdmin();
+
+        $this->expectException(ConflictException::class);
+
+        $this->delete('/api/professionals/' . $this->professionalId);
+    }
+
+    #[Test]
+    public function el_administrador_da_de_baja_a_quien_no_tiene_agenda(): void
+    {
+        $this->asAdmin();
+
+        $this->delete('/api/professionals/' . $this->professionalId);
+
+        unset($_SERVER['HTTP_AUTHORIZATION']);
+
+        $this->assertCount(0, $this->get('/api/professionals')['data']);
+    }
+
     #[Test]
     public function un_cliente_no_edita_el_perfil_de_otro(): void
     {

@@ -46,8 +46,14 @@ export function Navbar() {
                     ${isAdmin
             ? `
                                 <li>
-                                    <a href="#/clients">
+                                    <a href="#/admin/clients">
                                         Clientes
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a href="#/admin/professionals">
+                                        Equipo
                                     </a>
                                 </li>
                             `

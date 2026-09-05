@@ -57,6 +57,15 @@ return [
     Route::get('/api/professionals', ProfessionalController::class, 'index'),
     Route::get('/api/professionals/{id}', ProfessionalController::class, 'show'),
 
+    Route::post('/api/professionals', ProfessionalController::class, 'store')
+        ->allowRoles(Roles::ADMIN),
+
+    Route::put('/api/professionals/{id}', ProfessionalController::class, 'update')
+        ->allowRoles(Roles::ADMIN),
+
+    Route::delete('/api/professionals/{id}', ProfessionalController::class, 'delete')
+        ->allowRoles(Roles::ADMIN),
+
     /*
     |--------------------------------------------------------------------------
     | Autenticación

@@ -71,7 +71,7 @@ Authorization: Bearer <token>
 
 El token es un JWT firmado con HS256 que vence según `JWT_EXPIRE`. Contiene `id_usuario`, `nombre`, `email` e `id_rol`.
 
-Roles: `1` administrador · `2` cliente · `3` empleado.
+Roles: `1` administrador · `2` cliente.
 
 ---
 
@@ -221,6 +221,28 @@ Baja lógica: marca `activo = 0` y deja de aparecer en el catálogo. **409** si 
 ### `GET /api/professionals/{id}` · público
 
 Un solo objeto, con `activo`. **404** si no existe.
+
+### `POST /api/professionals` · administrador
+
+```json
+{
+  "nombre": "Marta Ríos",
+  "especialidad": "Pedicura",
+  "telefono": "3004445566"
+}
+```
+
+Solo `nombre` es obligatorio: el salón puede registrar a alguien antes de tener su contacto. **201** con `{ "id_profesional": 4 }`.
+
+### `PUT /api/professionals/{id}` · administrador
+
+Mismo cuerpo que la creación. Devuelve el profesional actualizado.
+
+### `DELETE /api/professionals/{id}` · administrador
+
+Baja lógica: deja de aparecer en el catálogo, pero la fila permanece porque las citas la referencian.
+
+**409** si ya estaba dado de baja, o si tiene citas `pendiente` o `confirmada` de hoy en adelante. En ese caso el mensaje dice cuántas son: dar de baja a alguien con clientas esperándola dejaría esas citas huérfanas, así que primero hay que reprogramarlas o cancelarlas.
 
 ---
 

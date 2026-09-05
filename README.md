@@ -124,6 +124,9 @@ Referencia completa con formatos de petición y respuesta en [`docs/api.md`](doc
 | `DELETE` | `/api/services/{id}` | Administrador |
 | `GET` | `/api/professionals` | Público |
 | `GET` | `/api/professionals/{id}` | Público |
+| `POST` | `/api/professionals` | Administrador |
+| `PUT` | `/api/professionals/{id}` | Administrador |
+| `DELETE` | `/api/professionals/{id}` | Administrador |
 | `POST` | `/api/auth/register` | Público |
 | `POST` | `/api/auth/login` | Público |
 | `GET` | `/api/profile` | Autenticado |
@@ -207,13 +210,12 @@ En desarrollo.
 - Registro de clientes en una sola transacción
 - Catálogo de servicios con CRUD administrativo
 - Agenda de citas con detección de cruce de horarios
-- Panel administrativo de clientes
+- Panel administrativo de clientes y del equipo
 - Enrutado declarativo con guardas por ruta
-- Suite de 210 pruebas automatizadas
+- Suite de 253 pruebas automatizadas
 
 ### Pendiente
 
-- Gestión de profesionales desde el panel
 - Historial y reportes
 - Pagos
 - Notificaciones por correo

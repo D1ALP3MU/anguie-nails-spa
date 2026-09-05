@@ -192,8 +192,7 @@ class TestDatabase
         $pdo->exec(
             "INSERT INTO roles (id_rol, nombre) VALUES
                 (1, 'Administrador'),
-                (2, 'Cliente'),
-                (3, 'Empleado')"
+                (2, 'Cliente')"
         );
     }
 }
