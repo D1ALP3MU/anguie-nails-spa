@@ -28,3 +28,5 @@ dist/
 
 # Composer
 composer.phar
+# PHPUnit
+.phpunit.cache/

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         failOnWarning="true"
+         failOnRisky="true"
+         cacheDirectory=".phpunit.cache">
+
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+
+        <!-- Requieren MySQL. Se omiten solas si no está disponible. -->
+        <testsuite name="Integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <!--
+            El código registra en log los tokens rechazados y los errores
+            no controlados. Durante las pruebas eso se desvía a un archivo
+            para no ensuciar la salida del test runner.
+        -->
+        <ini name="error_log" value=".phpunit.cache/test-errors.log"/>
+    </php>
+
+    <source>
+        <include>
+            <directory>backend/app</directory>
+        </include>
+    </source>
+
+</phpunit>
