@@ -95,6 +95,13 @@ CREATE TABLE citas (
         'completada'
 	) DEFAULT 'pendiente',
     notas TEXT,
+    -- Vale NULL cuando la cita está cancelada. Como MySQL admite
+    -- NULL repetidos en un índice UNIQUE, solo las citas vigentes
+    -- compiten por el horario y un turno cancelado vuelve a quedar libre.
+    reserva_activa TINYINT
+        GENERATED ALWAYS AS (
+            IF(estado = 'cancelada', NULL, 1)
+        ) STORED,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ON UPDATE CURRENT_TIMESTAMP,
@@ -103,7 +110,16 @@ CREATE TABLE citas (
     FOREIGN KEY (id_servicio)
         REFERENCES servicios(id_servicio),
     FOREIGN KEY (id_profesional)
-        REFERENCES profesionales(id_profesional)
+        REFERENCES profesionales(id_profesional),
+    -- Un profesional no puede tener dos citas vigentes en el mismo
+    -- horario. El cruce por duración del servicio se valida además
+    -- en AppointmentService.
+    UNIQUE KEY uq_citas_agenda (
+        id_profesional,
+        fecha,
+        hora,
+        reserva_activa
+    )
 );
 
 -- =====================================================

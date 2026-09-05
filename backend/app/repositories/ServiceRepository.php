@@ -18,10 +18,11 @@ class ServiceRepository
             SELECT
                 id_servicio,
                 nombre,
+                descripcion,
                 duracion,
                 precio
             FROM servicios
-            WHERE activo = 1        
+            WHERE activo = 1
         ";
 
         $statement = $this->db->prepare($query);

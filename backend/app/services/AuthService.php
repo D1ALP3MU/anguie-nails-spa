@@ -26,6 +26,9 @@ use App\Exceptions\UnauthorizedException;
  * - Verificar credenciales.
  * - Generar tokens JWT.
  *
+ * El alta de cuentas es responsabilidad de ClientService, que crea
+ * el usuario y su perfil de cliente en una sola transacción.
+ *
  * Esta clase NO genera respuestas HTTP.
  * ---------------------------------------------------------
  */
