@@ -1,0 +1,33 @@
+# Configuración de ggshield, el escáner local de GitGuardian.
+#
+# Alcance: este archivo solo afecta a ggshield ejecutado como
+# hook de pre-commit o en CI. NO silencia los incidentes del
+# panel de GitGuardian ni los correos de la integración con
+# GitHub: esos se resuelven desde el panel, uno por uno.
+#
+# Cada exclusión es deliberada y lo más estrecha posible. No se
+# ignoran directorios enteros, para que un secreto real que se
+# cuele en ellos siga detectándose.
+
+version: 2
+
+secret:
+
+  ignored_paths:
+    # Por definición solo contiene marcadores de posición: es la
+    # plantilla que se copia a .env, y .env sí está en .gitignore.
+    - .env.example
+
+  ignored_matches:
+
+    # Contraseña de los usuarios desechables que crean las pruebas.
+    # La base de datos de pruebas se crea y se destruye en cada
+    # ejecución, así que este valor no da acceso a nada.
+    - name: Contraseña de los usuarios de prueba
+      match: Password123
+
+    # Cabecera pública de un JWT en el ejemplo de la documentación.
+    # Decodifica a {"typ":"JWT","alg":"HS256"}; el token del ejemplo
+    # está truncado y no lleva carga útil ni firma.
+    - name: Cabecera JWT del ejemplo de docs/api.md
+      match: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9
