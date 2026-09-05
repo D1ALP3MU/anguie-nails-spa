@@ -1,3 +1,11 @@
+import { escapeHtml } from "../../../utils/html.js";
+
+/**
+ * Formulario de reserva.
+ *
+ * No pide nombre, correo ni teléfono: la cita se asocia al cliente
+ * autenticado, y el backend toma su id_cliente del token.
+ */
 export function BookingForm(serviceId, professionals) {
 
     return `
@@ -7,56 +15,8 @@ export function BookingForm(serviceId, professionals) {
             <input
                 type="hidden"
                 name="serviceId"
-                value="${serviceId}"
+                value="${escapeHtml(serviceId)}"
             >
-
-            <div class="form-group">
-
-                <label for="name">
-                    Nombre
-                </label>
-
-                <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    placeholder="Tu nombre"
-                    required
-                >
-
-            </div>
-
-            <div class="form-group">
-
-                <label for="email">
-                    Correo electrónico
-                </label>
-
-                <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    placeholder="tu@email.com"
-                    required
-                >
-
-            </div>
-
-            <div class="form-group">
-
-                <label for="phone">
-                    Teléfono
-                </label>
-
-                <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    placeholder="Tu teléfono"
-                    required
-                >
-
-            </div>
 
             <div class="form-group">
 
@@ -75,12 +35,10 @@ export function BookingForm(serviceId, professionals) {
                     </option>
 
                     ${professionals.map(professional => `
-                        <option value="${professional.id}">
-                            ${professional.name}
-                            ${professional.specialty
-            ? ` - ${professional.specialty}`
-            : ""
-        }
+                        <option value="${escapeHtml(professional.id)}">
+                            ${escapeHtml(professional.name)}${professional.specialty
+                                ? ` - ${escapeHtml(professional.specialty)}`
+                                : ""}
                         </option>
                     `).join("")}
 
@@ -98,6 +56,7 @@ export function BookingForm(serviceId, professionals) {
                     type="date"
                     id="date"
                     name="date"
+                    min="${new Date().toISOString().slice(0, 10)}"
                     required
                 >
 

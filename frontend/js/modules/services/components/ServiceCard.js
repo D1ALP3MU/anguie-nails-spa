@@ -1,6 +1,9 @@
 import { formatCOP } from "../../../utils/currency.js";
+import { escapeHtml } from "../../../utils/html.js";
 
 export function ServiceCard(service) {
+
+    const title = escapeHtml(service.title);
 
     return `
 
@@ -8,17 +11,17 @@ export function ServiceCard(service) {
     
         <div class="service-card__content">
 
-            <h3>${service.title}</h3>
-            <p>${service.description}</p>
+            <h3>${title}</h3>
+            <p>${escapeHtml(service.description)}</p>
 
             <div class="service-card__meta">
-                <span>${service.duration}</span>
+                <span>${escapeHtml(service.duration)}</span>
                 <strong>${formatCOP(service.price)}</strong>
             </div>
 
             <button class="btn btn-primary" 
-                    data-book-service="${service.id}"
-                    aria-label="Reservar servicio ${service.title}"
+                    data-book-service="${escapeHtml(service.id)}"
+                    aria-label="Reservar servicio ${title}"
                 >
                 Reservar
             </button>

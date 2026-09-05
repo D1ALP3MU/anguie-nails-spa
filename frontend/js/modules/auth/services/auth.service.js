@@ -1,7 +1,11 @@
 import { httpPost } from "../../../api/http.js";
 
-const TOKEN_KEY = "anguie_token";
-const USER_KEY = "anguie_user";
+import {
+    saveSession,
+    clearSession,
+    getToken,
+    getCurrentUser
+} from "../../../api/session.js";
 
 export async function login(credentials) {
 
@@ -12,15 +16,7 @@ export async function login(credentials) {
 
     const { token, user } = response.data;
 
-    sessionStorage.setItem(
-        TOKEN_KEY,
-        token
-    );
-
-    sessionStorage.setItem(
-        USER_KEY,
-        JSON.stringify(user)
-    );
+    saveSession(token, user);
 
     return {
         token,
@@ -28,43 +24,31 @@ export async function login(credentials) {
     };
 }
 
-export function getToken() {
+/**
+ * Registra una cuenta de cliente.
+ *
+ * Apunta a /auth/register, el único camino que crea el usuario
+ * y su perfil de cliente dentro de una misma transacción.
+ * POST /clients quedó reservado al panel administrativo.
+ */
+export async function register(data) {
 
-    return sessionStorage.getItem(
-        TOKEN_KEY
+    const response = await httpPost(
+        "/auth/register",
+        data
     );
+
+    return response.data;
 }
 
-export function getCurrentUser() {
-
-    const user = sessionStorage.getItem(
-        USER_KEY
-    );
-
-    return user
-        ? JSON.parse(user)
-        : null;
-}
+export { getToken, getCurrentUser };
 
 export function logout() {
 
-    sessionStorage.removeItem(
-        TOKEN_KEY
-    );
-
-    sessionStorage.removeItem(
-        USER_KEY
-    );
+    clearSession();
 }
-
 
 export function initAuth() {
 
-    const user = getCurrentUser();
-
-    if (user) {
-        return user;
-    }
-
-    return null;
+    return getCurrentUser();
 }

@@ -1,5 +1,6 @@
 import { initBookingEvents } from "./booking.controller.js";
 import { fetchBookings } from "./services/booking.service.js";
+import { escapeHtml } from "../../utils/html.js";
 
 export async function BookingPage() {
 
@@ -31,38 +32,34 @@ export async function BookingPage() {
                     <article class="booking-card">
 
                         <h3>
-                            ${booking.cliente}
+                            ${escapeHtml(booking.servicio)}
                         </h3>
 
                         <p>
-                            Servicio: ${booking.servicio}
+                            Profesional: ${escapeHtml(booking.profesional)}
                         </p>
 
                         <p>
-                            Profesional: ${booking.profesional}
+                            Fecha: ${escapeHtml(booking.fecha)}
                         </p>
 
                         <p>
-                            Fecha: ${booking.fecha}
+                            Hora: ${escapeHtml(booking.hora)}
                         </p>
 
                         <p>
-                            Hora: ${booking.hora}
+                            Estado: ${escapeHtml(booking.estado)}
                         </p>
 
                         <p>
-                            Estado: ${booking.estado}
-                        </p>
-
-                        <p>
-                            Notas: ${booking.notas ?? "—"}
+                            Notas: ${escapeHtml(booking.notas ?? "—")}
                         </p>
 
                         ${booking.estado === "pendiente"
                     ? `
                                 <button
                                     class="btn btn-outline"
-                                    data-delete-booking="${booking.id_cita}"
+                                    data-delete-booking="${escapeHtml(booking.id_cita)}"
                                 >
                                     Cancelar cita
                                 </button>

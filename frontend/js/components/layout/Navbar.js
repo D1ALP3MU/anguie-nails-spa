@@ -1,8 +1,12 @@
 import { store } from "../../state/store.js";
+import { escapeHtml } from "../../utils/html.js";
+import { ROLES } from "../../constants/roles.js";
 
 export function Navbar() {
 
     const user = store.user;
+
+    const isAdmin = Number(user?.id_rol) === ROLES.ADMIN;
 
     return `
 
@@ -28,11 +32,27 @@ export function Navbar() {
                         </a>
                     </li>
 
-                    <li>
-                        <a href="#/booking">
-                            Reservar
-                        </a>
-                    </li>
+                    ${user
+            ? `
+                                <li>
+                                    <a href="#/booking">
+                                        Mis citas
+                                    </a>
+                                </li>
+                            `
+            : ""
+        }
+
+                    ${isAdmin
+            ? `
+                                <li>
+                                    <a href="#/clients">
+                                        Clientes
+                                    </a>
+                                </li>
+                            `
+            : ""
+        }
 
                 </ul>
 
@@ -41,7 +61,7 @@ export function Navbar() {
                     ${user
             ? `
                                 <span class="navbar__user">
-                                    Hola, ${user.nombre}
+                                    Hola, ${escapeHtml(user.nombre)}
                                 </span>
 
                                 <button

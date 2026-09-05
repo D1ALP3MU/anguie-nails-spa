@@ -5,7 +5,7 @@ export function ServicesSkeleton() {
     return `
 
         <section class="services-page">
-            <div class="services-card__header">
+            <div class="services-page__header">
                 <div class="skeleton skeleton__title"></div>
                 <div class="skeleton skeleton__text"></div>
             </div>

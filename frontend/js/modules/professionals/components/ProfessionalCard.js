@@ -1,3 +1,5 @@
+import { escapeHtml } from "../../../utils/html.js";
+
 export function ProfessionalCard(professional) {
 
     return `
@@ -6,14 +8,14 @@ export function ProfessionalCard(professional) {
 
             <div class="professional-card__content">
 
-                <h3>${professional.name}</h3>
+                <h3>${escapeHtml(professional.name)}</h3>
 
                 <p>
-                    ${professional.specialty ?? "Profesional de belleza"}
+                    ${escapeHtml(professional.specialty ?? "Profesional de belleza")}
                 </p>
 
                 ${professional.phone
-            ? `<span>${professional.phone}</span>`
+            ? `<span>${escapeHtml(professional.phone)}</span>`
             : ""
         }
 
