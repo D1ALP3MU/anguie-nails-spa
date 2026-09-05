@@ -8,6 +8,8 @@ import {
 } from "./clients.api.js";
 import { registerCleanup } from "../../../core/cleanup.js";
 import { renderRoute } from "../../../router/router.js";
+import { toastSuccess, toastError } from "../../../components/ui/Toast.js";
+import { confirmAction } from "../../../components/ui/ConfirmDialog.js";
 
 export function initClientsEvents() {
 
@@ -116,13 +118,13 @@ async function handleClientSubmit(event) {
                 data
             );
 
-            alert("Cliente actualizado correctamente.");
+            toastSuccess("Cliente actualizado correctamente.");
 
         } else {
 
             await createClient(data);
 
-            alert("Cliente creado correctamente.");
+            toastSuccess("Cliente creado correctamente.");
         }
 
         closeModal();
@@ -136,7 +138,8 @@ async function handleClientSubmit(event) {
             error
         );
 
-        alert(
+        toastError(
+            error.message ||
             "No fue posible guardar el cliente."
         );
     }
@@ -144,9 +147,12 @@ async function handleClientSubmit(event) {
 
 async function handleClientDelete(id) {
 
-    const confirmed = window.confirm(
-        "¿Está seguro de eliminar este cliente?"
-    );
+    const confirmed = await confirmAction({
+        title: "Eliminar cliente",
+        message: "El cliente dejará de aparecer en el listado. Sus citas se conservan.",
+        confirmText: "Eliminar",
+        danger: true
+    });
 
     if (!confirmed) {
         return;
@@ -156,7 +162,7 @@ async function handleClientDelete(id) {
 
         await deleteClient(id);
 
-        alert("Cliente eliminado correctamente.");
+        toastSuccess("Cliente eliminado correctamente.");
 
         await renderRoute();
 
@@ -167,7 +173,8 @@ async function handleClientDelete(id) {
             error
         );
 
-        alert(
+        toastError(
+            error.message ||
             "No fue posible eliminar el cliente."
         );
     }
@@ -225,7 +232,8 @@ async function openEditClientModal(id) {
             error
         );
 
-        alert(
+        toastError(
+            error.message ||
             "No fue posible cargar el cliente."
         );
     }

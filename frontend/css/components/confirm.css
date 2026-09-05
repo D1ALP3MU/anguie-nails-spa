@@ -1,0 +1,56 @@
+.confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2500; /* por encima del modal (2000) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(58, 46, 53, .45);
+    animation: fadeIn .18s ease;
+}
+
+.confirm {
+    background: var(--white);
+    border-radius: var(--r-lg);
+    box-shadow: var(--sh-lg);
+    padding: 28px 26px 22px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+}
+
+.confirm__title {
+    font-family: var(--font-d);
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 10px;
+}
+
+.confirm__message {
+    color: var(--text-soft);
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.confirm__actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.confirm__actions .btn {
+    min-width: 120px;
+}
+
+@media (max-width: 400px) {
+
+    .confirm__actions {
+        flex-direction: column-reverse;
+    }
+
+    .confirm__actions .btn {
+        width: 100%;
+    }
+}

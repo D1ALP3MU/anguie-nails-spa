@@ -1,0 +1,67 @@
+.professionals-page {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+}
+
+.professionals-page__header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.professionals-page__header h1 {
+    font-family: var(--font-d);
+    font-size: 2.6rem;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 8px;
+}
+
+.professionals-page__header p {
+    color: var(--text-soft);
+}
+
+.professionals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
+}
+
+.professional-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--sh-sm);
+    overflow: hidden;
+    transition: transform var(--easy), box-shadow var(--easy);
+}
+
+.professional-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--sh-md);
+}
+
+.professional-card__content {
+    padding: 24px 20px;
+    text-align: center;
+}
+
+.professional-card__content h3 {
+    font-family: var(--font-d);
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+}
+
+.professional-card__content p {
+    color: var(--pink-accent);
+    font-size: 0.92rem;
+    margin-bottom: 10px;
+}
+
+.professional-card__content span {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}

@@ -34,3 +34,16 @@
 .input-error {
     border-color: crimson !important;
 }
+/* Formularios de reserva y de cliente dentro de un modal. */
+.booking-form,
+.client-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.booking-form .btn,
+.client-form .btn {
+    margin-top: 6px;
+    width: 100%;
+}

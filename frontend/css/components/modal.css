@@ -43,3 +43,8 @@
 .modal__close:hover {
     color: var(--pink-accent);
 }
+.modal__body {
+    padding: 24px 26px 28px;
+    overflow-y: auto;
+    max-height: calc(90vh - 80px);
+}

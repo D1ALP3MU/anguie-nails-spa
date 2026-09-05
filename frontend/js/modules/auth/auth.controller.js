@@ -1,17 +1,32 @@
 import {
     login,
+    register,
     logout
 } from "./services/auth.service.js";
 
 import {
-    store
-} from "../../state/store.js";
+    setUser
+} from "../../state/actions.js";
+
+import {
+    takeRedirect
+} from "../../api/session.js";
+
+import {
+    toastSuccess,
+    toastError
+} from "../../components/ui/Toast.js";
 
 export function initAuthEvents() {
 
     document.addEventListener(
         "submit",
         handleLoginSubmit
+    );
+
+    document.addEventListener(
+        "submit",
+        handleRegisterSubmit
     );
 
     document.addEventListener(
@@ -50,13 +65,13 @@ async function handleLoginSubmit(event) {
             password
         });
 
-        store.user = user;
+        setUser(user);
 
-        alert(
-            "Inicio de sesión exitoso."
-        );
+        toastSuccess("Inicio de sesión exitoso.");
 
-        window.location.hash = "#/";
+        // Devuelve al usuario a donde iba antes de que se le
+        // pidiera iniciar sesión.
+        window.location.hash = takeRedirect() || "#/";
 
     } catch (error) {
 
@@ -65,7 +80,7 @@ async function handleLoginSubmit(event) {
             error
         );
 
-        alert(
+        toastError(
             error.message ||
             "No fue posible iniciar sesión."
         );
@@ -74,6 +89,65 @@ async function handleLoginSubmit(event) {
 
         button.disabled = false;
         button.textContent = "Iniciar sesión";
+
+    }
+}
+
+async function handleRegisterSubmit(event) {
+
+    const form = event.target.closest(
+        "#register-form"
+    );
+
+    if (!form) return;
+
+    event.preventDefault();
+
+    const formData = new FormData(form);
+
+    const nombre = formData.get("nombre");
+    const email = formData.get("email");
+    const password = formData.get("password");
+    const telefono = formData.get("telefono");
+    const direccion = formData.get("direccion");
+
+    const button = form.querySelector(
+        "button[type='submit']"
+    );
+
+    button.disabled = true;
+    button.textContent = "Registrando...";
+
+    try {
+
+        await register({
+            nombre,
+            email,
+            password,
+            telefono,
+            direccion
+        });
+
+        toastSuccess("Cuenta creada correctamente. Ya puedes iniciar sesión.");
+
+        window.location.hash = "#/login";
+
+    } catch (error) {
+
+        console.error(
+            "Error al registrar usuario:",
+            error
+        );
+
+        toastError(
+            error.message ||
+            "No fue posible crear la cuenta."
+        );
+
+    } finally {
+
+        button.disabled = false;
+        button.textContent = "Registrarse";
 
     }
 }
@@ -93,7 +167,8 @@ function handleAuthClick(event) {
 
     if (action === "register") {
 
-        // Pendiente hasta implementar la página de registro.
+        window.location.hash = "#/register";
+
         return;
     }
 
@@ -101,7 +176,7 @@ function handleAuthClick(event) {
 
         logout();
 
-        store.user = null;
+        setUser(null);
 
         window.location.hash = "#/";
 

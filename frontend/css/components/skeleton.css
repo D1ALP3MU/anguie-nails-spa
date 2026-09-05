@@ -39,3 +39,18 @@
         background-position: -200% 0;
     }
 }
+.skeleton__title {
+    height: 22px;
+    width: 60%;
+    margin-bottom: 14px;
+}
+
+.skeleton__text {
+    height: 12px;
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.skeleton__text:last-child {
+    width: 75%;
+}

@@ -5,7 +5,9 @@ import { FormError } from "../../components/ui/FormError.js";
 import { createBooking } from "../booking/services/booking.service.js";
 import { registerCleanup } from "../../core/cleanup.js";
 import { getProfessionals } from "../professionals/professionals.service.js";
-import { createClient } from "../admin/clients/clients.api.js";
+import { store } from "../../state/store.js";
+import { saveRedirect } from "../../api/session.js";
+import { toastSuccess, toastError } from "../../components/ui/Toast.js";
 
 export function initServicesEvents() {
 
@@ -68,6 +70,20 @@ async function handleDocumentClick(event) {
 
 async function openBookingModal(serviceId) {
 
+    // Reservar exige una cuenta: la cita se asocia al cliente
+    // autenticado. Antes se creaba un usuario desechable por
+    // cada reserva, lo que fallaba en cuanto el correo ya existía.
+    if (!store.user) {
+
+        saveRedirect("#/services");
+
+        toastError("Inicia sesión para reservar tu cita.");
+
+        window.location.hash = "#/login";
+
+        return;
+    }
+
     const existingModal = document.querySelector(".modal-overlay");
 
     if (existingModal) return;
@@ -105,9 +121,6 @@ async function handleBookingSubmit(event) {
 
     const formData = new FormData(form);
 
-    const name = formData.get("name");
-    const email = formData.get("email");
-    const phone = formData.get("phone");
     const professionalId = formData.get("professionalId");
     const date = formData.get("date");
     const time = formData.get("time");
@@ -115,33 +128,6 @@ async function handleBookingSubmit(event) {
     const serviceId = formData.get("serviceId");
 
     let hasErrors = false;
-
-    if (isEmpty(name)) {
-        showFieldError(
-            form.elements.name,
-            "El nombre es obligatorio"
-        );
-
-        hasErrors = true;
-    }
-
-    if (isEmpty(email)) {
-        showFieldError(
-            form.elements.email,
-            "El correo electrónico es obligatorio"
-        );
-
-        hasErrors = true;
-    }
-
-    if (isEmpty(phone)) {
-        showFieldError(
-            form.elements.phone,
-            "El teléfono es obligatorio"
-        );
-
-        hasErrors = true;
-    }
 
     if (isEmpty(professionalId)) {
         showFieldError(
@@ -183,42 +169,42 @@ async function handleBookingSubmit(event) {
 
     if (hasErrors) return;
 
+    const button = form.querySelector("button[type='submit']");
+
+    button.disabled = true;
+    button.textContent = "Confirmando...";
+
     try {
 
-        const password = crypto.randomUUID();
-
-        const client = await createClient({
-            nombre: name,
-            email,
-            password,
-            telefono: phone
-        });
-
-        const booking = await createBooking({
-            id_cliente: client.id_cliente,
+        // Sin id_cliente: el backend lo toma del token y así
+        // nadie puede reservar a nombre de otra persona.
+        await createBooking({
             id_servicio: Number(serviceId),
             id_profesional: Number(professionalId),
             fecha: date,
             hora: time,
-            estado: "pendiente",
             notas: notes || null
         });
 
-        console.log("CLIENT CREATED", client);
-        console.log("BOOKING CREATED", booking);
-
-        alert("Cita creada correctamente.");
+        toastSuccess("Cita creada correctamente.");
 
         closeModal();
+
+        window.location.hash = "#/booking";
 
     } catch (error) {
 
         console.error("Error al crear la cita:", error);
 
-        alert(
+        toastError(
             error.message ||
             "No fue posible crear la cita."
         );
+
+    } finally {
+
+        button.disabled = false;
+        button.textContent = "Confirmar cita";
     }
 }
 

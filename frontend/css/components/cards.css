@@ -1,0 +1,66 @@
+/*
+    Tarjetas del catálogo de servicios.
+    Las de profesionales viven en pages/professionals.css,
+    porque solo aparecen en esa página.
+*/
+
+.service-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--sh-sm);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--easy), box-shadow var(--easy);
+}
+
+.service-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--sh-md);
+}
+
+.service-card__content {
+    padding: 24px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+}
+
+.service-card__content h3 {
+    font-family: var(--font-d);
+    font-size: 1.35rem;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.service-card__content p {
+    color: var(--text-soft);
+    font-size: 0.94rem;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+.service-card__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid var(--boder-lt);
+}
+
+.service-card__meta span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.service-card__meta strong {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--pink-accent);
+}
+
+.service-card .btn {
+    margin-top: 6px;
+}

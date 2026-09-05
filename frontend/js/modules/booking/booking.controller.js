@@ -1,4 +1,7 @@
 import { removeBooking } from "./services/booking.service.js";
+import { toastSuccess, toastError } from "../../components/ui/Toast.js";
+import { confirmAction } from "../../components/ui/ConfirmDialog.js";
+import { renderRoute } from "../../router/router.js";
 
 let initialized = false; // Variable para rastrear si los eventos ya han sido inicializados
 
@@ -25,9 +28,13 @@ async function handleDeleteBooking(event) {
 
     const bookingId = deleteButton.dataset.deleteBooking;
 
-    const confirmed = window.confirm(
-        "¿Estás seguro de que deseas cancelar esta cita?"
-    );
+    const confirmed = await confirmAction({
+        title: "Cancelar cita",
+        message: "¿Seguro que deseas cancelar esta cita? El horario quedará libre para otra persona.",
+        confirmText: "Sí, cancelar",
+        cancelText: "Conservar",
+        danger: true
+    });
 
     if (!confirmed) return;
 
@@ -35,7 +42,9 @@ async function handleDeleteBooking(event) {
 
         await removeBooking(bookingId);
 
-        window.location.reload();
+        toastSuccess("Cita cancelada correctamente.");
+
+        await renderRoute();
 
     } catch (error) {
 
@@ -44,7 +53,8 @@ async function handleDeleteBooking(event) {
             error
         );
 
-        alert(
+        toastError(
+            error.message ||
             "No fue posible cancelar la cita."
         );
 

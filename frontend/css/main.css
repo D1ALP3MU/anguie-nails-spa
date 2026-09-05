@@ -12,8 +12,12 @@
 @import url("./components/loading.css");
 @import url("./components/error-state.css");
 @import url("./components/skeleton.css");
+@import url("./components/toast.css");
+@import url("./components/confirm.css");
 
 @import url("./pages/home.css");
 @import url("./pages/services.css");
 @import url("./pages/booking.css");
+@import url("./pages/auth.css");
+@import url("./pages/professionals.css");
 @import url("./pages/clients.css");
