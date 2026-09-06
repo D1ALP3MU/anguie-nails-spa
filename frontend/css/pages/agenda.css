@@ -1,0 +1,76 @@
+.agenda-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 16px;
+    padding: 20px 22px;
+    margin-bottom: 20px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--sh-sm);
+}
+
+.agenda-filters .form-group {
+    flex: 1 1 160px;
+    margin: 0;
+}
+
+.agenda-filters__actions {
+    display: flex;
+    gap: 10px;
+    flex: 0 0 auto;
+}
+
+.agenda-resumen {
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Estado de la cita, con un color por significado. */
+.agenda-estado {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: var(--r-full);
+    font-size: 0.78rem;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.agenda-estado--pendiente {
+    background: var(--beige);
+    color: var(--beige-dark);
+}
+
+.agenda-estado--confirmada {
+    background: var(--lilac-light);
+    color: var(--lilac-dark);
+}
+
+.agenda-estado--completada {
+    background: #E3F3EA;
+    color: #33795A;
+}
+
+.agenda-estado--cancelada {
+    background: var(--pink-light);
+    color: var(--pink-accent);
+}
+
+.agenda-table__closed {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+@media (max-width: 720px) {
+
+    .agenda-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .agenda-filters__actions .btn {
+        flex: 1;
+    }
+}

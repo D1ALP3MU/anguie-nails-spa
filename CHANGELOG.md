@@ -23,6 +23,9 @@ Primera versión completa del sistema de reservas. Notas de la versión en
 
 ### Añadido
 
+- Vista de agenda para el salón, con filtros por rango de fechas, profesional y estado, y acciones para confirmar, completar o cancelar. Un administrador veía todas las citas, pero en la página titulada «Mis citas», pensada para una clienta.
+- `GET /api/appointments` admite filtros por cadena de consulta. Filtrar en la base y no en el cliente mantiene acotada la agenda, que crece sin techo.
+
 - Panel de administración del catálogo. La API tenía el CRUD de servicios completo, pero no había pantalla: cambiar un precio exigía una herramienta externa. Con esto los tres módulos administrables tienen su panel.
 
 - CRUD completo de profesionales, con panel de administración. Era el único módulo a medias: solo lectura y sin forma de dar de alta a nadie salvo con SQL a mano. No se puede dar de baja a quien tiene citas pendientes, porque dejaría a clientas esperando.
@@ -35,7 +38,7 @@ Primera versión completa del sistema de reservas. Notas de la versión en
 - Interceptor de 401 en el cliente HTTP: limpia la sesión y redirige a login. Antes, con el token vencido, la interfaz seguía mostrando al usuario como conectado mientras todo fallaba.
 - Enrutador declarativo con contenedor de dependencias. La protección de las 21 rutas se lee de un vistazo en `backend/app/routes/api.php`.
 - Respuesta `405` cuando la ruta existe pero no con ese método.
-- Suite de 253 pruebas: 158 unitarias sin base de datos y 95 de integración contra MySQL real. `composer test`.
+- Suite de 268 pruebas: 164 unitarias sin base de datos y 104 de integración contra MySQL real. `composer test`.
 - Objeto `Request` inyectado por el enrutador. Los controladores dejan de leer `php://input`, el análisis del cuerpo se centraliza y un JSON malformado se rechaza con un mensaje claro en lugar de reportarse como campos obligatorios.
 - `.env.example` y documentación de arquitectura, API y decisiones técnicas.
 

@@ -346,4 +346,154 @@ class AppointmentRepositoryTest extends IntegrationTestCase
     {
         $this->assertNull($this->repository->findById(999999));
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Filtros de la agenda
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Siembra una agenda variada para los filtros.
+     */
+    private function seedAgenda(): array
+    {
+        $otro = $this->createProfessional('Marta');
+
+        return [
+            'hoy' => $this->createAppointment(
+                $this->clientId, $this->serviceId, $this->professionalId,
+                date('Y-m-d'), '09:00', 'pendiente'
+            ),
+            'manana' => $this->createAppointment(
+                $this->otherClientId, $this->serviceId, $this->professionalId,
+                $this->futureDate('+1 day'), '11:00', 'confirmada'
+            ),
+            'otroProfesional' => $this->createAppointment(
+                $this->clientId, $this->serviceId, $otro,
+                $this->futureDate('+1 day'), '11:00', 'pendiente'
+            ),
+            'lejana' => $this->createAppointment(
+                $this->clientId, $this->serviceId, $this->professionalId,
+                $this->futureDate('+40 days'), '15:00', 'cancelada'
+            ),
+            'profesionalAlterno' => $otro
+        ];
+    }
+
+    #[Test]
+    public function sin_filtros_devuelve_toda_la_agenda(): void
+    {
+        $this->seedAgenda();
+
+        $this->assertCount(4, $this->repository->findAllFiltered([]));
+    }
+
+    #[Test]
+    public function filtra_por_dia_exacto(): void
+    {
+        $this->seedAgenda();
+
+        $hoy = date('Y-m-d');
+
+        $resultado = $this->repository->findAllFiltered([
+            'desde' => $hoy,
+            'hasta' => $hoy
+        ]);
+
+        $this->assertCount(1, $resultado);
+        $this->assertSame($hoy, $resultado[0]['fecha']);
+    }
+
+    #[Test]
+    public function filtra_por_rango_de_fechas(): void
+    {
+        $this->seedAgenda();
+
+        $resultado = $this->repository->findAllFiltered([
+            'desde' => date('Y-m-d'),
+            'hasta' => $this->futureDate('+7 days')
+        ]);
+
+        // Quedan fuera la de +40 días.
+        $this->assertCount(3, $resultado);
+    }
+
+    #[Test]
+    public function filtra_por_profesional(): void
+    {
+        $agenda = $this->seedAgenda();
+
+        $resultado = $this->repository->findAllFiltered([
+            'id_profesional' => $agenda['profesionalAlterno']
+        ]);
+
+        $this->assertCount(1, $resultado);
+        $this->assertSame('Marta', $resultado[0]['profesional']);
+    }
+
+    #[Test]
+    public function filtra_por_estado(): void
+    {
+        $this->seedAgenda();
+
+        $resultado = $this->repository->findAllFiltered([
+            'estado' => 'pendiente'
+        ]);
+
+        $this->assertCount(2, $resultado);
+    }
+
+    #[Test]
+    public function filtra_por_cliente(): void
+    {
+        $this->seedAgenda();
+
+        $resultado = $this->repository->findAllFiltered([
+            'id_cliente' => $this->otherClientId
+        ]);
+
+        $this->assertCount(1, $resultado);
+    }
+
+    #[Test]
+    public function los_filtros_se_combinan(): void
+    {
+        $this->seedAgenda();
+
+        $resultado = $this->repository->findAllFiltered([
+            'id_profesional' => $this->professionalId,
+            'estado' => 'confirmada',
+            'desde' => date('Y-m-d')
+        ]);
+
+        $this->assertCount(1, $resultado);
+        $this->assertSame('confirmada', $resultado[0]['estado']);
+    }
+
+    #[Test]
+    public function una_combinacion_sin_coincidencias_devuelve_vacio(): void
+    {
+        $this->seedAgenda();
+
+        $this->assertSame([], $this->repository->findAllFiltered([
+            'estado' => 'completada'
+        ]));
+    }
+
+    #[Test]
+    public function el_resultado_filtrado_conserva_el_orden(): void
+    {
+        $this->seedAgenda();
+
+        $fechas = array_column(
+            $this->repository->findAllFiltered([]),
+            'fecha'
+        );
+
+        $ordenadas = $fechas;
+        sort($ordenadas);
+
+        $this->assertSame($ordenadas, $fechas);
+    }
 }

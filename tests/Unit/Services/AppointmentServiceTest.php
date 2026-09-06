@@ -156,13 +156,9 @@ class AppointmentServiceTest extends TestCase
     {
         $this->appointments
             ->expects($this->once())
-            ->method('findAllByClient')
-            ->with(5)
+            ->method('findAllFiltered')
+            ->with(['id_cliente' => 5])
             ->willReturn([['id_cita' => 1]]);
-
-        $this->appointments
-            ->expects($this->never())
-            ->method('findAll');
 
         $this->service->findAll(self::CLIENT_USER);
     }
@@ -172,14 +168,116 @@ class AppointmentServiceTest extends TestCase
     {
         $this->appointments
             ->expects($this->once())
-            ->method('findAll')
+            ->method('findAllFiltered')
+            ->with([])
             ->willReturn([]);
 
+        $this->service->findAll(self::ADMIN_USER);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Filtros de la agenda
+    |--------------------------------------------------------------------------
+    */
+
+    #[Test]
+    public function el_administrador_puede_filtrar_la_agenda(): void
+    {
+        $this->appointments
+            ->expects($this->once())
+            ->method('findAllFiltered')
+            ->with([
+                'desde' => '2027-01-01',
+                'hasta' => '2027-01-31',
+                'id_profesional' => 3,
+                'estado' => 'confirmada'
+            ])
+            ->willReturn([]);
+
+        $this->service->findAll(self::ADMIN_USER, [
+            'desde' => '2027-01-01',
+            'hasta' => '2027-01-31',
+            'id_profesional' => '3',
+            'estado' => 'confirmada'
+        ]);
+    }
+
+    #[Test]
+    public function los_filtros_vacios_se_descartan(): void
+    {
+        // Un formulario envía los campos sin rellenar como cadena
+        // vacía; eso no debe traducirse en una condición.
+        $this->appointments
+            ->expects($this->once())
+            ->method('findAllFiltered')
+            ->with([])
+            ->willReturn([]);
+
+        $this->service->findAll(self::ADMIN_USER, [
+            'desde' => '',
+            'hasta' => null,
+            'id_profesional' => '  ',
+            'estado' => ''
+        ]);
+    }
+
+    #[Test]
+    public function un_cliente_no_puede_ver_la_agenda_de_otro_por_la_url(): void
+    {
+        // El filtro por cliente se impone al final: aunque venga
+        // id_cliente en la consulta, gana el del token.
+        $this->appointments
+            ->expects($this->once())
+            ->method('findAllFiltered')
+            ->with($this->callback(
+                fn (array $c) => $c['id_cliente'] === 5
+            ))
+            ->willReturn([]);
+
+        $this->service->findAll(
+            self::CLIENT_USER,
+            ['id_cliente' => 99, 'estado' => 'pendiente']
+        );
+    }
+
+    #[Test]
+    public function una_fecha_con_formato_invalido_es_un_error(): void
+    {
+        // Ignorarla en silencio devolvería la agenda entera y el
+        // administrador creería estar viendo un día concreto.
         $this->appointments
             ->expects($this->never())
-            ->method('findAllByClient');
+            ->method('findAllFiltered');
 
-        $this->service->findAll(self::ADMIN_USER);
+        $this->expectException(ValidationException::class);
+
+        $this->service->findAll(
+            self::ADMIN_USER,
+            ['desde' => '01/01/2027']
+        );
+    }
+
+    #[Test]
+    public function el_rango_invertido_es_un_error(): void
+    {
+        $this->expectException(ValidationException::class);
+
+        $this->service->findAll(self::ADMIN_USER, [
+            'desde' => '2027-02-01',
+            'hasta' => '2027-01-01'
+        ]);
+    }
+
+    #[Test]
+    public function un_estado_fuera_del_catalogo_es_un_error(): void
+    {
+        $this->expectException(ValidationException::class);
+
+        $this->service->findAll(
+            self::ADMIN_USER,
+            ['estado' => 'inventado']
+        );
     }
 
     #[Test]

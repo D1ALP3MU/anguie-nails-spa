@@ -305,6 +305,19 @@ Baja lógica: desactiva el usuario y el cliente desaparece del listado, pero la 
 
 Un cliente recibe **solo sus citas**; un administrador, todas. El filtro se aplica en el servidor a partir del token.
 
+Admite filtros por cadena de consulta, todos opcionales y combinables:
+
+| Parámetro | Formato | Ejemplo |
+| --- | --- | --- |
+| `desde` | `YYYY-MM-DD` | `?desde=2027-12-01` |
+| `hasta` | `YYYY-MM-DD` | `?hasta=2027-12-31` |
+| `id_profesional` | entero | `?id_profesional=3` |
+| `estado` | `pendiente`, `confirmada`, `cancelada`, `completada` | `?estado=confirmada` |
+
+Un filtro con formato inválido devuelve **422** señalando el campo, en lugar de ignorarse: un error de tipeo en la fecha devolvería la agenda entera y quien consulta creería estar viendo un solo día.
+
+El filtro por cliente se impone después de los demás, así que enviar `id_cliente` en la consulta no permite ver las citas de otra persona.
+
 ```json
 {
   "success": true,

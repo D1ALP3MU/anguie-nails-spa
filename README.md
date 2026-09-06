@@ -211,9 +211,9 @@ En desarrollo.
 - Registro de clientes en una sola transacción
 - Catálogo de servicios con CRUD administrativo
 - Agenda de citas con detección de cruce de horarios
-- Panel administrativo completo: catálogo, equipo y clientas
+- Panel administrativo completo: agenda, catálogo, equipo y clientas
 - Enrutado declarativo con guardas por ruta
-- Suite de 253 pruebas automatizadas
+- Suite de 268 pruebas automatizadas
 
 ### Pendiente
 

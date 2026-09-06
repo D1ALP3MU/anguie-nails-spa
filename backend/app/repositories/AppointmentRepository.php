@@ -77,6 +77,62 @@ class AppointmentRepository
     }
 
     /**
+     * Obtiene las citas que cumplen los filtros indicados.
+     *
+     * Todos los filtros son opcionales y se combinan. Filtrar en la
+     * base y no en el cliente es lo que mantiene acotada la agenda
+     * del salón, que crece sin techo.
+     *
+     * @param array $filters Claves admitidas: id_cliente,
+     *                       id_profesional, estado, desde, hasta.
+     *
+     * @return array
+     */
+    public function findAllFiltered(array $filters): array
+    {
+        $conditions = [];
+        $parameters = [];
+
+        $columns = [
+            'id_cliente' => 'c.id_cliente',
+            'id_profesional' => 'c.id_profesional',
+            'estado' => 'c.estado'
+        ];
+
+        foreach ($columns as $key => $column) {
+
+            if (isset($filters[$key])) {
+                $conditions[] = "{$column} = :{$key}";
+                $parameters[$key] = $filters[$key];
+            }
+        }
+
+        if (isset($filters['desde'])) {
+            $conditions[] = 'c.fecha >= :desde';
+            $parameters['desde'] = $filters['desde'];
+        }
+
+        if (isset($filters['hasta'])) {
+            $conditions[] = 'c.fecha <= :hasta';
+            $parameters['hasta'] = $filters['hasta'];
+        }
+
+        $where = $conditions === []
+            ? ''
+            : ' WHERE ' . implode(' AND ', $conditions);
+
+        $sql = self::BASE_SELECT . $where . '
+            ORDER BY c.fecha ASC, c.hora ASC
+        ';
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute($parameters);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Obtiene todas las citas de un cliente.
      *
      * @param int $clientId ID del cliente.

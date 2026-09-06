@@ -30,6 +30,16 @@ use App\Exceptions\ValidationException;
  */
 class AppointmentService
 {
+    /**
+     * Estados que admite una cita. Replica el ENUM de la tabla.
+     */
+    private const STATUSES = [
+        'pendiente',
+        'confirmada',
+        'cancelada',
+        'completada'
+    ];
+
     public function __construct(
         private AppointmentRepository $appointmentRepository,
         private ClientRepository $clientRepository,
@@ -63,19 +73,100 @@ class AppointmentService
     /**
      * Obtiene las citas visibles para el usuario autenticado.
      *
+     * Un cliente recibe solo las suyas: el filtro por cliente se
+     * impone después de los demás, así que pedir las de otro por
+     * la cadena de consulta no sirve de nada.
+     *
      * @param array $authUser Usuario autenticado.
+     * @param array $filters Filtros opcionales de la consulta.
      *
      * @return array
      */
-    public function findAll(array $authUser): array
+    public function findAll(array $authUser, array $filters = []): array
     {
-        if ($this->isAdmin($authUser)) {
-            return $this->appointmentRepository->findAll();
+        $criteria = $this->normalizeFilters($filters);
+
+        if (!$this->isAdmin($authUser)) {
+            $criteria['id_cliente'] = $this->resolveClientId($authUser);
         }
 
-        return $this->appointmentRepository->findAllByClient(
-            $this->resolveClientId($authUser)
-        );
+        return $this->appointmentRepository->findAllFiltered($criteria);
+    }
+
+    /**
+     * Valida y normaliza los filtros de la agenda.
+     *
+     * Un filtro ausente o vacío se descarta; uno con formato
+     * inválido es un error, para que un error de tipeo en la
+     * fecha no devuelva la agenda entera en silencio.
+     *
+     * @param array $filters Filtros recibidos.
+     *
+     * @return array Filtros listos para el repositorio.
+     *
+     * @throws ValidationException
+     */
+    private function normalizeFilters(array $filters): array
+    {
+        $criteria = [];
+        $errors = [];
+
+        foreach (['desde', 'hasta'] as $key) {
+
+            $value = trim((string) ($filters[$key] ?? ''));
+
+            if ($value === '') {
+                continue;
+            }
+
+            $date = DateTimeImmutable::createFromFormat('Y-m-d', $value);
+
+            if ($date === false || $date->format('Y-m-d') !== $value) {
+                $errors[$key] = 'La fecha debe tener el formato YYYY-MM-DD.';
+                continue;
+            }
+
+            $criteria[$key] = $value;
+        }
+
+        if (
+            isset($criteria['desde'], $criteria['hasta'])
+            && $criteria['desde'] > $criteria['hasta']
+        ) {
+            $errors['desde'] = 'La fecha inicial no puede ser posterior a la final.';
+        }
+
+        $professional = trim((string) ($filters['id_profesional'] ?? ''));
+
+        if ($professional !== '') {
+
+            if (
+                filter_var($professional, FILTER_VALIDATE_INT) === false
+                || (int) $professional <= 0
+            ) {
+                $errors['id_profesional'] =
+                    'El profesional debe identificarse con un número entero.';
+            } else {
+                $criteria['id_profesional'] = (int) $professional;
+            }
+        }
+
+        $status = trim((string) ($filters['estado'] ?? ''));
+
+        if ($status !== '') {
+
+            if (!in_array($status, self::STATUSES, true)) {
+                $errors['estado'] = 'El estado indicado no es válido.';
+            } else {
+                $criteria['estado'] = $status;
+            }
+        }
+
+        if ($errors !== []) {
+            throw new ValidationException($errors);
+        }
+
+        return $criteria;
     }
 
     /**

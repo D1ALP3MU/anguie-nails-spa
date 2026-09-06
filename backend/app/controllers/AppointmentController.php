@@ -44,13 +44,19 @@ class AppointmentController
     /**
      * Obtiene las citas visibles para el usuario autenticado.
      *
+     * @param Request $request Petición entrante.
      * @param array $authUser Usuario autenticado.
      *
      * @return void
      */
-    public function index(array $authUser): void
+    public function index(Request $request, array $authUser): void
     {
-        $appointments = $this->service->findAll($authUser);
+        $appointments = $this->service->findAll($authUser, [
+            'desde' => $request->query('desde'),
+            'hasta' => $request->query('hasta'),
+            'id_profesional' => $request->query('id_profesional'),
+            'estado' => $request->query('estado')
+        ]);
 
         Response::success($appointments);
     }

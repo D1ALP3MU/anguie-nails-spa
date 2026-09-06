@@ -32,7 +32,7 @@ export function Navbar() {
                         </a>
                     </li>
 
-                    ${user
+                    ${user && !isAdmin
             ? `
                                 <li>
                                     <a href="#/booking">
@@ -45,6 +45,12 @@ export function Navbar() {
 
                     ${isAdmin
             ? `
+                                <li>
+                                    <a href="#/admin/agenda">
+                                        Agenda
+                                    </a>
+                                </li>
+
                                 <li>
                                     <a href="#/admin/clients">
                                         Clientes
