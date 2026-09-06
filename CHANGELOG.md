@@ -2,11 +2,14 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
-El proyecto todavía no publica versiones etiquetadas. El detalle commit a commit está en `git log`; aquí se resume lo que cambia de comportamiento.
+El detalle commit a commit está en `git log`; aquí se resume lo que cambia de comportamiento.
 
 ---
 
-## [Sin publicar]
+## [1.0.0] — 2026-09-05
+
+Primera versión completa del sistema de reservas. Notas de la versión en
+[`docs/releases/release-1.0.0.md`](docs/releases/release-1.0.0.md).
 
 ### Seguridad
 

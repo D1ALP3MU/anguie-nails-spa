@@ -197,6 +197,7 @@ anguie-nails/
 - [`docs/api.md`](docs/api.md) — referencia de endpoints
 - [`docs/decisions.md`](docs/decisions.md) — registro de decisiones técnicas
 - [`CHANGELOG.md`](CHANGELOG.md) — historial de cambios
+- [`docs/releases/`](docs/releases) — notas de cada versión publicada
 
 ---
 
