@@ -8,6 +8,7 @@ import { runCleanup } from "../core/cleanup.js";
 import { ServicesSkeleton } from "../modules/services/components/ServicesSkeleton.js";
 import { ClientsPage } from "../modules/admin/clients/clients.page.js";
 import { ProfessionalsAdminPage } from "../modules/admin/professionals/professionals.page.js";
+import { ServicesAdminPage } from "../modules/admin/services/services.page.js";
 import { ProfessionalsPage } from "../modules/professionals/professionals.page.js";
 import { store } from "../state/store.js";
 import { ROLES } from "../constants/roles.js";
@@ -35,6 +36,7 @@ const routes = {
     "/booking": { page: BookingPage, auth: true },
     "/admin/clients": { page: ClientsPage, roles: [ROLES.ADMIN] },
     "/admin/professionals": { page: ProfessionalsAdminPage, roles: [ROLES.ADMIN] },
+    "/admin/services": { page: ServicesAdminPage, roles: [ROLES.ADMIN] },
     "/login": { page: LoginPage, guestOnly: true },
     "/register": { page: RegisterPage, guestOnly: true },
 };

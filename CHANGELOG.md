@@ -23,6 +23,8 @@ Primera versión completa del sistema de reservas. Notas de la versión en
 
 ### Añadido
 
+- Panel de administración del catálogo. La API tenía el CRUD de servicios completo, pero no había pantalla: cambiar un precio exigía una herramienta externa. Con esto los tres módulos administrables tienen su panel.
+
 - CRUD completo de profesionales, con panel de administración. Era el único módulo a medias: solo lectura y sin forma de dar de alta a nadie salvo con SQL a mano. No se puede dar de baja a quien tiene citas pendientes, porque dejaría a clientas esperando.
 - Se elimina el rol Empleado, que no llegó a usarse. La constante no coincidía con el identificador de la base y ningún código la referenciaba.
 

@@ -52,6 +52,12 @@ export function Navbar() {
                                 </li>
 
                                 <li>
+                                    <a href="#/admin/services">
+                                        Catálogo
+                                    </a>
+                                </li>
+
+                                <li>
                                     <a href="#/admin/professionals">
                                         Equipo
                                     </a>
