@@ -12,28 +12,43 @@ import { setUser } from "./state/actions.js";
 
 import { on } from "./core/events.js";
 
-import { Navbar } from "./components/layout/Navbar.js";
+import {
+    Sidebar,
+    initSidebarEvents
+} from "./components/layout/Sidebar.js";
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    // La barra se repinta sola cuando cambia la sesión. Antes
+    // El menú se repinta solo cuando cambia la sesión. Antes
     // dependía de que la navegación cambiara el hash, así que
-    // cerrar sesión sin moverse de página la dejaba desactualizada.
-    on("userChanged", refreshNavbar);
+    // cerrar sesión sin moverse de página lo dejaba desactualizado.
+    on("userChanged", refreshSidebar);
 
     setUser(initAuth());
 
     initAuthEvents();
 
+    initSidebarEvents();
+
     initRouter();
 
 });
 
-function refreshNavbar() {
+function refreshSidebar() {
 
-    const navbar = document.querySelector(".navbar");
+    const sidebar = document.querySelector(".sidebar");
 
-    if (navbar) {
-        navbar.outerHTML = Navbar();
-    }
+    if (!sidebar) return;
+
+    /*
+     * Sidebar() devuelve barra superior, capa de fondo y menú. Aquí
+     * solo se reemplaza el menú, que es lo único que depende de la
+     * sesión; los otros dos son fijos y quedan intactos.
+     */
+    const markup = document.createElement("div");
+
+    markup.innerHTML = Sidebar();
+
+    sidebar.outerHTML = markup.querySelector(".sidebar").outerHTML;
+
 }
