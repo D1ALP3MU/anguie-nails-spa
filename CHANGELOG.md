@@ -6,6 +6,18 @@ El detalle commit a commit está en `git log`; aquí se resume lo que cambia de 
 
 ---
 
+## [Sin publicar]
+
+### Añadido
+
+- Enlace a «Nuestro equipo» en el menú. La ruta `#/professionals` ya existía y era pública, pero solo se llegaba a ella escribiendo la URL. La etiqueta repite el encabezado de su página para que no se confunda con «Equipo», que lleva al panel de gestión.
+
+### Cambiado
+
+- La navegación pasa de una barra superior a un menú lateral. En escritorio queda fija a la izquierda; por debajo de 900px se esconde y se abre como cajón desde una barra superior con botón de hamburguesa. El espacio vertical permite agrupar las rutas del panel bajo un rótulo «Administración» y mostrar siempre el nombre de la usuaria, que la barra superior ocultaba por debajo de 640px.
+
+---
+
 ## [1.0.0] — 2026-09-05
 
 Primera versión completa del sistema de reservas. Notas de la versión en
