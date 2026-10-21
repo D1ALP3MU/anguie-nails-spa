@@ -154,7 +154,13 @@ async function handleRegisterSubmit(event) {
 
 function handleAuthClick(event) {
 
-    const action = event.target.dataset.action;
+    /*
+     * `closest` y no `event.target`: un icono dentro del botón
+     * recibiría el clic y la acción se perdería.
+     */
+    const action = event.target
+        .closest("[data-action]")
+        ?.dataset.action;
 
     if (!action) return;
 

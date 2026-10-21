@@ -200,19 +200,11 @@ function handleSidebarClick(event) {
         return;
     }
 
-    if (trigger?.dataset.action === "close-menu") {
-
-        closeMenu();
-
-        return;
-    }
-
     /*
-     * Navegar cierra el cajón. Hace falta además de `hashchange` para
-     * el caso en que se pulsa el enlace de la página que ya se ve: el
-     * hash no cambia y el evento nunca se dispara.
+     * Cerrar aquí y no solo en `hashchange`: si el destino coincide
+     * con la ruta actual el hash no cambia y ese evento no se dispara.
      */
-    if (event.target.closest(".sidebar__link, .sidebar__logo")) {
+    if (trigger || event.target.closest(".sidebar__link, .sidebar__logo")) {
 
         closeMenu();
 
