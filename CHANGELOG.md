@@ -14,6 +14,9 @@ El detalle commit a commit está en `git log`; aquí se resume lo que cambia de 
 
 ### Añadido
 
+- Registro de cobros. El sistema no procesa pagos: el dinero se mueve fuera y aquí queda la constancia, con forma de pago y referencia. Una cita tiene como mucho un cobro vigente; anularlo la deja cobrable otra vez y el cobro anulado permanece como historial.
+- `citas.precio`, congelado al reservar. El precio vivía solo en `servicios`, así que subir una tarifa revaluaba hacia atrás las citas pasadas.
+
 - Enlace a «Nuestro equipo» en el menú. La ruta `#/professionals` ya existía y era pública, pero solo se llegaba a ella escribiendo la URL. La etiqueta repite el encabezado de su página para que no se confunda con «Equipo», que lleva al panel de gestión.
 
 ### Cambiado

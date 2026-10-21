@@ -6,6 +6,7 @@ use DateTimeImmutable;
 use App\Constants\Roles;
 use App\Repositories\AppointmentRepository;
 use App\Repositories\ClientRepository;
+use App\Repositories\PaymentRepository;
 use App\Repositories\ProfessionalRepository;
 use App\Repositories\ServiceRepository;
 use App\Validators\AppointmentValidator;
@@ -44,7 +45,8 @@ class AppointmentService
         private AppointmentRepository $appointmentRepository,
         private ClientRepository $clientRepository,
         private ServiceRepository $serviceRepository,
-        private ProfessionalRepository $professionalRepository
+        private ProfessionalRepository $professionalRepository,
+        private PaymentRepository $paymentRepository
     ) {}
 
     /**
@@ -249,6 +251,14 @@ class AppointmentService
         if ($appointment['estado'] === 'cancelada') {
             throw new ConflictException(
                 'La cita ya se encuentra cancelada.'
+            );
+        }
+
+        // Cancelar una cita cobrada dejaría dinero registrado sobre un
+        // servicio que no se prestó. Primero hay que devolverlo.
+        if ($this->paymentRepository->findActiveByAppointment($id)) {
+            throw new ConflictException(
+                'La cita tiene un cobro registrado. Anúlalo antes de cancelarla.'
             );
         }
 

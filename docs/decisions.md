@@ -119,3 +119,44 @@ Los controladores reciben un objeto `Core\Request` en lugar de leer `file_get_co
 **Consecuencia:** el análisis del cuerpo ocurre en un solo sitio. Un JSON malformado se rechaza con `422` y un mensaje que nombra el problema, en lugar de decodificarse a `null` y reportarse como una lista de campos obligatorios.
 
 `Router::dispatch()` pasa a recibir la petición completa en vez de método y ruta sueltos. La inyección se resuelve por tipo, no por nombre, para que no dependa de cómo se llame el parámetro.
+
+---
+
+## 009 · El sistema registra pagos, no los procesa
+
+**Fecha:** 2026-10-20
+**Estado:** Aceptada
+
+Los cobros se anotan a mano: forma de pago, monto y una referencia de texto libre. No hay integración con ninguna pasarela.
+
+**Motivo:** es lo que el esquema planteaba desde el inicio con `metodo ENUM('efectivo','tarjeta','transferencia')` y `referencia_pago`, y es lo que el salón necesita: saber cuánto facturó y qué quedó sin cobrar. El dinero ya se mueve fuera del sistema, en el mostrador o por transferencia. Una pasarela real —webhooks, idempotencia, conciliación, credenciales— es un proyecto aparte y no resuelve ningún problema que el salón tenga hoy.
+
+**Consecuencia:** el monto no se compara con el precio de la cita. Un cobro puede llevar descuento, propina o redondeo, así que la interfaz sugiere el precio pero no lo impone. «Cita pagada» significa que tiene un cobro vigente en estado `pagado`, no que las cifras cuadren.
+
+---
+
+## 010 · Un cobro vigente por cita, y anularlo la libera
+
+**Fecha:** 2026-10-20
+**Estado:** Aceptada
+
+`UNIQUE(id_cita, cobro_vigente)` sobre una columna generada que vale `NULL` cuando el cobro está `rechazado` o `reembolsado`.
+
+**Motivo:** permitir varios cobros por cita obligaría a calcular saldos y a decidir qué pasa cuando la suma supera el precio, para resolver un caso —los abonos— que este salón no tiene. Un cobro por cita hace que «¿está pagada?» sea una pregunta con una sola respuesta.
+
+**Consecuencia:** es el mismo recurso que `uq_citas_agenda`. Un `UNIQUE` corriente dejaría la cita bloqueada para siempre tras un cobro anulado, porque la fila permanece como historial; la columna generada la devuelve al estado cobrable sin borrar nada.
+
+Anular distingue dos casos, porque la diferencia importa al cuadrar caja: un cobro `pagado` pasa a `reembolsado` —el dinero entró y salió— y uno `pendiente` pasa a `rechazado` —nunca llegó a entrar—.
+
+---
+
+## 011 · El precio se congela en la cita
+
+**Fecha:** 2026-10-20
+**Estado:** Aceptada
+
+`citas.precio` se copia de `servicios.precio` al reservar. Reprogramar lo conserva; cambiar de servicio trae la tarifa vigente.
+
+**Motivo:** el precio vivía solo en `servicios`, así que subir una tarifa revaluaba hacia atrás todas las citas pasadas y no había forma de saber cuánto se debía por una cita ya agendada pero no cobrada.
+
+**Consecuencia:** las citas anteriores a la migración se rellenaron con el precio actual de su servicio. Es la única aproximación disponible y queda anotado que para ellas el dato es estimado, no histórico.

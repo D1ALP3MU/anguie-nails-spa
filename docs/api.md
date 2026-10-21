@@ -355,7 +355,7 @@ Ordenadas por fecha y hora ascendente.
 }
 ```
 
-`fecha` en formato `YYYY-MM-DD` y `hora` en `HH:MM`. `notas` admite 1000 caracteres.
+`fecha` en formato `YYYY-MM-DD` y `hora` en `HH:MM`. El precio del servicio se **congela en la cita** al reservarla, de modo que subir una tarifa más adelante no revalúe las citas ya agendadas. `notas` admite 1000 caracteres.
 
 **`id_cliente` no se envía.** Para un cliente autenticado se toma del token, y si viene en el cuerpo se descarta: nadie puede reservar a nombre de otro. Un administrador sí debe enviarlo, para agendar por cuenta de un cliente.
 
@@ -395,6 +395,87 @@ Al reprogramar, la propia cita se excluye del cálculo de cruce. Un cliente no p
 ### `DELETE /api/appointments/{id}` · dueño o administrador
 
 Cancelación lógica: pasa a `estado = 'cancelada'` y libera el horario. **409** si ya estaba cancelada.
+
+---
+
+## Cobros
+
+El sistema **registra** pagos, no los procesa: el dinero se mueve fuera —efectivo en el mostrador, transferencia, datáfono— y aquí queda la constancia. Por eso `referencia_pago` es texto libre y no hay integración con ninguna pasarela.
+
+Una cita tiene **como mucho un cobro vigente**. Anularlo la deja cobrable otra vez, y el cobro anulado permanece como historial.
+
+### `GET /api/appointments/{id}/payment` · dueño o administrador
+
+Devuelve `null` cuando la cita todavía no se ha cobrado: es el estado normal de una cita recién agendada, no un error.
+
+```json
+{
+  "success": true,
+  "data": {
+    "id_pago": 5,
+    "id_cita": 31,
+    "monto": "70000.00",
+    "metodo": "transferencia",
+    "estado": "pagado",
+    "referencia_pago": null,
+    "cliente": "Ana Pérez",
+    "servicio": "Pedicure Spa",
+    "precio_cita": "75000.00",
+    "fecha": "2027-11-11",
+    "hora": "10:00:00"
+  }
+}
+```
+
+### `POST /api/appointments/{id}/payment` · administrador
+
+```json
+{
+  "monto": 75000,
+  "metodo": "efectivo",
+  "estado": "pagado",
+  "referencia_pago": "REF-001"
+}
+```
+
+`metodo` admite `efectivo`, `tarjeta` o `transferencia`. `estado` es opcional y solo acepta `pendiente` o `pagado`; por defecto `pagado`, que es lo habitual al cobrar en el mostrador. `referencia_pago` es opcional.
+
+**El monto no tiene que coincidir con `precio_cita`**: un cobro puede llevar descuento, propina o redondeo. El formulario lo sugiere, pero no lo impone.
+
+**201** con `{ "id_pago": 5 }`.
+
+| Código | Motivo |
+| --- | --- |
+| `409` | La cita ya tiene un cobro vigente, o está cancelada |
+| `422` | Monto no positivo, forma de pago inválida, o estado inicial no permitido |
+| `404` | La cita no existe o no es visible para quien pregunta |
+
+### `PUT /api/payments/{id}` · administrador
+
+Confirma un cobro `pendiente`, que es el caso de la transferencia anunciada y luego verificada. Sin cuerpo. **409** si el cobro no está pendiente.
+
+### `DELETE /api/payments/{id}` · administrador
+
+Anula el cobro y deja la cita cobrable de nuevo. El estado resultante distingue qué pasó, porque la diferencia importa al cuadrar caja:
+
+| Estado antes | Estado después | Significado |
+| --- | --- | --- |
+| `pagado` | `reembolsado` | El dinero entró y se devolvió |
+| `pendiente` | `rechazado` | Nunca llegó a entrar |
+
+**409** si ya estaba anulado.
+
+### `GET /api/payments` · administrador
+
+Listado de cobros con los datos de su cita. Admite filtros combinables:
+
+| Parámetro | Formato |
+| --- | --- |
+| `desde`, `hasta` | `YYYY-MM-DD`, sobre la **fecha de la cita** |
+| `estado` | `pendiente`, `pagado`, `rechazado`, `reembolsado` |
+| `metodo` | `efectivo`, `tarjeta`, `transferencia` |
+
+El rango se aplica a la fecha de la cita y no a la del cobro, porque lo que el salón quiere saber es cuánto facturó por el trabajo de un periodo.
 
 ---
 

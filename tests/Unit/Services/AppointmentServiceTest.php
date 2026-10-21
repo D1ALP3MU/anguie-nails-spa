@@ -11,6 +11,7 @@ use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationException;
 use App\Repositories\AppointmentRepository;
 use App\Repositories\ClientRepository;
+use App\Repositories\PaymentRepository;
 use App\Repositories\ProfessionalRepository;
 use App\Repositories\ServiceRepository;
 use App\Services\AppointmentService;
@@ -27,6 +28,7 @@ class AppointmentServiceTest extends TestCase
     private ClientRepository $clients;
     private ServiceRepository $services;
     private ProfessionalRepository $professionals;
+    private PaymentRepository $payments;
     private AppointmentService $service;
 
     /** Cliente autenticado: usuario 10 -> cliente 5. */
@@ -46,12 +48,14 @@ class AppointmentServiceTest extends TestCase
         $this->clients = $this->createMock(ClientRepository::class);
         $this->services = $this->createMock(ServiceRepository::class);
         $this->professionals = $this->createMock(ProfessionalRepository::class);
+        $this->payments = $this->createMock(PaymentRepository::class);
 
         $this->service = new AppointmentService(
             $this->appointments,
             $this->clients,
             $this->services,
-            $this->professionals
+            $this->professionals,
+            $this->payments
         );
 
         // Por defecto: el usuario 10 es el cliente 5.

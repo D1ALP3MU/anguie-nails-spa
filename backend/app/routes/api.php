@@ -5,6 +5,7 @@ use App\Constants\Roles;
 use App\Controllers\AppointmentController;
 use App\Controllers\AuthController;
 use App\Controllers\ClientController;
+use App\Controllers\PaymentController;
 use App\Controllers\ProfessionalController;
 use App\Controllers\ServiceController;
 
@@ -123,5 +124,28 @@ return [
 
     Route::delete('/api/appointments/{id}', AppointmentController::class, 'delete')
         ->requireAuth(),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cobros
+    |--------------------------------------------------------------------------
+    | El sistema registra pagos, no los procesa: el dinero se mueve
+    | fuera y aquí queda la constancia. Cobrar es cosa del salón; la
+    | clienta solo puede consultar el cobro de su propia cita.
+    */
+    Route::get('/api/appointments/{id}/payment', PaymentController::class, 'show')
+        ->requireAuth(),
+
+    Route::post('/api/appointments/{id}/payment', PaymentController::class, 'store')
+        ->allowRoles(Roles::ADMIN),
+
+    Route::get('/api/payments', PaymentController::class, 'index')
+        ->allowRoles(Roles::ADMIN),
+
+    Route::put('/api/payments/{id}', PaymentController::class, 'confirm')
+        ->allowRoles(Roles::ADMIN),
+
+    Route::delete('/api/payments/{id}', PaymentController::class, 'delete')
+        ->allowRoles(Roles::ADMIN),
 
 ];
