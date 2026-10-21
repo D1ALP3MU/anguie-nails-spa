@@ -6,15 +6,25 @@ Backend en PHP sin framework, con arquitectura por capas. Frontend en JavaScript
 
 ---
 
-## Objetivo
+## Qué hace
 
-Administrar el proceso completo de reservas del salón:
+### Para la clienta
 
-- Registro e inicio de sesión de clientes
-- Catálogo de servicios
-- Agenda de citas con control de disponibilidad
-- Gestión de profesionales
-- Panel administrativo de clientes
+Se registra, consulta el catálogo y el equipo, reserva con la profesional que prefiere y gestiona sus propias citas.
+
+### Para el salón
+
+Panel con cinco pantallas: **agenda** del día con filtros y cambio de estado, **catálogo** de servicios, **equipo**, **clientas** y **facturación**.
+
+### Reglas que el sistema hace cumplir
+
+- **Una profesional no atiende dos citas a la vez.** El cruce se calcula con la duración de cada servicio, no solo con la hora de inicio, y una restricción en la base lo respalda ante reservas simultáneas.
+- **Cada quien ve solo lo suyo.** El identificador de clienta se resuelve desde el token; enviarlo en la petición no sirve de nada.
+- **No se pierde historial.** Todas las bajas son lógicas: servicios, clientas, profesionales, citas y cobros dejan de contar, pero sus datos permanecen.
+- **Una cita tiene como mucho un cobro vigente.** Anularlo la deja cobrable otra vez y el cobro anulado queda como constancia.
+- **No se deja a nadie esperando.** No se da de baja a una profesional con citas pendientes, ni se cancela una cita ya cobrada.
+
+> El sistema **registra** pagos, no los procesa: el dinero se mueve fuera —efectivo, transferencia, datáfono— y aquí queda la constancia. No hay integración con ninguna pasarela.
 
 ---
 
@@ -77,13 +87,28 @@ mysql -u root -p < database/schema.sql
 mysql -u root -p spa_db < database/seeds/roles.sql
 ```
 
-`schema.sql` crea la base desde cero. Sobre una base anterior a la restricción de agenda, aplicar en su lugar:
+`schema.sql` crea la base ya actualizada. Sobre una base existente, aplicar en orden las migraciones que falten:
 
 ```bash
 mysql -u root -p spa_db < database/migrations/001_citas_agenda_unica.sql
+mysql -u root -p spa_db < database/migrations/002_elimina_tienda.sql
+mysql -u root -p spa_db < database/migrations/003_pagos.sql
 ```
 
-### 4. Levantar el backend
+### 4. Crear el primer administrador
+
+El registro público siempre crea cuentas de clienta, así que el primer administrador se inserta a mano:
+
+```bash
+php -r "echo password_hash('tu-clave', PASSWORD_DEFAULT);"
+```
+
+```sql
+INSERT INTO usuarios (nombre, email, password_hash, id_rol)
+VALUES ('Admin', 'admin@ejemplo.com', '<el hash anterior>', 1);
+```
+
+### 5. Levantar el backend
 
 ```bash
 php -S localhost:8001 -t backend/public
@@ -93,7 +118,7 @@ La API queda en `http://localhost:8001/api`.
 
 > El puerto debe coincidir con `API_URL` en `frontend/js/config/env.js`.
 
-### 5. Levantar el frontend
+### 6. Levantar el frontend
 
 Servir la carpeta `frontend/` con cualquier servidor estático, por ejemplo la extensión Live Server de VS Code. No sirve abrir `index.html` con doble clic: los módulos ES6 requieren protocolo HTTP.
 
@@ -171,7 +196,7 @@ anguie-nails/
 │   └── public/             Punto de entrada
 │
 ├── database/
-│   ├── schema.sql          Esquema completo
+│   ├── schema.sql          Esquema completo y actualizado
 │   ├── migrations/         Cambios sobre bases existentes
 │   └── seeds/              Datos iniciales
 │
@@ -184,6 +209,13 @@ anguie-nails/
 │       ├── constants/      Espejo de constantes del backend
 │       ├── core/           Bus de eventos y limpieza de listeners
 │       ├── modules/        Un módulo por funcionalidad
+│       │   ├── admin/       agenda · clients · professionals
+│       │   │                services · reports
+│       │   ├── auth/        registro e inicio de sesión
+│       │   ├── booking/     citas de la clienta
+│       │   ├── home/
+│       │   ├── professionals/
+│       │   └── services/     catálogo público
 │       ├── router/         Enrutado por hash con guardas
 │       ├── state/          Estado compartido
 │       └── utils/          Utilidades sin estado
@@ -218,15 +250,27 @@ En desarrollo.
 - Catálogo de servicios con CRUD administrativo
 - Agenda de citas con detección de cruce de horarios
 - Registro de cobros, con un cobro vigente por cita
+- Informe de facturación con desglose por forma de pago, profesional y servicio
 - Panel administrativo completo: agenda, catálogo, equipo, clientas y facturación
 - Enrutado declarativo con guardas por ruta
 - Suite de 338 pruebas automatizadas
 
 ### Pendiente
 
-- Historial y reportes
-- Pagos
 - Notificaciones por correo
+- Crear administradores desde la aplicación
+- Historial de la clienta
+
+### Limitaciones conocidas
+
+Antes de exponer la API a internet hay que revisar:
+
+| | |
+| --- | --- |
+| **CORS abierto** | La API acepta peticiones de cualquier origen |
+| **Sesión sin renovación** | El token vence según `JWT_EXPIRE` y no hay refresco ni revocación |
+| **Token en `sessionStorage`** | Accesible desde JavaScript. Se mitiga escapando toda salida, pero la protección real sería una cookie `HttpOnly`. Registrado en [`docs/decisions.md`](docs/decisions.md) para revisarlo |
+| **Sin paginación** | Los listados devuelven todos los registros. Suficiente para el volumen del salón |
 
 ---
 
