@@ -87,6 +87,7 @@ class PaymentSummaryTest extends IntegrationTestCase
         $this->assertSame(0, (int) $resumen['totales']['cobros']);
         $this->assertSame(0.0, (float) $resumen['sin_cobrar']['total']);
         $this->assertSame([], $resumen['por_metodo']);
+        $this->assertSame([], $resumen['por_servicio']);
     }
 
     #[Test]
@@ -156,6 +157,40 @@ class PaymentSummaryTest extends IntegrationTestCase
     }
 
     #[Test]
+    public function agrupa_por_servicio(): void
+    {
+        $manicura = $this->serviceId;
+        $nailArt = $this->createService(120, 'Nail Art');
+
+        $this->cita('2027-03-01', '09:00', $this->laura, 50000, ['monto' => 50000]);
+        $this->cita('2027-03-02', '09:00', $this->laura, 30000, ['monto' => 30000]);
+
+        $este = $this->createAppointment(
+            $this->clientId,
+            $nailArt,
+            $this->laura,
+            '2027-03-03',
+            '09:00',
+            'pendiente',
+            90000
+        );
+
+        $this->db->prepare(
+            'INSERT INTO pagos (id_cita, monto, metodo, estado)
+             VALUES (?, ?, ?, ?)'
+        )->execute([$este, 90000, 'efectivo', 'pagado']);
+
+        $porServicio = $this->repository->summary([])['por_servicio'];
+
+        $this->assertCount(2, $porServicio);
+        $this->assertSame('Nail Art', $porServicio[0]['etiqueta']);
+        $this->assertSame(90000.0, (float) $porServicio[0]['total']);
+        $this->assertSame('Manicura', $porServicio[1]['etiqueta']);
+        $this->assertSame(80000.0, (float) $porServicio[1]['total']);
+        $this->assertSame(2, (int) $porServicio[1]['cobros']);
+    }
+
+    #[Test]
     public function las_agrupaciones_ignoran_lo_no_cobrado(): void
     {
         $this->cita('2027-03-01', '09:00', $this->laura, 50000, ['monto' => 50000, 'estado' => 'pendiente']);
@@ -164,6 +199,7 @@ class PaymentSummaryTest extends IntegrationTestCase
 
         $this->assertSame([], $resumen['por_metodo']);
         $this->assertSame([], $resumen['por_profesional']);
+        $this->assertSame([], $resumen['por_servicio']);
     }
 
     /*

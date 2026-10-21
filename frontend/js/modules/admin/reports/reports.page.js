@@ -71,6 +71,12 @@ export async function ReportsPage() {
                 "Profesional"
             )}
 
+            ${BreakdownTable(
+                "Por servicio",
+                summary.por_servicio,
+                "Servicio"
+            )}
+
             ${PaymentsTable(payments)}
 
         </section>

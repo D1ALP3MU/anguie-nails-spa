@@ -210,6 +210,13 @@ class PaymentRepository
                 $parameters,
                 'INNER JOIN profesionales p ON p.id_profesional = c.id_profesional'
             ),
+            'por_servicio' => $this->groupBy(
+                's.nombre AS etiqueta',
+                's.id_servicio',
+                $range,
+                $parameters,
+                'INNER JOIN servicios s ON s.id_servicio = c.id_servicio'
+            ),
             'sin_cobrar' => $this->uncharged($range, $parameters)
         ];
     }
