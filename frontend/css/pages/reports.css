@@ -1,0 +1,87 @@
+.reporte-tarjetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.reporte-tarjeta {
+    padding: 20px 22px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--text-muted);
+    border-radius: var(--r-lg);
+    box-shadow: var(--sh-sm);
+}
+
+.reporte-tarjeta--exito  { border-left-color: #4CAF7D; }
+.reporte-tarjeta--aviso  { border-left-color: var(--beige-dark); }
+.reporte-tarjeta--deuda  { border-left-color: var(--pink-accent); }
+.reporte-tarjeta--neutro { border-left-color: var(--text-muted); }
+
+.reporte-tarjeta__etiqueta {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.reporte-tarjeta__valor {
+    font-family: var(--font-d);
+    font-size: 1.9rem;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.1;
+}
+
+.reporte-tarjeta__detalle {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: var(--text-soft);
+}
+
+.reporte-bloque {
+    margin-bottom: 32px;
+}
+
+.reporte-bloque h2 {
+    font-family: var(--font-d);
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 14px;
+}
+
+.reporte-vacio {
+    padding: 18px 20px;
+    background: var(--white);
+    border: 1px dashed var(--border);
+    border-radius: var(--r-md);
+    color: var(--text-muted);
+}
+
+/* Barra de participación dentro de la celda. */
+.reporte-barra {
+    display: inline-block;
+    vertical-align: middle;
+    width: 90px;
+    height: 7px;
+    margin-right: 8px;
+    background: var(--boder-lt);
+    border-radius: var(--r-full);
+    overflow: hidden;
+}
+
+.reporte-barra span {
+    display: block;
+    height: 100%;
+    background: var(--g-pink);
+}
+
+@media (max-width: 600px) {
+
+    .reporte-barra {
+        width: 50px;
+    }
+}

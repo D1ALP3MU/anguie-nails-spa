@@ -10,6 +10,7 @@ import { ClientsPage } from "../modules/admin/clients/clients.page.js";
 import { ProfessionalsAdminPage } from "../modules/admin/professionals/professionals.page.js";
 import { ServicesAdminPage } from "../modules/admin/services/services.page.js";
 import { AgendaPage } from "../modules/admin/agenda/agenda.page.js";
+import { ReportsPage } from "../modules/admin/reports/reports.page.js";
 import { ProfessionalsPage } from "../modules/professionals/professionals.page.js";
 import { store } from "../state/store.js";
 import { ROLES } from "../constants/roles.js";
@@ -39,6 +40,7 @@ const routes = {
     "/admin/professionals": { page: ProfessionalsAdminPage, roles: [ROLES.ADMIN] },
     "/admin/services": { page: ServicesAdminPage, roles: [ROLES.ADMIN] },
     "/admin/agenda": { page: AgendaPage, roles: [ROLES.ADMIN] },
+    "/admin/reports": { page: ReportsPage, roles: [ROLES.ADMIN] },
     "/login": { page: LoginPage, guestOnly: true },
     "/register": { page: RegisterPage, guestOnly: true },
 };

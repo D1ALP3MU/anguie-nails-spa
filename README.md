@@ -143,6 +143,7 @@ Referencia completa con formatos de petición y respuesta en [`docs/api.md`](doc
 | `GET` | `/api/appointments/{id}/payment` | Dueño o administrador |
 | `POST` | `/api/appointments/{id}/payment` | Administrador |
 | `GET` | `/api/payments` | Administrador |
+| `GET` | `/api/payments/summary` | Administrador |
 | `PUT` | `/api/payments/{id}` | Administrador |
 | `DELETE` | `/api/payments/{id}` | Administrador |
 
@@ -217,9 +218,9 @@ En desarrollo.
 - Catálogo de servicios con CRUD administrativo
 - Agenda de citas con detección de cruce de horarios
 - Registro de cobros, con un cobro vigente por cita
-- Panel administrativo completo: agenda, catálogo, equipo y clientas
+- Panel administrativo completo: agenda, catálogo, equipo, clientas y facturación
 - Enrutado declarativo con guardas por ruta
-- Suite de 325 pruebas automatizadas
+- Suite de 337 pruebas automatizadas
 
 ### Pendiente
 

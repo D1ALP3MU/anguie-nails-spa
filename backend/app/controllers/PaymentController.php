@@ -37,6 +37,23 @@ class PaymentController
     }
 
     /**
+     * Resumen de facturación del periodo.
+     *
+     * @param Request $request Petición entrante.
+     *
+     * @return void
+     */
+    public function summary(Request $request): void
+    {
+        Response::success(
+            $this->service->summary([
+                'desde' => $request->query('desde'),
+                'hasta' => $request->query('hasta')
+            ])
+        );
+    }
+
+    /**
      * Obtiene el cobro vigente de una cita.
      *
      * Devuelve null cuando la cita todavía no se ha cobrado: no es

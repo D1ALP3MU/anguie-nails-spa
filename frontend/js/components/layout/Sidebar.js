@@ -97,6 +97,8 @@ export function Sidebar() {
 
                             ${link("#/admin/professionals", "Equipo", current)}
 
+                            ${link("#/admin/reports", "Facturación", current)}
+
                         </ul>
                     `
                     : ""}

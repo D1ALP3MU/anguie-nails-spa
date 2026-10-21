@@ -67,6 +67,20 @@ class PaymentService
     }
 
     /**
+     * Resume la facturación de un periodo.
+     *
+     * @param array $filters Filtros de la consulta.
+     *
+     * @return array
+     */
+    public function summary(array $filters = []): array
+    {
+        return $this->repository->summary(
+            $this->normalizeFilters($filters)
+        );
+    }
+
+    /**
      * Registra el cobro de una cita.
      *
      * @param int $appointmentId ID de la cita.

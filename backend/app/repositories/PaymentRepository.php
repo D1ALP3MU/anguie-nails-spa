@@ -178,6 +178,178 @@ class PaymentRepository
     }
 
     /**
+     * Resume la facturación de un periodo.
+     *
+     * Se agrupa en la base y no en el cliente: un informe no tiene
+     * por qué descargar cobro por cobro para sumarlos.
+     *
+     * El rango se aplica sobre la fecha de la cita, igual que en el
+     * listado: lo que interesa es cuánto produjo el trabajo de ese
+     * periodo, no cuándo entró el dinero.
+     *
+     * @param array $filters Claves admitidas: desde, hasta.
+     *
+     * @return array
+     */
+    public function summary(array $filters): array
+    {
+        [$range, $parameters] = $this->buildRange($filters, 'c.fecha');
+
+        return [
+            'totales' => $this->totals($range, $parameters),
+            'por_metodo' => $this->groupBy(
+                'pg.metodo AS etiqueta',
+                'pg.metodo',
+                $range,
+                $parameters
+            ),
+            'por_profesional' => $this->groupBy(
+                'p.nombre AS etiqueta',
+                'p.id_profesional',
+                $range,
+                $parameters,
+                'INNER JOIN profesionales p ON p.id_profesional = c.id_profesional'
+            ),
+            'sin_cobrar' => $this->uncharged($range, $parameters)
+        ];
+    }
+
+    /**
+     * Construye la condición de rango y sus parámetros.
+     *
+     * @param array $filters Filtros recibidos.
+     * @param string $column Columna de fecha a comparar.
+     *
+     * @return array{0: string, 1: array}
+     */
+    private function buildRange(array $filters, string $column): array
+    {
+        $conditions = [];
+        $parameters = [];
+
+        if (isset($filters['desde'])) {
+            $conditions[] = "{$column} >= :desde";
+            $parameters['desde'] = $filters['desde'];
+        }
+
+        if (isset($filters['hasta'])) {
+            $conditions[] = "{$column} <= :hasta";
+            $parameters['hasta'] = $filters['hasta'];
+        }
+
+        return [
+            $conditions === [] ? '' : ' AND ' . implode(' AND ', $conditions),
+            $parameters
+        ];
+    }
+
+    /**
+     * Totales por estado del cobro.
+     *
+     * @param string $range Condición de rango.
+     * @param array $parameters Parámetros del rango.
+     *
+     * @return array
+     */
+    private function totals(string $range, array $parameters): array
+    {
+        $sql = "
+            SELECT
+                COALESCE(SUM(CASE WHEN pg.estado = 'pagado' THEN pg.monto END), 0) AS facturado,
+                COALESCE(SUM(CASE WHEN pg.estado = 'pendiente' THEN pg.monto END), 0) AS pendiente,
+                COALESCE(SUM(CASE WHEN pg.estado IN ('rechazado', 'reembolsado') THEN pg.monto END), 0) AS anulado,
+                COUNT(CASE WHEN pg.estado = 'pagado' THEN 1 END) AS cobros
+            FROM pagos pg
+            INNER JOIN citas c
+                ON c.id_cita = pg.id_cita
+            WHERE 1 = 1 {$range}
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute($parameters);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Agrupa lo facturado por la dimensión indicada.
+     *
+     * Solo cuenta lo cobrado de verdad: lo pendiente todavía no es
+     * facturación, y lo anulado dejó de serlo.
+     *
+     * @param string $label Expresión que da la etiqueta del grupo.
+     * @param string $groupBy Columna de agrupación.
+     * @param string $range Condición de rango.
+     * @param array $parameters Parámetros del rango.
+     * @param string $join Unión adicional, si hace falta.
+     *
+     * @return array
+     */
+    private function groupBy(
+        string $label,
+        string $groupBy,
+        string $range,
+        array $parameters,
+        string $join = ''
+    ): array {
+        $sql = "
+            SELECT
+                {$label},
+                SUM(pg.monto) AS total,
+                COUNT(*) AS cobros
+            FROM pagos pg
+            INNER JOIN citas c
+                ON c.id_cita = pg.id_cita
+            {$join}
+            WHERE pg.estado = 'pagado' {$range}
+            GROUP BY {$groupBy}
+            ORDER BY total DESC
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute($parameters);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Citas que todavía no se han cobrado.
+     *
+     * Es la respuesta a «¿cuánto me deben?», y solo se puede dar
+     * porque la cita congela su precio al reservarse.
+     *
+     * Las canceladas quedan fuera: no hubo servicio que cobrar.
+     *
+     * @param string $range Condición de rango.
+     * @param array $parameters Parámetros del rango.
+     *
+     * @return array
+     */
+    private function uncharged(string $range, array $parameters): array
+    {
+        $sql = "
+            SELECT
+                COUNT(*) AS citas,
+                COALESCE(SUM(c.precio), 0) AS total
+            FROM citas c
+            LEFT JOIN pagos pg
+                ON pg.id_cita = c.id_cita
+                AND pg.cobro_vigente IS NOT NULL
+            WHERE pg.id_pago IS NULL
+                AND c.estado <> 'cancelada'
+                {$range}
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute($parameters);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Registra un cobro.
      *
      * @param array $data Datos del cobro.

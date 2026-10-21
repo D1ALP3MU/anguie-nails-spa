@@ -142,6 +142,9 @@ return [
     Route::get('/api/payments', PaymentController::class, 'index')
         ->allowRoles(Roles::ADMIN),
 
+    Route::get('/api/payments/summary', PaymentController::class, 'summary')
+        ->allowRoles(Roles::ADMIN),
+
     Route::put('/api/payments/{id}', PaymentController::class, 'confirm')
         ->allowRoles(Roles::ADMIN),
 
