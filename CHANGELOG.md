@@ -8,6 +8,10 @@ El detalle commit a commit está en `git log`; aquí se resume lo que cambia de 
 
 ## [Sin publicar]
 
+### Eliminado
+
+- Las tablas `productos`, `carrito_items`, `pedidos` y `pedido_items`. Estaban en el esquema desde el inicio sin que ningún código las usara: correspondían a una tienda en línea que no se va a construir. Migración en `database/migrations/002_elimina_tienda.sql`.
+
 ### Añadido
 
 - Enlace a «Nuestro equipo» en el menú. La ruta `#/professionals` ya existía y era pública, pero solo se llegaba a ella escribiendo la URL. La etiqueta repite el encabezado de su página para que no se confunda con «Equipo», que lleva al panel de gestión.
