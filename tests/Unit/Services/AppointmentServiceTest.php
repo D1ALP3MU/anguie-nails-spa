@@ -68,7 +68,7 @@ class AppointmentServiceTest extends TestCase
             ->method('findById')
             ->willReturnCallback(
                 fn (int $id) => $id === 2
-                    ? ['id_servicio' => 2, 'duracion' => 60, 'activo' => 1]
+                    ? ['id_servicio' => 2, 'duracion' => 60, 'precio' => 50000, 'activo' => 1]
                     : null
             );
 
@@ -79,6 +79,20 @@ class AppointmentServiceTest extends TestCase
                     ? ['id_profesional' => 1, 'activo' => 1]
                     : null
             );
+    }
+
+    /**
+     * Fila tal como la devuelve el repositorio.
+     */
+    private static function appointmentRow(array $overrides = []): array
+    {
+        return array_merge([
+            'id_cita' => 1,
+            'id_cliente' => 5,
+            'id_servicio' => 2,
+            'precio' => 50000,
+            'estado' => 'pendiente'
+        ], $overrides);
     }
 
     /**
@@ -286,7 +300,7 @@ class AppointmentServiceTest extends TestCase
         // Responder 403 revelaría que el identificador existe.
         $this->appointments
             ->method('findById')
-            ->willReturn(['id_cita' => 1, 'id_cliente' => 99, 'estado' => 'pendiente']);
+            ->willReturn(self::appointmentRow(['id_cliente' => 99]));
 
         $this->expectException(NotFoundException::class);
 
@@ -298,7 +312,7 @@ class AppointmentServiceTest extends TestCase
     {
         $this->appointments
             ->method('findById')
-            ->willReturn(['id_cita' => 1, 'id_cliente' => 99, 'estado' => 'pendiente']);
+            ->willReturn(self::appointmentRow(['id_cliente' => 99]));
 
         $this->appointments
             ->expects($this->never())
@@ -314,7 +328,7 @@ class AppointmentServiceTest extends TestCase
     {
         $this->appointments
             ->method('findById')
-            ->willReturn(['id_cita' => 1, 'id_cliente' => 5, 'estado' => 'pendiente']);
+            ->willReturn(self::appointmentRow());
 
         $this->appointments
             ->expects($this->once())
@@ -329,7 +343,7 @@ class AppointmentServiceTest extends TestCase
     {
         $this->appointments
             ->method('findById')
-            ->willReturn(['id_cita' => 1, 'id_cliente' => 5, 'estado' => 'cancelada']);
+            ->willReturn(self::appointmentRow(['estado' => 'cancelada']));
 
         $this->expectException(ConflictException::class);
 
@@ -341,7 +355,7 @@ class AppointmentServiceTest extends TestCase
     {
         $this->appointments
             ->method('findById')
-            ->willReturn(['id_cita' => 1, 'id_cliente' => 5, 'estado' => 'pendiente']);
+            ->willReturn(self::appointmentRow());
 
         $this->appointments
             ->expects($this->once())
@@ -356,6 +370,74 @@ class AppointmentServiceTest extends TestCase
                 'id_cliente' => 99,
                 'estado' => 'pendiente'
             ]),
+            self::CLIENT_USER
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Precio congelado
+    |--------------------------------------------------------------------------
+    */
+
+    #[Test]
+    public function la_cita_congela_el_precio_del_servicio(): void
+    {
+        $this->appointments
+            ->expects($this->once())
+            ->method('create')
+            ->with($this->callback(
+                fn (array $d) => (int) $d['precio'] === 50000
+            ))
+            ->willReturn(1);
+
+        $this->service->create($this->validPayload(), self::CLIENT_USER);
+    }
+
+    #[Test]
+    public function reprogramar_conserva_el_precio_acordado(): void
+    {
+        // La cita se guardó a 50000; aunque la tarifa suba, mover el
+        // horario no debe cobrarle más a quien ya reservó.
+        $this->appointments
+            ->method('findById')
+            ->willReturn(self::appointmentRow(['precio' => 40000]));
+
+        $this->appointments
+            ->expects($this->once())
+            ->method('update')
+            ->with(1, $this->callback(
+                fn (array $d) => (int) $d['precio'] === 40000
+            ));
+
+        $this->service->update(
+            1,
+            $this->validPayload(['estado' => 'pendiente']),
+            self::CLIENT_USER
+        );
+    }
+
+    #[Test]
+    public function cambiar_de_servicio_trae_su_tarifa_actual(): void
+    {
+        // Otro servicio es otro acuerdo: se cobra lo que vale hoy.
+        $this->appointments
+            ->method('findById')
+            ->willReturn(self::appointmentRow([
+                'id_servicio' => 7,
+                'precio' => 40000
+            ]));
+
+        $this->appointments
+            ->expects($this->once())
+            ->method('update')
+            ->with(1, $this->callback(
+                fn (array $d) => (int) $d['precio'] === 50000
+            ));
+
+        $this->service->update(
+            1,
+            $this->validPayload(['estado' => 'pendiente']),
             self::CLIENT_USER
         );
     }
@@ -410,7 +492,7 @@ class AppointmentServiceTest extends TestCase
     {
         $this->appointments
             ->method('findById')
-            ->willReturn(['id_cita' => 42, 'id_cliente' => 5, 'estado' => 'pendiente']);
+            ->willReturn(self::appointmentRow(['id_cita' => 42]));
 
         // Se excluye la propia cita del cálculo de cruce.
         $this->appointments
@@ -495,7 +577,7 @@ class AppointmentServiceTest extends TestCase
         // Permite que el administrador cierre el historial.
         $this->appointments
             ->method('findById')
-            ->willReturn(['id_cita' => 1, 'id_cliente' => 5, 'estado' => 'pendiente']);
+            ->willReturn(self::appointmentRow());
 
         $this->appointments
             ->expects($this->never())

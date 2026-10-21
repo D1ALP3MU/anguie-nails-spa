@@ -220,6 +220,7 @@ class AppointmentRepositoryTest extends IntegrationTestCase
             'id_cliente' => $this->clientId,
             'id_servicio' => $this->serviceId,
             'id_profesional' => $this->professionalId,
+            'precio' => 50000,
             'fecha' => $this->date,
             'hora' => '10:00'
         ]);
@@ -230,6 +231,7 @@ class AppointmentRepositoryTest extends IntegrationTestCase
             'id_cliente' => $this->otherClientId,
             'id_servicio' => $this->serviceId,
             'id_profesional' => $this->professionalId,
+            'precio' => 50000,
             'fecha' => $this->date,
             'hora' => '10:00'
         ]);
@@ -244,6 +246,7 @@ class AppointmentRepositoryTest extends IntegrationTestCase
             'id_cliente' => $this->clientId,
             'id_servicio' => $this->serviceId,
             'id_profesional' => $this->professionalId,
+            'precio' => 50000,
             'fecha' => $this->date,
             'hora' => '10:00'
         ]);
@@ -254,6 +257,7 @@ class AppointmentRepositoryTest extends IntegrationTestCase
             'id_cliente' => $this->otherClientId,
             'id_servicio' => $this->serviceId,
             'id_profesional' => $this->professionalId,
+            'precio' => 50000,
             'fecha' => $this->date,
             'hora' => '10:00'
         ]);
@@ -283,6 +287,8 @@ class AppointmentRepositoryTest extends IntegrationTestCase
             'id_cliente' => $this->clientId,
             'id_servicio' => 999999,
             'id_profesional' => $this->professionalId,
+            'precio' => 50000,
+            'precio' => 50000,
             'fecha' => $this->date,
             'hora' => '10:00'
         ]);

@@ -86,6 +86,9 @@ CREATE TABLE citas (
     id_cliente INT NOT NULL,
     id_servicio INT NOT NULL,
     id_profesional INT NOT NULL,
+    -- Congelado al reservar: subir una tarifa no debe revaluar
+    -- hacia atrás las citas ya agendadas.
+    precio DECIMAL(10,2) NOT NULL,
     fecha DATE NOT NULL,
     hora TIME NOT NULL,
     estado ENUM(
@@ -137,12 +140,21 @@ CREATE TABLE pagos (
     estado ENUM(
         'pendiente',
         'pagado',
-        'rechazado'
+        'rechazado',
+        'reembolsado'
     ) DEFAULT 'pendiente',
     referencia_pago VARCHAR(255),
+    -- Vale NULL cuando el cobro deja de contar. Como MySQL admite
+    -- NULL repetidos en un índice UNIQUE, una cita solo puede tener
+    -- un cobro vigente, pero anularlo la deja cobrable de nuevo.
+    cobro_vigente TINYINT
+        GENERATED ALWAYS AS (
+            IF(estado IN ('rechazado', 'reembolsado'), NULL, 1)
+        ) STORED,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_cita)
-        REFERENCES citas(id_cita)
+        REFERENCES citas(id_cita),
+    UNIQUE KEY uq_pagos_cita (id_cita, cobro_vigente)
 );
 
 -- =====================================================
@@ -157,5 +169,3 @@ ON citas(fecha);
 CREATE INDEX idx_citas_estado
 ON citas(estado);
 
-CREATE INDEX idx_pagos_cita
-ON pagos(id_cita);

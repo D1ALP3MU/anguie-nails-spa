@@ -65,7 +65,11 @@ class AppointmentService
 
         AppointmentValidator::validate($data);
 
-        $this->assertBookable($data);
+        $service = $this->assertBookable($data);
+
+        // El precio se congela al reservar: subir la tarifa más
+        // adelante no debe revaluar esta cita.
+        $data['precio'] = $service['precio'];
 
         return $this->appointmentRepository->create($data);
     }
@@ -212,7 +216,13 @@ class AppointmentService
         AppointmentValidator::validate($data);
 
         // Al reprogramar, la propia cita no cuenta como conflicto.
-        $this->assertBookable($data, $id);
+        $service = $this->assertBookable($data, $id);
+
+        // Cambiar de servicio trae su tarifa actual; mover el horario
+        // o el estado conserva el precio ya acordado con la clienta.
+        $data['precio'] = (int) $data['id_servicio'] === (int) $appointment['id_servicio']
+            ? $appointment['precio']
+            : $service['precio'];
 
         $this->appointmentRepository->update(
             $id,
@@ -255,7 +265,7 @@ class AppointmentService
      * @param array $data Datos ya validados en formato.
      * @param int|null $excludeId Cita a excluir del cruce (al reprogramar).
      *
-     * @return void
+     * @return array El servicio de la cita, para congelar su precio.
      *
      * @throws ValidationException Datos que el cliente puede corregir.
      * @throws ConflictException El horario ya está ocupado.
@@ -263,7 +273,7 @@ class AppointmentService
     private function assertBookable(
         array $data,
         ?int $excludeId = null
-    ): void {
+    ): array {
         $service = $this->serviceRepository->findById(
             (int) $data['id_servicio']
         );
@@ -289,7 +299,7 @@ class AppointmentService
         // Una cita cancelada o completada no ocupa agenda ni
         // necesita estar en el futuro: permite cerrar el historial.
         if (in_array($status, ['cancelada', 'completada'], true)) {
-            return;
+            return $service;
         }
 
         $start = DateTimeImmutable::createFromFormat(
@@ -326,6 +336,8 @@ class AppointmentService
                 'El profesional ya tiene una cita agendada en ese horario.'
             );
         }
+
+        return $service;
     }
 
     /**

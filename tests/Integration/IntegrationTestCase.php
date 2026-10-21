@@ -106,18 +106,26 @@ abstract class IntegrationTestCase extends TestCase
         int $professionalId,
         string $date,
         string $time,
-        string $status = 'pendiente'
+        string $status = 'pendiente',
+        ?float $price = null
     ): int {
+        // Igual que al reservar de verdad: si no se indica, se congela
+        // el precio que tiene el servicio en este momento.
+        $price ??= (float) $this->db
+            ->query("SELECT precio FROM servicios WHERE id_servicio = {$serviceId}")
+            ->fetchColumn();
+
         $stmt = $this->db->prepare(
             'INSERT INTO citas
-                (id_cliente, id_servicio, id_profesional, fecha, hora, estado)
-             VALUES (?, ?, ?, ?, ?, ?)'
+                (id_cliente, id_servicio, id_profesional, precio, fecha, hora, estado)
+             VALUES (?, ?, ?, ?, ?, ?, ?)'
         );
 
         $stmt->execute([
             $clientId,
             $serviceId,
             $professionalId,
+            $price,
             $date,
             $time,
             $status
