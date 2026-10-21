@@ -219,7 +219,7 @@ En desarrollo.
 - Registro de cobros, con un cobro vigente por cita
 - Panel administrativo completo: agenda, catálogo, equipo y clientas
 - Enrutado declarativo con guardas por ruta
-- Suite de 320 pruebas automatizadas
+- Suite de 325 pruebas automatizadas
 
 ### Pendiente
 

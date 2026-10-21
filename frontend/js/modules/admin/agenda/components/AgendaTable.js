@@ -1,4 +1,5 @@
 import { escapeHtml } from "../../../../utils/html.js";
+import { formatCOP } from "../../../../utils/currency.js";
 
 /**
  * Una cita solo se confirma si todavía no ha ocurrido: el backend
@@ -10,6 +11,57 @@ function isUpcoming(appointment) {
     const when = new Date(`${appointment.fecha}T${appointment.hora}`);
 
     return when.getTime() >= Date.now();
+}
+
+/**
+ * Estado de cobro de la cita.
+ *
+ * El listado de citas ya trae el cobro vigente, así que no hace
+ * falta preguntar por cada fila.
+ */
+function paymentCell(appointment) {
+
+    if (!appointment.id_pago) {
+
+        // Una cita cancelada nunca se cobra: no hubo servicio.
+        if (appointment.estado === "cancelada") {
+            return `<span class="agenda-table__closed">—</span>`;
+        }
+
+        return `
+            <button
+                type="button"
+                class="btn btn-outline"
+                data-charge-appointment="${escapeHtml(appointment.id_cita)}"
+            >
+                Cobrar
+            </button>
+        `;
+    }
+
+    const id = escapeHtml(appointment.id_pago);
+
+    const pendiente = appointment.estado_pago === "pendiente";
+
+    return `
+        <div class="agenda-cobro">
+
+            <span class="agenda-estado agenda-estado--${escapeHtml(appointment.estado_pago)}">
+                ${formatCOP(Number(appointment.monto_pago))}
+                ·
+                ${escapeHtml(appointment.metodo_pago)}
+            </span>
+
+            ${pendiente
+                ? `<button type="button" class="btn btn-outline"
+                       data-confirm-payment="${id}">Confirmar</button>`
+                : ""}
+
+            <button type="button" class="btn btn-danger"
+                data-void-payment="${id}">Anular</button>
+
+        </div>
+    `;
 }
 
 function actionsFor(appointment) {
@@ -65,6 +117,7 @@ export function AgendaTable(appointments) {
                         <th>Servicio</th>
                         <th>Profesional</th>
                         <th>Estado</th>
+                        <th>Cobro</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -83,6 +136,7 @@ export function AgendaTable(appointments) {
                                     ${escapeHtml(appointment.estado)}
                                 </span>
                             </td>
+                            <td>${paymentCell(appointment)}</td>
                             <td>${actionsFor(appointment)}</td>
                         </tr>
                     `).join("")}

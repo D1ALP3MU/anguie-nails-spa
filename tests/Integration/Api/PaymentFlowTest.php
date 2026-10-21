@@ -459,4 +459,78 @@ class PaymentFlowTest extends IntegrationTestCase
 
         $this->send('GET', '/api/payments?desde=01/01/2027');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | El cobro viaja con la cita
+    |--------------------------------------------------------------------------
+    | La agenda necesita saber qué está cobrado sin preguntar cita por
+    | cita, así que el listado de citas trae su cobro vigente.
+    */
+
+    #[Test]
+    public function una_cita_sin_cobrar_llega_con_el_cobro_vacio(): void
+    {
+        $this->asAdmin();
+
+        $cita = $this->send('GET', '/api/appointments')['data'][0];
+
+        $this->assertNull($cita['id_pago']);
+        $this->assertNull($cita['estado_pago']);
+    }
+
+    #[Test]
+    public function una_cita_cobrada_llega_con_los_datos_del_cobro(): void
+    {
+        $this->asAdmin();
+
+        $this->charge(['monto' => 48000, 'metodo' => 'tarjeta']);
+
+        $cita = $this->send('GET', '/api/appointments')['data'][0];
+
+        $this->assertSame('pagado', $cita['estado_pago']);
+        $this->assertSame('tarjeta', $cita['metodo_pago']);
+        $this->assertSame(48000.0, (float) $cita['monto_pago']);
+    }
+
+    #[Test]
+    public function un_cobro_anulado_no_deja_la_cita_como_cobrada(): void
+    {
+        // El cobro sigue en la tabla como historial, pero la cita
+        // tiene que volver a verse pendiente de cobro en la agenda.
+        $this->asAdmin();
+
+        $id = $this->charge()['data']['id_pago'];
+
+        $this->send('DELETE', "/api/payments/{$id}");
+
+        $cita = $this->send('GET', '/api/appointments')['data'][0];
+
+        $this->assertNull($cita['id_pago']);
+        $this->assertSame(1, $this->countRows('pagos'));
+    }
+
+    #[Test]
+    public function la_cita_viaja_con_su_precio_congelado(): void
+    {
+        // Es lo que el formulario de cobro sugiere como monto.
+        $this->asAdmin();
+
+        $cita = $this->send('GET', '/api/appointments')['data'][0];
+
+        $this->assertSame(50000.0, (float) $cita['precio']);
+    }
+
+    #[Test]
+    public function una_clienta_ve_el_cobro_de_su_propia_cita_en_el_listado(): void
+    {
+        $this->asAdmin();
+        $this->charge();
+
+        $this->asClient();
+
+        $cita = $this->send('GET', '/api/appointments')['data'][0];
+
+        $this->assertSame('pagado', $cita['estado_pago']);
+    }
 }

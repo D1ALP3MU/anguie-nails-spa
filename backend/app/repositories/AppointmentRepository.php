@@ -42,6 +42,12 @@ class AppointmentRepository
             c.hora,
             c.estado,
             c.notas,
+            -- Cobro vigente, si lo hay. Viene en el mismo listado para
+            -- que la agenda no tenga que preguntar cita por cita.
+            pg.id_pago,
+            pg.monto AS monto_pago,
+            pg.metodo AS metodo_pago,
+            pg.estado AS estado_pago,
             c.created_at,
             c.updated_at
         FROM citas c
@@ -53,6 +59,9 @@ class AppointmentRepository
             ON s.id_servicio = c.id_servicio
         INNER JOIN profesionales p
             ON p.id_profesional = c.id_profesional
+        LEFT JOIN pagos pg
+            ON pg.id_cita = c.id_cita
+            AND pg.cobro_vigente IS NOT NULL
     ";
 
     public function __construct(

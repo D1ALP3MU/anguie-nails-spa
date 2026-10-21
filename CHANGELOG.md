@@ -13,6 +13,7 @@ El detalle commit a commit está en `git log`; aquí se resume lo que cambia de 
 - Las tablas `productos`, `carrito_items`, `pedidos` y `pedido_items`. Estaban en el esquema desde el inicio sin que ningún código las usara: correspondían a una tienda en línea que no se va a construir. Migración en `database/migrations/002_elimina_tienda.sql`.
 
 ### Añadido
+- La agenda muestra el estado de cobro de cada cita y permite cobrar, confirmar y anular. El listado de citas trae su cobro vigente, así que no hace falta una petición por fila.
 
 - Registro de cobros. El sistema no procesa pagos: el dinero se mueve fuera y aquí queda la constancia, con forma de pago y referencia. Una cita tiene como mucho un cobro vigente; anularlo la deja cobrable otra vez y el cobro anulado permanece como historial.
 - `citas.precio`, congelado al reservar. El precio vivía solo en `servicios`, así que subir una tarifa revaluaba hacia atrás las citas pasadas.
