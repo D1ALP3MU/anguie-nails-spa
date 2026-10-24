@@ -9,6 +9,7 @@
         }
     },
     "require": {
+        "php": "^8.2",
         "firebase/php-jwt": "^7.1"
     },
     "require-dev": {

@@ -54,6 +54,8 @@ Panel con cinco pantallas: **agenda** del día con filtros y cambio de estado, *
 - Composer
 - Git
 
+> **Usa una versión parcheada de PHP.** Las vulnerabilidades PHP2Shell (CVE-2026-109618 y CVE-2026-109619, CVSS 9.2) permiten ejecución remota de código sin autenticación en PHP 5.4–8.5. Las primeras versiones corregidas son **8.2.35**, **8.3.36**, **8.4.27** y **8.5.12**. Procedimiento de actualización en [`docs/actualizacion-php.md`](docs/actualizacion-php.md).
+
 ---
 
 ## Instalación
@@ -234,6 +236,7 @@ anguie-nails/
 - [`docs/architecture.md`](docs/architecture.md) — capas, flujo de una petición y piezas del núcleo
 - [`docs/api.md`](docs/api.md) — referencia de endpoints
 - [`docs/decisions.md`](docs/decisions.md) — registro de decisiones técnicas
+- [`docs/actualizacion-php.md`](docs/actualizacion-php.md) — por qué y cómo actualizar la versión de PHP
 - [`CHANGELOG.md`](CHANGELOG.md) — historial de cambios
 - [`docs/releases/`](docs/releases) — notas de cada versión publicada
 

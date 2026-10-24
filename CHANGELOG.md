@@ -13,6 +13,8 @@ El detalle commit a commit está en `git log`; aquí se resume lo que cambia de 
 - Las tablas `productos`, `carrito_items`, `pedidos` y `pedido_items`. Estaban en el esquema desde el inicio sin que ningún código las usara: correspondían a una tienda en línea que no se va a construir. Migración en `database/migrations/002_elimina_tienda.sql`.
 
 ### Añadido
+- `composer.json` declara la versión de PHP admitida, que no tenía ninguna restricción: nada impedía instalar el proyecto en una versión incompatible.
+- `docs/actualizacion-php.md`, con el motivo y el procedimiento para actualizar PHP a raíz de PHP2Shell (CVE-2026-109618 y CVE-2026-109619).
 - Informe de facturación: lo cobrado, lo pendiente de verificar, lo anulado y —sobre todo— lo que falta por cobrar, con desglose por forma de pago, profesional y servicio. Las sumas las hace la base, no el navegador.
 - La agenda muestra el estado de cobro de cada cita y permite cobrar, confirmar y anular. El listado de citas trae su cobro vigente, así que no hace falta una petición por fila.
 
