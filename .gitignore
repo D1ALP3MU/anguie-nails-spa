@@ -11,6 +11,11 @@ Thumbs.db
 # Environment
 .env
 
+# Cualquier variante (.env.bak, .env.local, .env.produccion) lleva
+# credenciales reales. Solo .env.example se versiona.
+.env.*
+!.env.example
+
 # Dependencies
 node_modules/
 

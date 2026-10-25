@@ -26,6 +26,12 @@ secret:
     - name: Contraseña de los usuarios de prueba
       match: Password123
 
+    # Contraseña de destino al probar PUT /api/profile/password.
+    # Aparece en docs/api.md y en las pruebas del cambio de clave,
+    # siempre sobre usuarios desechables.
+    - name: Contraseña nueva en las pruebas de cambio de clave
+      match: NuevaClave456
+
     # Cabecera pública de un JWT en el ejemplo de la documentación.
     # Decodifica a {"typ":"JWT","alg":"HS256"}; el token del ejemplo
     # está truncado y no lleva carga útil ni firma.
