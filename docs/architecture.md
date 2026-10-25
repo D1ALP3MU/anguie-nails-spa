@@ -144,6 +144,20 @@ La regla central del negocio —un profesional no puede atender dos citas a la v
 
 ---
 
+## El reloj
+
+Las reglas de la agenda dependen de la hora: si una cita está en el pasado, si una profesional tiene citas próximas, qué es «hoy» al filtrar.
+
+**Hay un solo reloj, y es el de PHP.** La aplicación fija su zona horaria desde `APP_TIMEZONE` en `public/index.php`, en lugar de heredar la del `php.ini` del servidor, porque de ese valor depende la corrección y no puede cambiar según dónde se instale.
+
+Ninguna consulta usa `CURDATE()` ni `NOW()`. Las fechas de corte llegan como parámetro desde el servicio. Antes, `countUpcomingAppointments` tomaba la suya de MySQL: eran dos relojes que podían discrepar hasta en un día si las zonas no coincidían.
+
+`APP_TIMEZONE` debe coincidir con la zona de MySQL de todos modos, porque ambos leen las mismas fechas almacenadas sin huso.
+
+Las pruebas fijan la misma zona en `tests/bootstrap.php`: sin eso pasarían o fallarían según la máquina que las ejecute.
+
+---
+
 ## Frontend
 
 Misma separación por responsabilidad, un directorio por funcionalidad:

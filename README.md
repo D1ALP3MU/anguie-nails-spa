@@ -32,7 +32,7 @@ Panel con cinco pantallas: **agenda** del día con filtros y cambio de estado, *
 
 ### Backend
 
-- PHP 8.2
+- PHP 8.2 o superior *(se desarrolla sobre 8.4.27)*
 - MySQL 8 o superior (el esquema usa una columna generada)
 - PDO con sentencias preparadas
 - Composer y autoload PSR-4
@@ -258,7 +258,7 @@ En desarrollo.
 - Informe de facturación con desglose por forma de pago, profesional y servicio
 - Panel administrativo completo: agenda, catálogo, equipo, clientas y facturación
 - Enrutado declarativo con guardas por ruta
-- Suite de 340 pruebas automatizadas
+- Suite de 345 pruebas automatizadas
 
 ### Pendiente
 

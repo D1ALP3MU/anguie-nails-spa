@@ -160,3 +160,18 @@ Anular distingue dos casos, porque la diferencia importa al cuadrar caja: un cob
 **Motivo:** el precio vivía solo en `servicios`, así que subir una tarifa revaluaba hacia atrás todas las citas pasadas y no había forma de saber cuánto se debía por una cita ya agendada pero no cobrada.
 
 **Consecuencia:** las citas anteriores a la migración se rellenaron con el precio actual de su servicio. Es la única aproximación disponible y queda anotado que para ellas el dato es estimado, no histórico.
+
+---
+
+## 012 · La aplicación fija su zona horaria, y es el único reloj
+
+**Fecha:** 2026-10-24
+**Estado:** Aceptada
+
+`public/index.php` llama a `date_default_timezone_set()` con el valor de `APP_TIMEZONE`, y ninguna consulta usa `CURDATE()` ni `NOW()`: las fechas de corte llegan como parámetro desde el servicio.
+
+**Motivo:** heredar la zona del `php.ini` hacía que la corrección del sistema dependiera de la máquina. Con la configuración que trae XAMPP, en horario europeo, PHP creía que ya era el día siguiente desde media tarde y rechazaba reservas legítimas del mismo día con «No es posible agendar una cita en un horario que ya pasó». El fallo aparecía solo a partir de cierta hora, que es la clase de error que cuesta reproducir.
+
+Además había **dos relojes**: `AppointmentService` comparaba contra el de PHP y `ProfessionalRepository` contra el de MySQL. Podían discrepar hasta en un día.
+
+**Consecuencia:** `APP_TIMEZONE` es obligatoria en el entorno y debe coincidir con la zona de MySQL, porque ambos leen fechas almacenadas sin huso. Las pruebas fijan la misma zona en su arranque, para que no dependan de la máquina que las ejecute.

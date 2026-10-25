@@ -24,6 +24,8 @@ El detalle commit a commit está en `git log`; aquí se resume lo que cambia de 
 
 ### Corregido
 
+- `.env.example` no se podía analizar: usaba `#` para los comentarios y el analizador INI de PHP solo reconoce `;`. Quien siguiera el README y copiara la plantilla se encontraba con que la aplicación no arrancaba.
+
 - La aplicación fija su propia zona horaria en lugar de heredar la del `php.ini`. Con la configuración que trae XAMPP, en horario europeo, PHP creía que ya era el día siguiente desde media tarde y rechazaba reservas legítimas del mismo día con «No es posible agendar una cita en un horario que ya pasó».
 - `countUpcomingAppointments` recibe la fecha de corte en lugar de usar `CURDATE()`. El sistema tenía dos relojes —el de PHP y el de MySQL— que podían discrepar hasta en un día.
 
