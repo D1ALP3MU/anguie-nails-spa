@@ -257,14 +257,15 @@ En desarrollo.
 - Registro de cobros, con un cobro vigente por cita
 - Informe de facturación con desglose por forma de pago, profesional y servicio
 - Panel administrativo completo: agenda, catálogo, equipo, clientas y facturación
+- Historial por clienta, con sus cifras y todas sus citas
 - Enrutado declarativo con guardas por ruta
-- Suite de 345 pruebas automatizadas
+- Suite de 349 pruebas automatizadas
 
 ### Pendiente
 
 - Notificaciones por correo
 - Crear administradores desde la aplicación
-- Historial de la clienta
+- Cambiar la contraseña desde la aplicación
 
 ### Limitaciones conocidas
 

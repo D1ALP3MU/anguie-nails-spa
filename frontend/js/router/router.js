@@ -7,6 +7,7 @@ import { ErrorState } from "../components/ui/ErrorState.js";
 import { runCleanup } from "../core/cleanup.js";
 import { ServicesSkeleton } from "../modules/services/components/ServicesSkeleton.js";
 import { ClientsPage } from "../modules/admin/clients/clients.page.js";
+import { ClientHistoryPage } from "../modules/admin/clients/history/history.page.js";
 import { ProfessionalsAdminPage } from "../modules/admin/professionals/professionals.page.js";
 import { ServicesAdminPage } from "../modules/admin/services/services.page.js";
 import { AgendaPage } from "../modules/admin/agenda/agenda.page.js";
@@ -30,6 +31,10 @@ import {
  *
  * Estas guardas son de interfaz, no de seguridad: la API vuelve
  * a comprobar autenticación y rol en cada petición.
+ *
+ * Un tramo entre llaves es un parámetro, igual que en la tabla de
+ * rutas del backend. Su valor llega a la página como propiedad del
+ * objeto que recibe: `{ id }`.
  */
 const routes = {
     "/": { page: HomePage },
@@ -37,6 +42,10 @@ const routes = {
     "/professionals": { page: ProfessionalsPage },
     "/booking": { page: BookingPage, auth: true },
     "/admin/clients": { page: ClientsPage, roles: [ROLES.ADMIN] },
+    "/admin/clients/{id}/historial": {
+        page: ClientHistoryPage,
+        roles: [ROLES.ADMIN]
+    },
     "/admin/professionals": { page: ProfessionalsAdminPage, roles: [ROLES.ADMIN] },
     "/admin/services": { page: ServicesAdminPage, roles: [ROLES.ADMIN] },
     "/admin/agenda": { page: AgendaPage, roles: [ROLES.ADMIN] },
@@ -61,6 +70,80 @@ function getCurrentPath() {
 
     return window.location.hash.slice(1) || "/";
 
+}
+
+/**
+ * Busca la ruta que corresponde a una dirección.
+ *
+ * Las rutas fijas se resuelven por clave; solo si ninguna coincide
+ * se recorren las que tienen parámetros, de modo que una ruta
+ * literal nunca la secuestra un patrón.
+ *
+ * @returns {{route: object, params: object}|null}
+ */
+function matchRoute(path) {
+
+    if (routes[path]) {
+        return { route: routes[path], params: {} };
+    }
+
+    for (const [pattern, route] of Object.entries(routes)) {
+
+        if (!pattern.includes("{")) {
+            continue;
+        }
+
+        const params = matchPattern(pattern, path);
+
+        if (params) {
+            return { route, params };
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Compara patrón y dirección tramo a tramo.
+ *
+ * Se comparan segmentos en vez de construir una expresión regular:
+ * así un punto o un guion en la ruta no actúan como comodín.
+ *
+ * @returns {object|null} Los parámetros, o null si no encaja.
+ */
+function matchPattern(pattern, path) {
+
+    const expected = pattern.split("/");
+    const actual = path.split("/");
+
+    if (expected.length !== actual.length) {
+        return null;
+    }
+
+    const params = {};
+
+    for (let i = 0; i < expected.length; i++) {
+
+        const segment = expected[i];
+
+        if (!segment.startsWith("{") || !segment.endsWith("}")) {
+
+            if (segment !== actual[i]) {
+                return null;
+            }
+
+            continue;
+        }
+
+        // Un parámetro vacío (".../clients//historial") no encaja.
+        if (actual[i] === "") {
+            return null;
+        }
+
+        params[segment.slice(1, -1)] = decodeURIComponent(actual[i]);
+    }
+
+    return params;
 }
 
 /**
@@ -129,15 +212,17 @@ export async function renderRoute() {
 
         const path = getCurrentPath();
 
-        const route = routes[path];
+        const matched = matchRoute(path);
 
-        if (!route) {
+        if (!matched) {
             app.innerHTML = Layout(
                 ErrorState("<h1>404 página no encontrada</h1>")
             );
 
             return;
         }
+
+        const { route, params } = matched;
 
         const access = checkAccess(path, route);
 
@@ -162,7 +247,7 @@ export async function renderRoute() {
         app.innerHTML = loader ? loader() : Loading();
 
         // LOAD PAGE
-        const html = Layout(await route.page());
+        const html = Layout(await route.page(params));
 
         // RENDER PAGE
         app.innerHTML = html;

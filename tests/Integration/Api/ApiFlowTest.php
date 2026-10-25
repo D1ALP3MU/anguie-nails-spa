@@ -98,14 +98,15 @@ class ApiFlowTest extends IntegrationTestCase
     private function send(
         string $method,
         string $path,
-        array $body = []
+        array $body = [],
+        array $query = []
     ): array {
         ob_start();
 
         try {
 
             $this->router->dispatch(
-                new Request($method, $path, $body)
+                new Request($method, $path, $body, $query)
             );
 
         } finally {
@@ -116,9 +117,9 @@ class ApiFlowTest extends IntegrationTestCase
         return json_decode($output, true) ?? [];
     }
 
-    private function get(string $path): array
+    private function get(string $path, array $query = []): array
     {
-        return $this->send('GET', $path);
+        return $this->send('GET', $path, [], $query);
     }
 
     private function post(string $path, array $body = []): array
@@ -305,6 +306,66 @@ class ApiFlowTest extends IntegrationTestCase
         $this->asAdmin();
 
         $this->assertCount(2, $this->get('/api/appointments')['data']);
+    }
+
+    #[Test]
+    public function el_administrador_filtra_la_agenda_por_clienta(): void
+    {
+        // Es la consulta que alimenta el historial de una clienta.
+        $this->createAppointment(
+            $this->clientId,
+            $this->serviceId,
+            $this->professionalId,
+            $this->futureDate(),
+            '10:00'
+        );
+
+        $this->createAppointment(
+            $this->otherClientId,
+            $this->serviceId,
+            $this->professionalId,
+            $this->futureDate(),
+            '12:00'
+        );
+
+        $this->asAdmin();
+
+        $response = $this->get(
+            '/api/appointments',
+            ['id_cliente' => (string) $this->clientId]
+        );
+
+        $this->assertCount(1, $response['data']);
+        $this->assertSame(
+            $this->clientId,
+            (int) $response['data'][0]['id_cliente']
+        );
+    }
+
+    #[Test]
+    public function una_clienta_no_accede_al_historial_de_otra(): void
+    {
+        /*
+         * El filtro propio se impone después de normalizar los de la
+         * consulta, así que pedir el historial ajeno por la URL
+         * devuelve el propio en lugar de filtrarse.
+         */
+        $this->createAppointment(
+            $this->otherClientId,
+            $this->serviceId,
+            $this->professionalId,
+            $this->futureDate(),
+            '12:00'
+        );
+
+        $this->asClient();
+
+        $response = $this->get(
+            '/api/appointments',
+            ['id_cliente' => (string) $this->otherClientId]
+        );
+
+        $this->assertSame([], $response['data']);
     }
 
     #[Test]

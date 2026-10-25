@@ -55,6 +55,7 @@ class AppointmentController
             'desde' => $request->query('desde'),
             'hasta' => $request->query('hasta'),
             'id_profesional' => $request->query('id_profesional'),
+            'id_cliente' => $request->query('id_cliente'),
             'estado' => $request->query('estado')
         ]);
 

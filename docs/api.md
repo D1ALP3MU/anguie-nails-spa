@@ -312,11 +312,12 @@ Admite filtros por cadena de consulta, todos opcionales y combinables:
 | `desde` | `YYYY-MM-DD` | `?desde=2027-12-01` |
 | `hasta` | `YYYY-MM-DD` | `?hasta=2027-12-31` |
 | `id_profesional` | entero | `?id_profesional=3` |
+| `id_cliente` | entero, **solo administrador** | `?id_cliente=7` |
 | `estado` | `pendiente`, `confirmada`, `cancelada`, `completada` | `?estado=confirmada` |
 
 Un filtro con formato inválido devuelve **422** señalando el campo, en lugar de ignorarse: un error de tipeo en la fecha devolvería la agenda entera y quien consulta creería estar viendo un solo día.
 
-El filtro por cliente se impone después de los demás, así que enviar `id_cliente` en la consulta no permite ver las citas de otra persona.
+`id_cliente` es lo que alimenta el historial de una clienta en el panel. Solo surte efecto para un administrador: el filtro por pertenencia se impone **después** de normalizar los de la consulta, de modo que una clienta que lo envíe seguirá recibiendo las suyas en lugar de las ajenas.
 
 ```json
 {

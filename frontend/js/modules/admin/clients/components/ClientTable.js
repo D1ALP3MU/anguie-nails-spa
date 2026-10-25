@@ -43,6 +43,18 @@ export function ClientTable(clients) {
                                 <td>${phone}</td>
                                 <td>${address}</td>
                                 <td>
+                                    ${/*
+                                        Enlace y no botón: el historial
+                                        tiene dirección propia, así que
+                                        se puede abrir en otra pestaña.
+                                      */ ""}
+                                    <a
+                                        class="btn btn-outline"
+                                        href="#/admin/clients/${escapeHtml(client.id)}/historial"
+                                    >
+                                        Historial
+                                    </a>
+
                                     <button
                                         type="button"
                                         class="btn btn-outline"

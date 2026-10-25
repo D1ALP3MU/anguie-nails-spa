@@ -14,6 +14,9 @@ El detalle commit a commit está en `git log`; aquí se resume lo que cambia de 
 
 ### Añadido
 
+- Historial de la clienta: ficha con sus datos, sus cifras —citas, total pagado, lo que queda por cobrar y la última visita— y todas sus citas de la más reciente a la más antigua. Se llega desde el listado de clientes y tiene dirección propia, así que se puede abrir en otra pestaña.
+- `GET /api/appointments` admite el filtro `id_cliente`. Solo surte efecto para un administrador: el filtro por pertenencia se aplica después y sobrescribe lo que venga en la consulta.
+- El enrutador del frontend admite tramos entre llaves, como la tabla de rutas del backend. Los segmentos se comparan uno a uno en lugar de con una expresión regular, para que un punto en la dirección no actúe como comodín.
 - `composer.json` declara la versión de PHP admitida, que no tenía ninguna restricción: nada impedía instalar el proyecto en una versión incompatible.
 - `docs/actualizacion-php.md`, con el motivo y el procedimiento para actualizar PHP a raíz de PHP2Shell (CVE-2026-109618 y CVE-2026-109619).
 - Informe de facturación: lo cobrado, lo pendiente de verificar, lo anulado y —sobre todo— lo que falta por cobrar, con desglose por forma de pago, profesional y servicio. Las sumas las hace la base, no el navegador.

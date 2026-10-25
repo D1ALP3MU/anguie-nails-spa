@@ -142,19 +142,30 @@ class AppointmentService
             $errors['desde'] = 'La fecha inicial no puede ser posterior a la final.';
         }
 
-        $professional = trim((string) ($filters['id_profesional'] ?? ''));
+        $references = [
+            'id_profesional' =>
+                'El profesional debe identificarse con un número entero.',
+            'id_cliente' =>
+                'La clienta debe identificarse con un número entero.'
+        ];
 
-        if ($professional !== '') {
+        foreach ($references as $key => $message) {
+
+            $value = trim((string) ($filters[$key] ?? ''));
+
+            if ($value === '') {
+                continue;
+            }
 
             if (
-                filter_var($professional, FILTER_VALIDATE_INT) === false
-                || (int) $professional <= 0
+                filter_var($value, FILTER_VALIDATE_INT) === false
+                || (int) $value <= 0
             ) {
-                $errors['id_profesional'] =
-                    'El profesional debe identificarse con un número entero.';
-            } else {
-                $criteria['id_profesional'] = (int) $professional;
+                $errors[$key] = $message;
+                continue;
             }
+
+            $criteria[$key] = (int) $value;
         }
 
         $status = trim((string) ($filters['estado'] ?? ''));

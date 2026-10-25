@@ -182,6 +182,16 @@ Por hash, con guardas declaradas junto a cada ruta:
 
 Son guardas **de interfaz, no de seguridad**: evitan mostrar una pantalla inútil, pero la API vuelve a comprobar autenticación y rol en cada petición.
 
+Un tramo entre llaves es un parámetro, igual que en la tabla de rutas del backend, y llega a la página como propiedad del objeto que recibe:
+
+```js
+"/admin/clients/{id}/historial": { page: ClientHistoryPage, roles: [ROLES.ADMIN] },
+
+export async function ClientHistoryPage({ id })
+```
+
+Las rutas literales se resuelven por clave y solo si ninguna coincide se recorren las que tienen parámetros, de modo que un patrón nunca secuestra una dirección fija. Los tramos se comparan uno a uno en vez de construirse una expresión regular: es lo que evita que un punto en la dirección actúe como comodín, que fue un fallo real en `Core\Route`.
+
 ### Sesión y estado
 
 `api/session.js` es el único punto de acceso al almacenamiento de la sesión. Vive en la capa de API, y no en el módulo de autenticación, para que `http.js` pueda limpiarla ante un 401 sin importar `auth.service.js`, que a su vez importa `http.js`.

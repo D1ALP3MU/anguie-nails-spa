@@ -209,6 +209,7 @@ class AppointmentServiceTest extends TestCase
                 'desde' => '2027-01-01',
                 'hasta' => '2027-01-31',
                 'id_profesional' => 3,
+                'id_cliente' => 7,
                 'estado' => 'confirmada'
             ])
             ->willReturn([]);
@@ -217,8 +218,36 @@ class AppointmentServiceTest extends TestCase
             'desde' => '2027-01-01',
             'hasta' => '2027-01-31',
             'id_profesional' => '3',
+            'id_cliente' => '7',
             'estado' => 'confirmada'
         ]);
+    }
+
+    #[Test]
+    public function el_administrador_puede_pedir_el_historial_de_una_clienta(): void
+    {
+        // Es lo que sostiene la ficha de clienta del panel.
+        $this->appointments
+            ->expects($this->once())
+            ->method('findAllFiltered')
+            ->with(['id_cliente' => 7])
+            ->willReturn([]);
+
+        $this->service->findAll(
+            self::ADMIN_USER,
+            ['id_cliente' => '7']
+        );
+    }
+
+    #[Test]
+    public function una_clienta_sin_identificador_valido_es_un_error(): void
+    {
+        $this->expectException(ValidationException::class);
+
+        $this->service->findAll(
+            self::ADMIN_USER,
+            ['id_cliente' => 'abc']
+        );
     }
 
     #[Test]
@@ -236,6 +265,7 @@ class AppointmentServiceTest extends TestCase
             'desde' => '',
             'hasta' => null,
             'id_profesional' => '  ',
+            'id_cliente' => '',
             'estado' => ''
         ]);
     }
