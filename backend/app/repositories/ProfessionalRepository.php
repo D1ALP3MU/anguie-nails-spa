@@ -193,24 +193,30 @@ class ProfessionalRepository
      * Sirve para impedir que se dé de baja a alguien que todavía
      * tiene clientas esperándola.
      *
+     * La fecha de corte llega desde fuera y no se toma con CURDATE():
+     * así el único reloj del sistema es el de la aplicación, y no
+     * depende de que MySQL esté en la misma zona horaria.
+     *
      * @param int $id ID del profesional.
+     * @param string $from Fecha de corte, en formato Y-m-d.
      *
      * @return int
      */
-    public function countUpcomingAppointments(int $id): int
+    public function countUpcomingAppointments(int $id, string $from): int
     {
         $sql = "
             SELECT COUNT(*)
             FROM citas
             WHERE id_profesional = :id
                 AND estado IN ('pendiente', 'confirmada')
-                AND fecha >= CURDATE()
+                AND fecha >= :desde
         ";
 
         $stmt = $this->db->prepare($sql);
 
         $stmt->execute([
-            'id' => $id
+            'id' => $id,
+            'desde' => $from
         ]);
 
         return (int) $stmt->fetchColumn();

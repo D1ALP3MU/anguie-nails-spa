@@ -139,3 +139,23 @@ La suite de 338 pruebas es la red: en menos de un minuto dice si el salto rompi�
 - [watchTowr — PHP2Shell FAQ](https://watchtowr.com/intelligence/php-cve-2026-109618-faq/)
 - [Help Net Security — PHP2Shell](https://www.helpnetsecurity.com/2026/10/21/php2shell-php-vulnerabilities-patched-cve-2026-109618-cve-2026-109619/)
 - [PHP — Versiones soportadas](https://www.php.net/supported-versions.php)
+
+---
+
+## Realizado: 8.2.12 → 8.4.27 (24 oct 2026)
+
+La actualización se hizo sin tocar una línea de código de la aplicación: los 338 tests pasaron a la primera y no apareció ningún aviso de obsolescencia.
+
+Dos cosas que el procedimiento de arriba no anticipaba y conviene saber para la próxima:
+
+**El `php.ini` de XAMPP referencia archivos que el ZIP oficial no trae.** Copiarlo tal cual dejó PHP **sin arrancar**, con un `Fatal error: Unable to start standard module`. El culpable era:
+
+```ini
+browscap = "C:\xampp\php\extras\browscap.ini"
+```
+
+XAMPP incluía ese archivo en `php\extras\`; el ZIP de php.net, no. Al faltar, PHP aborta por completo en vez de avisar. Se comentó la directiva: el proyecto no usa `get_browser()`, que es lo único para lo que sirve.
+
+También hubo que crear `C:\xampp\php\logs\`, que `error_log` necesita y el ZIP tampoco trae.
+
+**Cuidado al diagnosticar.** Lanzar el binario antiguo contra el `ext\` nuevo produce una cascada de «Unable to load dynamic library» que parece un problema grave y no lo es: son DLL de otra versión. Comprobar siempre con el binario que se quiere usar.

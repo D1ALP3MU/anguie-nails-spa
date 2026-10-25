@@ -13,15 +13,19 @@ El detalle commit a commit está en `git log`; aquí se resume lo que cambia de 
 - Las tablas `productos`, `carrito_items`, `pedidos` y `pedido_items`. Estaban en el esquema desde el inicio sin que ningún código las usara: correspondían a una tienda en línea que no se va a construir. Migración en `database/migrations/002_elimina_tienda.sql`.
 
 ### Añadido
+
 - `composer.json` declara la versión de PHP admitida, que no tenía ninguna restricción: nada impedía instalar el proyecto en una versión incompatible.
 - `docs/actualizacion-php.md`, con el motivo y el procedimiento para actualizar PHP a raíz de PHP2Shell (CVE-2026-109618 y CVE-2026-109619).
 - Informe de facturación: lo cobrado, lo pendiente de verificar, lo anulado y —sobre todo— lo que falta por cobrar, con desglose por forma de pago, profesional y servicio. Las sumas las hace la base, no el navegador.
 - La agenda muestra el estado de cobro de cada cita y permite cobrar, confirmar y anular. El listado de citas trae su cobro vigente, así que no hace falta una petición por fila.
-
 - Registro de cobros. El sistema no procesa pagos: el dinero se mueve fuera y aquí queda la constancia, con forma de pago y referencia. Una cita tiene como mucho un cobro vigente; anularlo la deja cobrable otra vez y el cobro anulado permanece como historial.
 - `citas.precio`, congelado al reservar. El precio vivía solo en `servicios`, así que subir una tarifa revaluaba hacia atrás las citas pasadas.
-
 - Enlace a «Nuestro equipo» en el menú. La ruta `#/professionals` ya existía y era pública, pero solo se llegaba a ella escribiendo la URL. La etiqueta repite el encabezado de su página para que no se confunda con «Equipo», que lleva al panel de gestión.
+
+### Corregido
+
+- La aplicación fija su propia zona horaria en lugar de heredar la del `php.ini`. Con la configuración que trae XAMPP, en horario europeo, PHP creía que ya era el día siguiente desde media tarde y rechazaba reservas legítimas del mismo día con «No es posible agendar una cita en un horario que ya pasó».
+- `countUpcomingAppointments` recibe la fecha de corte en lugar de usar `CURDATE()`. El sistema tenía dos relojes —el de PHP y el de MySQL— que podían discrepar hasta en un día.
 
 ### Cambiado
 
@@ -48,12 +52,9 @@ Primera versión completa del sistema de reservas. Notas de la versión en
 
 - Vista de agenda para el salón, con filtros por rango de fechas, profesional y estado, y acciones para confirmar, completar o cancelar. Un administrador veía todas las citas, pero en la página titulada «Mis citas», pensada para una clienta.
 - `GET /api/appointments` admite filtros por cadena de consulta. Filtrar en la base y no en el cliente mantiene acotada la agenda, que crece sin techo.
-
 - Panel de administración del catálogo. La API tenía el CRUD de servicios completo, pero no había pantalla: cambiar un precio exigía una herramienta externa. Con esto los tres módulos administrables tienen su panel.
-
 - CRUD completo de profesionales, con panel de administración. Era el único módulo a medias: solo lectura y sin forma de dar de alta a nadie salvo con SQL a mano. No se puede dar de baja a quien tiene citas pendientes, porque dejaría a clientas esperando.
 - Se elimina el rol Empleado, que no llegó a usarse. La constante no coincidía con el identificador de la base y ningún código la referenciaba.
-
 - Detección de cruce de horarios en la agenda, calculada con la duración de cada servicio. Una cita de 60 minutos a las 10:00 bloquea cualquier solicitud entre las 10:00 y las 11:00; una contigua se acepta y una cancelada libera el horario.
 - Índice `uq_citas_agenda` como red de seguridad ante peticiones simultáneas, con una columna generada que excluye las citas canceladas. Migración en `database/migrations/001_citas_agenda_unica.sql`.
 - Validación de que el servicio y el profesional existan y estén activos, y de que el horario no esté en el pasado.

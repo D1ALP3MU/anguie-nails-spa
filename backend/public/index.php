@@ -21,6 +21,23 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 /*
 |--------------------------------------------------------------------------
+| Zona horaria
+|--------------------------------------------------------------------------
+| La fija la aplicación y no el php.ini del servidor: de este reloj
+| dependen las reglas de la agenda, así que no puede cambiar según
+| dónde se instale. Con el php.ini de XAMPP, que viene en horario
+| europeo, PHP creía que ya era el día siguiente desde media tarde y
+| rechazaba reservas legítimas del mismo día.
+|
+| Debe coincidir con la zona de MySQL, porque ambos leen las mismas
+| fechas sin huso.
+*/
+date_default_timezone_set(
+    $_ENV['APP_TIMEZONE'] ?? 'America/Bogota'
+);
+
+/*
+|--------------------------------------------------------------------------
 | Reporte de errores
 |--------------------------------------------------------------------------
 | Los errores solo se muestran en pantalla en entornos de desarrollo.

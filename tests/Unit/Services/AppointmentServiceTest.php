@@ -513,6 +513,33 @@ class AppointmentServiceTest extends TestCase
     }
 
     #[Test]
+    public function se_puede_reservar_mas_tarde_el_mismo_dia(): void
+    {
+        /*
+         * Con PHP en una zona horaria adelantada respecto a la del
+         * salón, desde media tarde «ahora» caía ya en el día siguiente
+         * y esta reserva se rechazaba por estar «en el pasado».
+         *
+         * Se calcula a partir del reloj, no con una hora fija, para que
+         * la prueba no dependa del momento en que se ejecute.
+         */
+        $dentroDeUnaHora = new \DateTimeImmutable('+1 hour');
+
+        $this->appointments
+            ->expects($this->once())
+            ->method('create')
+            ->willReturn(1);
+
+        $this->service->create(
+            $this->validPayload([
+                'fecha' => $dentroDeUnaHora->format('Y-m-d'),
+                'hora' => $dentroDeUnaHora->format('H:i')
+            ]),
+            self::CLIENT_USER
+        );
+    }
+
+    #[Test]
     public function no_se_agenda_en_el_pasado(): void
     {
         $this->expectException(ValidationException::class);

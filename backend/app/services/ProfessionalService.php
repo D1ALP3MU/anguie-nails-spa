@@ -115,7 +115,10 @@ class ProfessionalService
         // Dar de baja a alguien con clientas esperándola dejaría
         // esas citas huérfanas. Primero hay que reprogramarlas
         // o cancelarlas.
-        $pending = $this->repository->countUpcomingAppointments($id);
+        $pending = $this->repository->countUpcomingAppointments(
+            $id,
+            date('Y-m-d')
+        );
 
         if ($pending > 0) {
             throw new ConflictException(

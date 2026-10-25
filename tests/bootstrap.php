@@ -12,6 +12,13 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 $envPath = __DIR__ . '/../.env';
 
+/*
+ * Las reglas de la agenda dependen del reloj, así que las pruebas
+ * fijan la misma zona que la aplicación: si no, pasarían o fallarían
+ * según la configuración de la máquina que las ejecute.
+ */
+date_default_timezone_set('America/Bogota');
+
 if (is_file($envPath)) {
 
     foreach (parse_ini_file($envPath) ?: [] as $key => $value) {

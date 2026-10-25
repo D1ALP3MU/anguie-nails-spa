@@ -49,7 +49,7 @@ Panel con cinco pantallas: **agenda** del día con filtros y cambio de estado, *
 
 ## Requisitos
 
-- PHP 8.2 o superior
+- PHP 8.2 o superior *(probado en 8.4.27)*
 - MySQL 8 o superior
 - Composer
 - Git
@@ -75,6 +75,8 @@ cp .env.example .env
 ```
 
 Editar `.env` con las credenciales de la base de datos y una clave JWT propia.
+
+> `APP_TIMEZONE` debe coincidir con la zona horaria de MySQL. De ese reloj dependen las reglas de la agenda, y la aplicación lo fija por su cuenta en lugar de confiar en el `php.ini` del servidor.
 
 > `JWT_SECRET` debe tener **32 bytes como mínimo**: HS256 rechaza claves más cortas y el inicio de sesión dejaría de funcionar. Se puede generar una con:
 >
@@ -256,7 +258,7 @@ En desarrollo.
 - Informe de facturación con desglose por forma de pago, profesional y servicio
 - Panel administrativo completo: agenda, catálogo, equipo, clientas y facturación
 - Enrutado declarativo con guardas por ruta
-- Suite de 338 pruebas automatizadas
+- Suite de 340 pruebas automatizadas
 
 ### Pendiente
 

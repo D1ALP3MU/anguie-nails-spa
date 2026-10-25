@@ -205,6 +205,37 @@ class ProfessionalServiceTest extends IntegrationTestCase
     }
 
     #[Test]
+    public function la_fecha_de_corte_la_pone_la_aplicacion(): void
+    {
+        /*
+         * El corte llega como parámetro y no sale de CURDATE(): así el
+         * único reloj es el de PHP, y la regla no cambia porque MySQL
+         * esté en otra zona horaria.
+         */
+        $id = $this->service->create($this->payload());
+
+        $this->createAppointment(
+            $this->clientId,
+            $this->serviceId,
+            $id,
+            '2027-06-15',
+            '10:00'
+        );
+
+        $this->assertSame(
+            1,
+            $this->repository->countUpcomingAppointments($id, '2027-06-01'),
+            'La cita es posterior al corte: debe contarse.'
+        );
+
+        $this->assertSame(
+            0,
+            $this->repository->countUpcomingAppointments($id, '2027-07-01'),
+            'La cita es anterior al corte: no debe contarse.'
+        );
+    }
+
+    #[Test]
     public function la_agenda_de_otro_profesional_no_bloquea(): void
     {
         $laura = $this->service->create($this->payload());
