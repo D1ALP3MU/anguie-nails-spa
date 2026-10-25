@@ -79,6 +79,10 @@ export function Sidebar() {
                         ? link("#/booking", "Mis citas", current)
                         : ""}
 
+                    ${user
+                        ? link("#/profile", "Mi cuenta", current)
+                        : ""}
+
                 </ul>
 
                 ${isAdmin

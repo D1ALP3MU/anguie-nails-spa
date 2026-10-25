@@ -74,4 +74,26 @@ class AuthController
     {
         Response::success($authUser);
     }
+
+    /**
+     * Cambia la contraseña del usuario autenticado.
+     *
+     * @param Request $request Petición entrante.
+     * @param array $authUser Usuario autenticado.
+     *
+     * @return void
+     */
+    public function changePassword(
+        Request $request,
+        array $authUser
+    ): void {
+        $this->authService->changePassword(
+            $authUser,
+            $request->body()
+        );
+
+        Response::success([
+            'message' => 'Contraseña actualizada.'
+        ]);
+    }
 }

@@ -47,3 +47,11 @@
     margin-top: 6px;
     width: 100%;
 }
+
+/* Nota bajo un campo: la regla que debe cumplir, antes de
+   equivocarse y no como mensaje de error. */
+.form-ayuda {
+    margin-top: 6px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}

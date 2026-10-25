@@ -77,6 +77,39 @@ class UserRepository
     }
 
     /**
+     * Busca un usuario por su identificador.
+     *
+     * @param int $userId ID del usuario.
+     *
+     * @return array|null Retorna el usuario si existe o null.
+     */
+    public function findById(int $userId): ?array
+    {
+        $sql = "
+            SELECT
+                id_usuario,
+                nombre,
+                email,
+                password_hash,
+                id_rol,
+                activo
+            FROM usuarios
+            WHERE id_usuario = :id_usuario
+            LIMIT 1
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+
+        $stmt->execute([
+            ':id_usuario' => $userId
+        ]);
+
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $user ?: null;
+    }
+
+    /**
      * Crea un nuevo usuario.
      *
      * @param array $userData Información del usuario.
@@ -136,6 +169,35 @@ class UserRepository
         return $stmt->execute([
             ':nombre' => $userData['nombre'],
             ':email' => $userData['email'],
+            ':id_usuario' => $userId
+        ]);
+    }
+
+    /**
+     * Cambia la contraseña de un usuario.
+     *
+     * Recibe el hash ya calculado: cifrar es cosa del servicio,
+     * aquí solo se guarda.
+     *
+     * @param int $userId ID del usuario.
+     * @param string $passwordHash Hash de la contraseña nueva.
+     *
+     * @return bool
+     */
+    public function updatePassword(
+        int $userId,
+        string $passwordHash
+    ): bool {
+        $sql = "
+            UPDATE usuarios
+            SET password_hash = :password_hash
+            WHERE id_usuario = :id_usuario
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+
+        return $stmt->execute([
+            ':password_hash' => $passwordHash,
             ':id_usuario' => $userId
         ]);
     }

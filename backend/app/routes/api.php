@@ -81,6 +81,10 @@ return [
     Route::get('/api/profile', AuthController::class, 'profile')
         ->requireAuth(),
 
+    // El usuario sale del token: nadie cambia la contraseña ajena.
+    Route::put('/api/profile/password', AuthController::class, 'changePassword')
+        ->requireAuth(),
+
     /*
     |--------------------------------------------------------------------------
     | Clientes

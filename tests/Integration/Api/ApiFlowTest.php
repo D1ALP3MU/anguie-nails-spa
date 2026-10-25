@@ -13,6 +13,7 @@ use App\Exceptions\ConflictException;
 use App\Exceptions\ForbiddenException;
 use App\Exceptions\MethodNotAllowedException;
 use App\Exceptions\NotFoundException;
+use App\Exceptions\UnauthorizedException;
 use App\Exceptions\ValidationException;
 use App\Helpers\JwtHelper;
 use Tests\Integration\IntegrationTestCase;
@@ -512,6 +513,110 @@ class ApiFlowTest extends IntegrationTestCase
 
         $this->assertSame($this->clientUserId, $payload['id_usuario']);
         $this->assertArrayNotHasKey('password_hash', $response['data']['user']);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cambio de contraseña
+    |--------------------------------------------------------------------------
+    */
+
+    private function changePassword(array $overrides = []): array
+    {
+        return $this->put('/api/profile/password', array_merge([
+            'password_actual' => 'Password123',
+            'password_nueva' => 'NuevaClave456',
+            'password_confirmacion' => 'NuevaClave456'
+        ], $overrides));
+    }
+
+    #[Test]
+    public function el_cambio_de_contrasena_exige_sesion(): void
+    {
+        $this->expectException(AuthException::class);
+
+        $this->changePassword();
+    }
+
+    #[Test]
+    public function tras_el_cambio_se_entra_con_la_nueva_y_no_con_la_vieja(): void
+    {
+        // Es la prueba que de verdad dice que la contraseña cambió:
+        // el resto solo comprueba que la petición no falló.
+        $this->asClient();
+
+        $this->changePassword();
+
+        $this->assertArrayHasKey(
+            'token',
+            $this->post('/api/auth/login', [
+                'email' => 'ana@example.com',
+                'password' => 'NuevaClave456'
+            ])['data']
+        );
+
+        $this->expectException(UnauthorizedException::class);
+
+        $this->post('/api/auth/login', [
+            'email' => 'ana@example.com',
+            'password' => 'Password123'
+        ]);
+    }
+
+    #[Test]
+    public function una_contrasena_actual_incorrecta_no_cambia_nada(): void
+    {
+        $this->asClient();
+
+        $antes = $this->passwordHashOf($this->clientUserId);
+
+        try {
+            $this->changePassword(['password_actual' => 'me-equivoque']);
+            $this->fail('Debía rechazarse la contraseña actual.');
+        } catch (ValidationException $e) {
+            $this->assertArrayHasKey('password_actual', $e->getErrors());
+        }
+
+        $this->assertSame(
+            $antes,
+            $this->passwordHashOf($this->clientUserId),
+            'El hash no debe tocarse si la contraseña actual falla.'
+        );
+    }
+
+    #[Test]
+    public function nadie_cambia_la_contrasena_de_otra_persona(): void
+    {
+        // El identificador va en el cuerpo y debe ignorarse: el
+        // usuario afectado sale del token.
+        $otroUsuario = (int) $this->db
+            ->query('SELECT id_usuario FROM clientes WHERE id_cliente = ' . $this->otherClientId)
+            ->fetchColumn();
+
+        $antes = $this->passwordHashOf($otroUsuario);
+
+        $this->asClient();
+
+        $this->changePassword(['id_usuario' => $otroUsuario]);
+
+        $this->assertSame(
+            $antes,
+            $this->passwordHashOf($otroUsuario),
+            'La contraseña de la otra clienta no debe cambiar.'
+        );
+
+        $this->assertNotSame(
+            $antes,
+            $this->passwordHashOf($this->clientUserId),
+            'La que debe cambiar es la de quien hizo la petición.'
+        );
+    }
+
+    private function passwordHashOf(int $userId): string
+    {
+        return (string) $this->db
+            ->query("SELECT password_hash FROM usuarios WHERE id_usuario = {$userId}")
+            ->fetchColumn();
     }
 
     /*

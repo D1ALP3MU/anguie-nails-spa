@@ -159,6 +159,7 @@ Referencia completa con formatos de petición y respuesta en [`docs/api.md`](doc
 | `POST` | `/api/auth/register` | Público |
 | `POST` | `/api/auth/login` | Público |
 | `GET` | `/api/profile` | Autenticado |
+| `PUT` | `/api/profile/password` | Autenticado |
 | `GET` | `/api/clients` | Administrador |
 | `POST` | `/api/clients` | Administrador |
 | `GET` | `/api/clients/{id}` | Administrador o el propio cliente |
@@ -258,14 +259,14 @@ En desarrollo.
 - Informe de facturación con desglose por forma de pago, profesional y servicio
 - Panel administrativo completo: agenda, catálogo, equipo, clientas y facturación
 - Historial por clienta, con sus cifras y todas sus citas
+- Cambio de contraseña desde «Mi cuenta»
 - Enrutado declarativo con guardas por ruta
-- Suite de 349 pruebas automatizadas
+- Suite de 360 pruebas automatizadas
 
 ### Pendiente
 
 - Notificaciones por correo
 - Crear administradores desde la aplicación
-- Cambiar la contraseña desde la aplicación
 
 ### Limitaciones conocidas
 

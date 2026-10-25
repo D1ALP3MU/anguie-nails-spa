@@ -148,6 +148,26 @@ Devuelve el contenido del token.
 }
 ```
 
+### `PUT /api/profile/password` · autenticado
+
+Cambia la contraseña de quien hace la petición.
+
+```json
+{
+  "password_actual": "Password123",
+  "password_nueva": "NuevaClave456",
+  "password_confirmacion": "NuevaClave456"
+}
+```
+
+No lleva identificador: el usuario se resuelve desde el token, así que enviar un `id_usuario` en el cuerpo no sirve de nada. Exigir la contraseña actual es lo que impide que un token robado se convierta en una cuenta secuestrada.
+
+La contraseña nueva debe tener entre 8 y 255 caracteres y ser distinta de la actual.
+
+Una contraseña actual incorrecta devuelve **422** con el error en `password_actual`, **no 401**: el cliente HTTP del frontend cierra la sesión ante cualquier 401, y equivocarse al teclear no debe echar fuera a quien solo quería cambiarla.
+
+> Los tokens ya emitidos **siguen siendo válidos** hasta que expiren: la sesión es sin estado y no hay revocación. Está anotado entre las limitaciones del `README`.
+
 ---
 
 ## Servicios

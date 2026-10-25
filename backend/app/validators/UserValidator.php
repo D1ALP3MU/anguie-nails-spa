@@ -12,7 +12,8 @@ use App\Exceptions\ValidationException;
  * Versión  : 1.0.0
  *
  * Descripción:
- * Valida los datos enviados para el inicio de sesión.
+ * Valida los datos enviados para el inicio de sesión y para el
+ * cambio de contraseña.
  *
  * El registro se valida en ClientValidator, que cubre además
  * el teléfono y la dirección del perfil de cliente.
@@ -20,8 +21,10 @@ use App\Exceptions\ValidationException;
  * Responsabilidades:
  * - Validar correo electrónico.
  * - Validar que se haya enviado una contraseña.
+ * - Validar la forma de una contraseña nueva.
  *
- * No realiza consultas a la base de datos.
+ * No realiza consultas a la base de datos: comprobar que la
+ * contraseña actual sea la correcta es cosa del servicio.
  * ---------------------------------------------------------
  */
 
@@ -29,6 +32,9 @@ class UserValidator
 {
 
     private const MAX_EMAIL_LENGTH = 100;
+
+    private const MIN_PASSWORD_LENGTH = 8;
+    private const MAX_PASSWORD_LENGTH = 255;
 
 
     /**
@@ -47,6 +53,81 @@ class UserValidator
 
         if (!empty($errors)) {
             throw new ValidationException($errors);
+        }
+    }
+
+    /**
+     * Valida los datos enviados para cambiar la contraseña.
+     *
+     * @param array $data Datos enviados por el cliente.
+     *
+     * @return void
+     */
+    public static function validatePasswordChange(array $data): void
+    {
+        $errors = [];
+
+        if (($data['password_actual'] ?? '') === '') {
+            $errors['password_actual'] =
+                'La contraseña actual es obligatoria.';
+        }
+
+        self::validateNewPassword($data, $errors);
+
+        if (!empty($errors)) {
+            throw new ValidationException($errors);
+        }
+    }
+
+    /**
+     * Valida la contraseña nueva y su confirmación.
+     *
+     * Se comprueba de lo general a lo particular y se corta en el
+     * primer fallo: decir «debe tener 8 caracteres» y «no coincide
+     * con la confirmación» a la vez no ayuda a nadie.
+     *
+     * @param array $data
+     * @param array &$errors
+     *
+     * @return void
+     */
+    private static function validateNewPassword(
+        array $data,
+        array &$errors
+    ): void {
+        $nueva = $data['password_nueva'] ?? '';
+
+        if ($nueva === '') {
+            $errors['password_nueva'] =
+                'La contraseña nueva es obligatoria.';
+            return;
+        }
+
+        if (mb_strlen($nueva) < self::MIN_PASSWORD_LENGTH) {
+            $errors['password_nueva'] =
+                'La contraseña debe tener al menos '
+                . self::MIN_PASSWORD_LENGTH
+                . ' caracteres.';
+            return;
+        }
+
+        if (mb_strlen($nueva) > self::MAX_PASSWORD_LENGTH) {
+            $errors['password_nueva'] =
+                'La contraseña no puede superar los '
+                . self::MAX_PASSWORD_LENGTH
+                . ' caracteres.';
+            return;
+        }
+
+        if ($nueva === ($data['password_actual'] ?? '')) {
+            $errors['password_nueva'] =
+                'La contraseña nueva debe ser distinta de la actual.';
+            return;
+        }
+
+        if ($nueva !== ($data['password_confirmacion'] ?? '')) {
+            $errors['password_confirmacion'] =
+                'La confirmación no coincide con la contraseña nueva.';
         }
     }
 

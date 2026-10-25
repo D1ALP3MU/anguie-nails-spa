@@ -141,4 +141,171 @@ class AuthServiceTest extends TestCase
 
         $this->service->login(['email' => '', 'password' => '']);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cambio de contraseña
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Sesión tal y como la entrega el token.
+     */
+    private function session(): array
+    {
+        return [
+            'id_usuario' => 7,
+            'nombre' => 'Ana',
+            'email' => 'ana@example.com',
+            'id_rol' => Roles::CLIENT
+        ];
+    }
+
+    private function passwordPayload(array $overrides = []): array
+    {
+        return array_merge([
+            'password_actual' => 'Password123',
+            'password_nueva' => 'NuevaClave456',
+            'password_confirmacion' => 'NuevaClave456'
+        ], $overrides);
+    }
+
+    #[Test]
+    public function la_contrasena_nueva_se_guarda_cifrada(): void
+    {
+        $this->users->method('findById')->willReturn($this->activeUser);
+
+        $guardado = null;
+
+        $this->users
+            ->expects($this->once())
+            ->method('updatePassword')
+            ->with(7, $this->callback(
+                function (string $hash) use (&$guardado) {
+                    $guardado = $hash;
+                    return true;
+                }
+            ))
+            ->willReturn(true);
+
+        $this->service->changePassword(
+            $this->session(),
+            $this->passwordPayload()
+        );
+
+        $this->assertNotSame('NuevaClave456', $guardado);
+        $this->assertTrue(password_verify('NuevaClave456', $guardado));
+    }
+
+    #[Test]
+    public function el_usuario_sale_del_token_y_no_del_cuerpo(): void
+    {
+        // Enviar otro identificador no debe cambiar a quién se afecta.
+        $this->users
+            ->expects($this->once())
+            ->method('findById')
+            ->with(7)
+            ->willReturn($this->activeUser);
+
+        $this->users
+            ->expects($this->once())
+            ->method('updatePassword')
+            ->with(7, $this->anything())
+            ->willReturn(true);
+
+        $this->service->changePassword(
+            $this->session(),
+            $this->passwordPayload(['id_usuario' => 999])
+        );
+    }
+
+    #[Test]
+    public function una_contrasena_actual_incorrecta_no_cierra_la_sesion(): void
+    {
+        /*
+         * Debe ser 422 y no 401: el cliente HTTP del frontend cierra
+         * la sesión ante un 401, así que un error de tecleo echaría
+         * fuera a quien solo quería cambiar la contraseña.
+         */
+        $this->users->method('findById')->willReturn($this->activeUser);
+
+        $this->users
+            ->expects($this->never())
+            ->method('updatePassword');
+
+        $this->expectException(ValidationException::class);
+
+        $this->service->changePassword(
+            $this->session(),
+            $this->passwordPayload(['password_actual' => 'me-equivoque'])
+        );
+    }
+
+    #[Test]
+    public function una_cuenta_desactivada_no_cambia_su_contrasena(): void
+    {
+        $this->users->method('findById')->willReturn(
+            [...$this->activeUser, 'activo' => 0]
+        );
+
+        $this->users
+            ->expects($this->never())
+            ->method('updatePassword');
+
+        $this->expectException(UnauthorizedException::class);
+
+        $this->service->changePassword(
+            $this->session(),
+            $this->passwordPayload()
+        );
+    }
+
+    #[Test]
+    public function la_contrasena_nueva_debe_ser_distinta_de_la_actual(): void
+    {
+        $this->users
+            ->expects($this->never())
+            ->method('updatePassword');
+
+        $this->expectException(ValidationException::class);
+
+        $this->service->changePassword($this->session(), [
+            'password_actual' => 'Password123',
+            'password_nueva' => 'Password123',
+            'password_confirmacion' => 'Password123'
+        ]);
+    }
+
+    #[Test]
+    public function la_confirmacion_debe_coincidir(): void
+    {
+        $this->users
+            ->expects($this->never())
+            ->method('updatePassword');
+
+        $this->expectException(ValidationException::class);
+
+        $this->service->changePassword(
+            $this->session(),
+            $this->passwordPayload(['password_confirmacion' => 'otra-cosa'])
+        );
+    }
+
+    #[Test]
+    public function la_contrasena_nueva_respeta_la_longitud_minima(): void
+    {
+        $this->users
+            ->expects($this->never())
+            ->method('updatePassword');
+
+        $this->expectException(ValidationException::class);
+
+        $this->service->changePassword(
+            $this->session(),
+            $this->passwordPayload([
+                'password_nueva' => 'corta',
+                'password_confirmacion' => 'corta'
+            ])
+        );
+    }
 }

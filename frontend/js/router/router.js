@@ -13,6 +13,7 @@ import { ServicesAdminPage } from "../modules/admin/services/services.page.js";
 import { AgendaPage } from "../modules/admin/agenda/agenda.page.js";
 import { ReportsPage } from "../modules/admin/reports/reports.page.js";
 import { ProfessionalsPage } from "../modules/professionals/professionals.page.js";
+import { ProfilePage } from "../modules/profile/profile.page.js";
 import { store } from "../state/store.js";
 import { ROLES } from "../constants/roles.js";
 import { saveRedirect } from "../api/session.js";
@@ -41,6 +42,7 @@ const routes = {
     "/services": { page: ServicesPage },
     "/professionals": { page: ProfessionalsPage },
     "/booking": { page: BookingPage, auth: true },
+    "/profile": { page: ProfilePage, auth: true },
     "/admin/clients": { page: ClientsPage, roles: [ROLES.ADMIN] },
     "/admin/clients/{id}/historial": {
         page: ClientHistoryPage,
