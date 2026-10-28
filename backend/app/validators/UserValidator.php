@@ -31,6 +31,9 @@ use App\Exceptions\ValidationException;
 class UserValidator
 {
 
+    private const MIN_NAME_LENGTH = 3;
+    private const MAX_NAME_LENGTH = 100;
+
     private const MAX_EMAIL_LENGTH = 100;
 
     private const MIN_PASSWORD_LENGTH = 8;
@@ -53,6 +56,87 @@ class UserValidator
 
         if (!empty($errors)) {
             throw new ValidationException($errors);
+        }
+    }
+
+    /**
+     * Valida los datos para dar de alta a un administrador.
+     *
+     * No pide teléfono ni dirección: un administrador no es un
+     * cliente y no tiene perfil en la tabla `clientes`.
+     *
+     * @param array $data Datos enviados por el cliente.
+     *
+     * @return void
+     */
+    public static function validateAdmin(array $data): void
+    {
+        $errors = [];
+
+        self::validateName($data, $errors);
+        self::validateEmail($data, $errors);
+        self::validatePassword($data, $errors);
+
+        if (!empty($errors)) {
+            throw new ValidationException($errors);
+        }
+    }
+
+    /**
+     * Valida el nombre.
+     *
+     * @param array $data
+     * @param array &$errors
+     *
+     * @return void
+     */
+    private static function validateName(
+        array $data,
+        array &$errors
+    ): void {
+        $name = trim($data['nombre'] ?? '');
+
+        if ($name === '') {
+            $errors['nombre'] = 'El nombre es obligatorio.';
+        } elseif (mb_strlen($name) < self::MIN_NAME_LENGTH) {
+            $errors['nombre'] =
+                'El nombre debe tener al menos '
+                . self::MIN_NAME_LENGTH
+                . ' caracteres.';
+        } elseif (mb_strlen($name) > self::MAX_NAME_LENGTH) {
+            $errors['nombre'] =
+                'El nombre no puede superar los '
+                . self::MAX_NAME_LENGTH
+                . ' caracteres.';
+        }
+    }
+
+    /**
+     * Valida la contraseña en el alta.
+     *
+     * @param array $data
+     * @param array &$errors
+     *
+     * @return void
+     */
+    private static function validatePassword(
+        array $data,
+        array &$errors
+    ): void {
+        $password = $data['password'] ?? '';
+
+        if ($password === '') {
+            $errors['password'] = 'La contraseña es obligatoria.';
+        } elseif (mb_strlen($password) < self::MIN_PASSWORD_LENGTH) {
+            $errors['password'] =
+                'La contraseña debe tener al menos '
+                . self::MIN_PASSWORD_LENGTH
+                . ' caracteres.';
+        } elseif (mb_strlen($password) > self::MAX_PASSWORD_LENGTH) {
+            $errors['password'] =
+                'La contraseña no puede superar los '
+                . self::MAX_PASSWORD_LENGTH
+                . ' caracteres.';
         }
     }
 

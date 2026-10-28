@@ -621,6 +621,176 @@ class ApiFlowTest extends IntegrationTestCase
 
     /*
     |--------------------------------------------------------------------------
+    | Administradores
+    |--------------------------------------------------------------------------
+    */
+
+    private function adminPayload(array $overrides = []): array
+    {
+        return array_merge([
+            'nombre' => 'Marcela Ruiz',
+            'email' => 'marcela@example.com',
+            'password' => 'Temporal123'
+        ], $overrides);
+    }
+
+    #[Test]
+    public function el_alta_de_administradores_exige_rol_administrador(): void
+    {
+        $this->asClient();
+
+        $this->expectException(ForbiddenException::class);
+
+        $this->post('/api/admins', $this->adminPayload());
+    }
+
+    #[Test]
+    public function el_alta_crea_el_usuario_pero_no_un_cliente(): void
+    {
+        // Un administrador no reserva citas: no le corresponde
+        // perfil en `clientes`.
+        $clientesAntes = $this->countRows('clientes');
+
+        $this->asAdmin();
+
+        $this->post('/api/admins', $this->adminPayload());
+
+        $this->assertSame(
+            $clientesAntes,
+            $this->countRows('clientes'),
+            'El alta de administrador no debe tocar la tabla clientes.'
+        );
+
+        $this->assertSame(
+            Roles::ADMIN,
+            (int) $this->db
+                ->query("SELECT id_rol FROM usuarios WHERE email = 'marcela@example.com'")
+                ->fetchColumn()
+        );
+    }
+
+    #[Test]
+    public function el_administrador_nuevo_puede_iniciar_sesion(): void
+    {
+        // Es lo que prueba que el alta sirve para algo.
+        $this->asAdmin();
+
+        $this->post('/api/admins', $this->adminPayload());
+
+        $respuesta = $this->post('/api/auth/login', [
+            'email' => 'marcela@example.com',
+            'password' => 'Temporal123'
+        ]);
+
+        $this->assertSame(
+            Roles::ADMIN,
+            (int) $respuesta['data']['user']['id_rol']
+        );
+    }
+
+    #[Test]
+    public function el_administrador_nuevo_cambia_su_contrasena_temporal(): void
+    {
+        /*
+         * El recorrido completo del flujo: se le da de alta con una
+         * contraseña temporal y la cambia desde «Mi cuenta». Sin
+         * esto la temporal se quedaría puesta para siempre.
+         */
+        $this->asAdmin();
+
+        $nuevoId = $this->post('/api/admins', $this->adminPayload())['data']['id_usuario'];
+
+        $this->authenticateAs((int) $nuevoId, Roles::ADMIN);
+
+        $this->put('/api/profile/password', [
+            'password_actual' => 'Temporal123',
+            'password_nueva' => 'DefinitivaMia789',
+            'password_confirmacion' => 'DefinitivaMia789'
+        ]);
+
+        $this->assertArrayHasKey(
+            'token',
+            $this->post('/api/auth/login', [
+                'email' => 'marcela@example.com',
+                'password' => 'DefinitivaMia789'
+            ])['data']
+        );
+    }
+
+    #[Test]
+    public function el_listado_solo_trae_administradores(): void
+    {
+        $this->asAdmin();
+
+        $this->post('/api/admins', $this->adminPayload());
+
+        $roles = array_map(
+            fn (array $u) => (int) $u['id_rol'],
+            $this->get('/api/admins')['data']
+        );
+
+        $this->assertNotEmpty($roles);
+        $this->assertSame([Roles::ADMIN], array_unique($roles));
+    }
+
+    #[Test]
+    public function no_se_desactiva_al_ultimo_administrador(): void
+    {
+        /*
+         * La guarda que evita quedarse sin acceso al panel. Aquí se
+         * ejercita contra la base real porque depende de un COUNT.
+         */
+        $this->asAdmin();
+
+        $soloHayUno = $this->get('/api/admins')['data'];
+
+        $this->assertCount(1, $soloHayUno);
+
+        $this->expectException(ConflictException::class);
+        $this->expectExceptionMessage('último administrador');
+
+        $this->delete('/api/admins/' . $soloHayUno[0]['id_usuario']);
+    }
+
+    #[Test]
+    public function con_dos_administradores_si_se_puede_dar_de_baja(): void
+    {
+        $this->asAdmin();
+
+        $nuevoId = $this->post('/api/admins', $this->adminPayload())['data']['id_usuario'];
+
+        $this->delete('/api/admins/' . $nuevoId);
+
+        $this->assertSame(
+            0,
+            (int) $this->db
+                ->query("SELECT activo FROM usuarios WHERE id_usuario = {$nuevoId}")
+                ->fetchColumn()
+        );
+
+        $this->assertSame(
+            1,
+            (int) $this->db
+                ->query("SELECT COUNT(*) FROM usuarios WHERE id_usuario = {$nuevoId}")
+                ->fetchColumn(),
+            'La baja es lógica: la fila debe seguir ahí.'
+        );
+    }
+
+    #[Test]
+    public function una_clienta_no_se_da_de_baja_por_la_ruta_de_administradores(): void
+    {
+        $this->asAdmin();
+
+        $this->post('/api/admins', $this->adminPayload());
+
+        $this->expectException(NotFoundException::class);
+
+        $this->delete('/api/admins/' . $this->clientUserId);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Reserva
     |--------------------------------------------------------------------------
     */

@@ -14,7 +14,7 @@ Se registra, consulta el catálogo y el equipo, reserva con la profesional que p
 
 ### Para el salón
 
-Panel con cinco pantallas: **agenda** del día con filtros y cambio de estado, **catálogo** de servicios, **equipo**, **clientas** y **facturación**.
+Panel con seis pantallas: **agenda** del día con filtros y cambio de estado, **catálogo** de servicios, **equipo**, **clientas**, **facturación** y **administradores**.
 
 ### Reglas que el sistema hace cumplir
 
@@ -101,7 +101,9 @@ mysql -u root -p spa_db < database/migrations/003_pagos.sql
 
 ### 4. Crear el primer administrador
 
-El registro público siempre crea cuentas de clienta, así que el primer administrador se inserta a mano:
+Solo **el primero**: a partir de ahí se dan de alta desde el panel, en «Administradores». Este paso se hace una vez por instalación.
+
+Se inserta a mano porque el registro público siempre crea cuentas de clienta, y un endpoint público capaz de crear administradores sería un agujero:
 
 ```bash
 php -r "echo password_hash('tu-clave', PASSWORD_DEFAULT);"
@@ -160,6 +162,9 @@ Referencia completa con formatos de petición y respuesta en [`docs/api.md`](doc
 | `POST` | `/api/auth/login` | Público |
 | `GET` | `/api/profile` | Autenticado |
 | `PUT` | `/api/profile/password` | Autenticado |
+| `GET` | `/api/admins` | Administrador |
+| `POST` | `/api/admins` | Administrador |
+| `DELETE` | `/api/admins/{id}` | Administrador |
 | `GET` | `/api/clients` | Administrador |
 | `POST` | `/api/clients` | Administrador |
 | `GET` | `/api/clients/{id}` | Administrador o el propio cliente |
@@ -260,13 +265,14 @@ En desarrollo.
 - Panel administrativo completo: agenda, catálogo, equipo, clientas y facturación
 - Historial por clienta, con sus cifras y todas sus citas
 - Cambio de contraseña desde «Mi cuenta»
+- Alta y baja de administradores desde el panel
 - Enrutado declarativo con guardas por ruta
-- Suite de 360 pruebas automatizadas
+- Suite de 380 pruebas automatizadas
 
 ### Pendiente
 
 - Notificaciones por correo
-- Crear administradores desde la aplicación
+- Forzar el cambio de la contraseña temporal en el primer inicio de sesión
 
 ### Limitaciones conocidas
 

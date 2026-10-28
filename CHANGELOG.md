@@ -14,6 +14,7 @@ El detalle commit a commit está en `git log`; aquí se resume lo que cambia de 
 
 ### Añadido
 
+- Alta y baja de administradores desde el panel (`/api/admins`). Antes la única vía era insertar la fila por SQL. El alta crea solo el usuario, sin perfil en `clientes`, con una contraseña temporal que la persona cambia desde «Mi cuenta». Dos reglas lo sostienen: no se desactiva al último administrador ni se desactiva nadie a sí mismo. El primero sigue creándose por SQL al instalar.
 - Página «Mi cuenta» con cambio de contraseña (`PUT /api/profile/password`). No existía forma de cambiarla: la única salida era editarla en la base de datos. Hay que escribir la actual, y el usuario se resuelve desde el token, así que nadie puede cambiar la ajena. Los tokens ya emitidos siguen valiendo hasta que expiren, porque la sesión es sin estado.
 - Historial de la clienta: ficha con sus datos, sus cifras —citas, total pagado, lo que queda por cobrar y la última visita— y todas sus citas de la más reciente a la más antigua. Se llega desde el listado de clientes y tiene dirección propia, así que se puede abrir en otra pestaña.
 - `GET /api/appointments` admite el filtro `id_cliente`. Solo surte efecto para un administrador: el filtro por pertenencia se aplica después y sobrescribe lo que venga en la consulta.

@@ -170,6 +170,47 @@ Una contraseña actual incorrecta devuelve **422** con el error en `password_act
 
 ---
 
+## Administradores
+
+Solo un administrador da de alta a otro. **No hay camino público**: el primero se crea por SQL al instalar, y lo explica el paso 4 del `README`.
+
+### `GET /api/admins` · administrador
+
+Devuelve los administradores **activos**. Los dados de baja no aparecen.
+
+### `POST /api/admins` · administrador
+
+```json
+{
+  "nombre": "Marcela Ruiz",
+  "email": "marcela@ejemplo.com",
+  "password": "Temporal123"
+}
+```
+
+Crea **solo la fila en `usuarios`**, con `id_rol = 1`. A diferencia del alta de clientes no se crea perfil en `clientes`: un administrador no reserva citas, así que no le corresponde uno.
+
+La contraseña es **temporal**. Quien la recibe la cambia con `PUT /api/profile/password`; mientras no lo haga, sigue siendo válida. **201** con `{ "id_usuario": 12 }`.
+
+Un correo ya registrado devuelve **409**.
+
+### `DELETE /api/admins/{id}` · administrador
+
+Baja lógica: la fila permanece y `activo` pasa a 0.
+
+Dos reglas devuelven **409**, y se comprueban en este orden:
+
+| Orden | Regla | Por qué |
+| --- | --- | --- |
+| 1 | No se desactiva al **último** administrador | El salón se quedaría sin acceso al panel, y recuperarlo exige entrar por SQL |
+| 2 | Nadie se desactiva **a sí mismo** | Cerrarse la sesión sin explicación; además hay que pedírselo a otra persona |
+
+El orden no es arbitrario: cuando solo queda una administradora y es ella quien lo pide, **los dos casos se cumplen a la vez**. Gana el primero porque el segundo la remitiría a «otra administradora» que en ese momento no existe.
+
+Pasar el identificador de una clienta devuelve **404**: la baja de clientes vive en su propia ruta, con sus propias reglas.
+
+---
+
 ## Servicios
 
 ### `GET /api/services` · público

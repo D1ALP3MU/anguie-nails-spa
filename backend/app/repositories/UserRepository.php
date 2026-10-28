@@ -174,6 +174,64 @@ class UserRepository
     }
 
     /**
+     * Obtiene los usuarios activos de un rol.
+     *
+     * @param int $roleId ID del rol.
+     *
+     * @return array
+     */
+    public function findAllActiveByRole(int $roleId): array
+    {
+        $sql = "
+            SELECT
+                id_usuario,
+                nombre,
+                email,
+                id_rol,
+                created_at
+            FROM usuarios
+            WHERE id_rol = :id_rol
+                AND activo = 1
+            ORDER BY nombre ASC
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+
+        $stmt->execute([
+            ':id_rol' => $roleId
+        ]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Cuenta los usuarios activos de un rol.
+     *
+     * Sostiene la regla de no quedarse sin administradores.
+     *
+     * @param int $roleId ID del rol.
+     *
+     * @return int
+     */
+    public function countActiveByRole(int $roleId): int
+    {
+        $sql = "
+            SELECT COUNT(*)
+            FROM usuarios
+            WHERE id_rol = :id_rol
+                AND activo = 1
+        ";
+
+        $stmt = $this->connection->prepare($sql);
+
+        $stmt->execute([
+            ':id_rol' => $roleId
+        ]);
+
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
      * Cambia la contraseña de un usuario.
      *
      * Recibe el hash ya calculado: cifrar es cosa del servicio,

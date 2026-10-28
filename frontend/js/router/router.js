@@ -12,6 +12,7 @@ import { ProfessionalsAdminPage } from "../modules/admin/professionals/professio
 import { ServicesAdminPage } from "../modules/admin/services/services.page.js";
 import { AgendaPage } from "../modules/admin/agenda/agenda.page.js";
 import { ReportsPage } from "../modules/admin/reports/reports.page.js";
+import { AdminsPage } from "../modules/admin/admins/admins.page.js";
 import { ProfessionalsPage } from "../modules/professionals/professionals.page.js";
 import { ProfilePage } from "../modules/profile/profile.page.js";
 import { store } from "../state/store.js";
@@ -52,6 +53,7 @@ const routes = {
     "/admin/services": { page: ServicesAdminPage, roles: [ROLES.ADMIN] },
     "/admin/agenda": { page: AgendaPage, roles: [ROLES.ADMIN] },
     "/admin/reports": { page: ReportsPage, roles: [ROLES.ADMIN] },
+    "/admin/admins": { page: AdminsPage, roles: [ROLES.ADMIN] },
     "/login": { page: LoginPage, guestOnly: true },
     "/register": { page: RegisterPage, guestOnly: true },
 };

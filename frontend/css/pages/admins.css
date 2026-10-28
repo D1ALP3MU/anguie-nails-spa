@@ -1,0 +1,16 @@
+/* Administradores: /admin/admins
+   Reutiliza la caja y la tabla del panel; solo necesita la
+   marca de la fila propia. */
+
+.admins-yo {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 9px;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--text-soft);
+    background: var(--beige);
+    border-radius: var(--r-full);
+    vertical-align: middle;
+}

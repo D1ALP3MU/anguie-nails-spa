@@ -2,6 +2,7 @@
 
 use App\Core\Route;
 use App\Constants\Roles;
+use App\Controllers\AdminController;
 use App\Controllers\AppointmentController;
 use App\Controllers\AuthController;
 use App\Controllers\ClientController;
@@ -84,6 +85,25 @@ return [
     // El usuario sale del token: nadie cambia la contraseña ajena.
     Route::put('/api/profile/password', AuthController::class, 'changePassword')
         ->requireAuth(),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Administradores
+    |--------------------------------------------------------------------------
+    | Solo un administrador da de alta a otro. No hay camino público:
+    | el primero se crea por SQL al instalar.
+    |
+    | La contraseña del alta es temporal; quien la recibe la cambia
+    | desde PUT /api/profile/password.
+    */
+    Route::get('/api/admins', AdminController::class, 'index')
+        ->allowRoles(Roles::ADMIN),
+
+    Route::post('/api/admins', AdminController::class, 'store')
+        ->allowRoles(Roles::ADMIN),
+
+    Route::delete('/api/admins/{id}', AdminController::class, 'delete')
+        ->allowRoles(Roles::ADMIN),
 
     /*
     |--------------------------------------------------------------------------
