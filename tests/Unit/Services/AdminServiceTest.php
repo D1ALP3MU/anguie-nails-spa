@@ -43,7 +43,7 @@ class AdminServiceTest extends TestCase
         return array_merge([
             'nombre' => 'Marcela Ruiz',
             'email' => 'marcela@example.com',
-            'password' => 'Temporal123'
+            'password' => 'Password123'
         ], $overrides);
     }
 
@@ -99,8 +99,8 @@ class AdminServiceTest extends TestCase
 
         $this->service->create($this->payload());
 
-        $this->assertNotSame('Temporal123', $guardado);
-        $this->assertTrue(password_verify('Temporal123', $guardado));
+        $this->assertNotSame('Password123', $guardado);
+        $this->assertTrue(password_verify('Password123', $guardado));
     }
 
     #[Test]

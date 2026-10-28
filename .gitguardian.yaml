@@ -18,6 +18,27 @@ secret:
     # plantilla que se copia a .env, y .env sí está en .gitignore.
     - .env.example
 
+  # ---------------------------------------------------------------
+  # Convención: dos contraseñas falsas en todo el proyecto, y ni una
+  # más.
+  #
+  # Cada función nueva traía una contraseña inventada —NuevaClave456,
+  # Temporal123, DefinitivaMia789— y cada una, su propio incidente.
+  # Como este archivo no silencia el panel de GitGuardian, el coste
+  # no era la excepción sino el aviso por correo en cada envío.
+  #
+  #   Password123            la contraseña de partida.
+  #   clave-nueva-de-prueba  cuando hace falta una segunda, por
+  #                          ejemplo al probar un cambio de clave.
+  #
+  # En la documentación no se usan valores verosímiles: los bloques
+  # que describen el formato de una petición llevan marcadores del
+  # tipo "<8 caracteres o más>". Un par correo+contraseña con pinta
+  # real es justo lo que detecta «Company Email Password». La única
+  # excepción es el recorrido en curl del final de docs/api.md, que
+  # está para copiar y pegar.
+  # ---------------------------------------------------------------
+
   ignored_matches:
 
     # Contraseña de los usuarios desechables que crean las pruebas.
@@ -26,11 +47,10 @@ secret:
     - name: Contraseña de los usuarios de prueba
       match: Password123
 
-    # Contraseña de destino al probar PUT /api/profile/password.
-    # Aparece en docs/api.md y en las pruebas del cambio de clave,
-    # siempre sobre usuarios desechables.
-    - name: Contraseña nueva en las pruebas de cambio de clave
-      match: NuevaClave456
+    # La segunda, para los casos que necesitan dos contraseñas
+    # distintas: cambiar la clave, o el alta con una temporal.
+    - name: Segunda contraseña de prueba
+      match: clave-nueva-de-prueba
 
     # Cabecera pública de un JWT en el ejemplo de la documentación.
     # Decodifica a {"typ":"JWT","alg":"HS256"}; el token del ejemplo

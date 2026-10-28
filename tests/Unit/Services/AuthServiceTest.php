@@ -165,8 +165,8 @@ class AuthServiceTest extends TestCase
     {
         return array_merge([
             'password_actual' => 'Password123',
-            'password_nueva' => 'NuevaClave456',
-            'password_confirmacion' => 'NuevaClave456'
+            'password_nueva' => 'clave-nueva-de-prueba',
+            'password_confirmacion' => 'clave-nueva-de-prueba'
         ], $overrides);
     }
 
@@ -193,8 +193,8 @@ class AuthServiceTest extends TestCase
             $this->passwordPayload()
         );
 
-        $this->assertNotSame('NuevaClave456', $guardado);
-        $this->assertTrue(password_verify('NuevaClave456', $guardado));
+        $this->assertNotSame('clave-nueva-de-prueba', $guardado);
+        $this->assertTrue(password_verify('clave-nueva-de-prueba', $guardado));
     }
 
     #[Test]

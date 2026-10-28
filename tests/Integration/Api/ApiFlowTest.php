@@ -525,8 +525,8 @@ class ApiFlowTest extends IntegrationTestCase
     {
         return $this->put('/api/profile/password', array_merge([
             'password_actual' => 'Password123',
-            'password_nueva' => 'NuevaClave456',
-            'password_confirmacion' => 'NuevaClave456'
+            'password_nueva' => 'clave-nueva-de-prueba',
+            'password_confirmacion' => 'clave-nueva-de-prueba'
         ], $overrides));
     }
 
@@ -551,7 +551,7 @@ class ApiFlowTest extends IntegrationTestCase
             'token',
             $this->post('/api/auth/login', [
                 'email' => 'ana@example.com',
-                'password' => 'NuevaClave456'
+                'password' => 'clave-nueva-de-prueba'
             ])['data']
         );
 
@@ -630,7 +630,7 @@ class ApiFlowTest extends IntegrationTestCase
         return array_merge([
             'nombre' => 'Marcela Ruiz',
             'email' => 'marcela@example.com',
-            'password' => 'Temporal123'
+            'password' => 'Password123'
         ], $overrides);
     }
 
@@ -679,7 +679,7 @@ class ApiFlowTest extends IntegrationTestCase
 
         $respuesta = $this->post('/api/auth/login', [
             'email' => 'marcela@example.com',
-            'password' => 'Temporal123'
+            'password' => 'Password123'
         ]);
 
         $this->assertSame(
@@ -703,16 +703,16 @@ class ApiFlowTest extends IntegrationTestCase
         $this->authenticateAs((int) $nuevoId, Roles::ADMIN);
 
         $this->put('/api/profile/password', [
-            'password_actual' => 'Temporal123',
-            'password_nueva' => 'DefinitivaMia789',
-            'password_confirmacion' => 'DefinitivaMia789'
+            'password_actual' => 'Password123',
+            'password_nueva' => 'clave-nueva-de-prueba',
+            'password_confirmacion' => 'clave-nueva-de-prueba'
         ]);
 
         $this->assertArrayHasKey(
             'token',
             $this->post('/api/auth/login', [
                 'email' => 'marcela@example.com',
-                'password' => 'DefinitivaMia789'
+                'password' => 'clave-nueva-de-prueba'
             ])['data']
         );
     }

@@ -83,11 +83,11 @@ Crea la cuenta y su perfil de cliente en una sola transacción. Registrarse y se
 
 ```json
 {
-  "nombre": "Ana Pérez",
-  "email": "ana@example.com",
-  "password": "Password123",
-  "telefono": "3001112233",
-  "direccion": "Calle 1 #2-3"
+  "nombre": "<nombre completo>",
+  "email": "<correo>",
+  "password": "<8 caracteres o más>",
+  "telefono": "<número de contacto>",
+  "direccion": "<opcional>"
 }
 ```
 
@@ -106,7 +106,7 @@ Crea la cuenta y su perfil de cliente en una sola transacción. Registrarse y se
 ### `POST /api/auth/login` · público
 
 ```json
-{ "email": "ana@example.com", "password": "Password123" }
+{ "email": "<correo>", "password": "<contraseña>" }
 ```
 
 **200**
@@ -154,9 +154,9 @@ Cambia la contraseña de quien hace la petición.
 
 ```json
 {
-  "password_actual": "Password123",
-  "password_nueva": "NuevaClave456",
-  "password_confirmacion": "NuevaClave456"
+  "password_actual": "<la que usa ahora>",
+  "password_nueva": "<8 a 255 caracteres, distinta de la actual>",
+  "password_confirmacion": "<igual que la anterior>"
 }
 ```
 
@@ -182,9 +182,9 @@ Devuelve los administradores **activos**. Los dados de baja no aparecen.
 
 ```json
 {
-  "nombre": "Marcela Ruiz",
-  "email": "marcela@ejemplo.com",
-  "password": "Temporal123"
+  "nombre": "<nombre completo>",
+  "email": "<correo con el que iniciará sesión>",
+  "password": "<contraseña temporal, 8 caracteres o más>"
 }
 ```
 
