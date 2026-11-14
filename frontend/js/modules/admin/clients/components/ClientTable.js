@@ -1,5 +1,16 @@
 import { escapeHtml } from "../../../../utils/html.js";
+import { ActionMenu } from "../../../../components/ui/ActionMenu.js";
 
+/**
+ * Listado de clientas.
+ *
+ * El nombre lleva al historial: es lo que más se consulta, y como
+ * enlace se puede abrir en otra pestaña. Editar y eliminar van en el
+ * menú «⋯».
+ *
+ * Cada celda declara su data-label: por debajo de 720px la tabla se
+ * pinta como tarjetas y la etiqueta sustituye al encabezado.
+ */
 export function ClientTable(clients) {
 
     if (!clients.length) {
@@ -18,10 +29,10 @@ export function ClientTable(clients) {
                 <thead>
                     <tr>
                         <th>Nombre</th>
-                        <th>Email</th>
+                        <th>Correo</th>
                         <th>Teléfono</th>
                         <th>Dirección</th>
-                        <th>Acciones</th>
+                        <th class="actions"><span class="sr-only">Acciones</span></th>
                     </tr>
                 </thead>
 
@@ -29,47 +40,29 @@ export function ClientTable(clients) {
 
                     ${clients.map(client => {
 
-                        const name = escapeHtml(client.name);
-                        const email = escapeHtml(client.email);
-                        const phone = escapeHtml(client.phone);
-                        const address = escapeHtml(
-                            client.address ?? "Sin dirección"
-                        );
+                        const id = escapeHtml(client.id);
+                        const historial = `#/admin/clients/${id}/historial`;
 
                         return `
                             <tr>
-                                <td>${name}</td>
-                                <td>${email}</td>
-                                <td>${phone}</td>
-                                <td>${address}</td>
-                                <td>
-                                    ${/*
-                                        Enlace y no botón: el historial
-                                        tiene dirección propia, así que
-                                        se puede abrir en otra pestaña.
-                                      */ ""}
-                                    <a
-                                        class="btn btn-sm btn-outline"
-                                        href="#/admin/clients/${escapeHtml(client.id)}/historial"
-                                    >
-                                        Historial
+                                <td data-primary>
+                                    <a class="clients-table__link" href="${historial}">
+                                        ${escapeHtml(client.name)}
                                     </a>
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-outline"
-                                        data-edit-client="${client.id}"
-                                    >
-                                        Editar
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-danger"
-                                        data-delete-client="${client.id}"
-                                    >
-                                        Eliminar
-                                    </button>
+                                </td>
+                                <td data-label="Correo" class="wrap">${escapeHtml(client.email)}</td>
+                                <td data-label="Teléfono">${escapeHtml(client.phone)}</td>
+                                <td data-label="Dirección">
+                                    ${client.address
+                                        ? escapeHtml(client.address)
+                                        : `<span class="clients-table__none">Sin dirección</span>`}
+                                </td>
+                                <td class="actions">
+                                    ${ActionMenu([
+                                        { label: "Ver historial", href: historial },
+                                        { label: "Editar", data: { "edit-client": client.id } },
+                                        { label: "Eliminar…", data: { "delete-client": client.id }, danger: true }
+                                    ], `Acciones para ${client.name}`)}
                                 </td>
                             </tr>
                         `;

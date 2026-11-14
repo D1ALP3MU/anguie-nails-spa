@@ -1,4 +1,5 @@
 import { escapeHtml } from "../../../../utils/html.js";
+import { ActionMenu } from "../../../../components/ui/ActionMenu.js";
 
 export function ProfessionalTable(professionals) {
 
@@ -10,6 +11,10 @@ export function ProfessionalTable(professionals) {
         `;
     }
 
+    const orNone = (value, text) => value
+        ? escapeHtml(value)
+        : `<span class="clients-table__none">${text}</span>`;
+
     return `
         <div class="clients-table-wrapper">
 
@@ -20,50 +25,25 @@ export function ProfessionalTable(professionals) {
                         <th>Nombre</th>
                         <th>Especialidad</th>
                         <th>Teléfono</th>
-                        <th>Acciones</th>
+                        <th class="actions"><span class="sr-only">Acciones</span></th>
                     </tr>
                 </thead>
 
                 <tbody>
 
-                    ${professionals.map(professional => {
-
-                        const name = escapeHtml(professional.name);
-
-                        const specialty = escapeHtml(
-                            professional.specialty ?? "Sin especialidad"
-                        );
-
-                        const phone = escapeHtml(
-                            professional.phone ?? "Sin teléfono"
-                        );
-
-                        return `
-                            <tr>
-                                <td>${name}</td>
-                                <td>${specialty}</td>
-                                <td>${phone}</td>
-                                <td>
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-outline"
-                                        data-edit-professional="${escapeHtml(professional.id)}"
-                                    >
-                                        Editar
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-danger"
-                                        data-delete-professional="${escapeHtml(professional.id)}"
-                                    >
-                                        Dar de baja
-                                    </button>
-                                </td>
-                            </tr>
-                        `;
-
-                    }).join("")}
+                    ${professionals.map(professional => `
+                        <tr>
+                            <td data-primary>${escapeHtml(professional.name)}</td>
+                            <td data-label="Especialidad">${orNone(professional.specialty, "Sin especialidad")}</td>
+                            <td data-label="Teléfono">${orNone(professional.phone, "Sin teléfono")}</td>
+                            <td class="actions">
+                                ${ActionMenu([
+                                    { label: "Editar", data: { "edit-professional": professional.id } },
+                                    { label: "Dar de baja…", data: { "delete-professional": professional.id }, danger: true }
+                                ], `Acciones para ${professional.name}`)}
+                            </td>
+                        </tr>
+                    `).join("")}
 
                 </tbody>
 

@@ -79,6 +79,22 @@ export function formatShortDate(iso) {
     return SHORT.format(fromISODate(iso)).replace(" de ", " ");
 }
 
+const WITH_YEAR = new Intl.DateTimeFormat("es-CO", {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+});
+
+/**
+ * Para listados que abarcan más de un año: historial, facturación.
+ *
+ * @returns {string} «14 nov 2026».
+ */
+export function formatDate(iso) {
+
+    return WITH_YEAR.format(fromISODate(iso)).replaceAll(" de ", " ");
+}
+
 /**
  * @returns {string} La hora actual como HH:MM.
  */

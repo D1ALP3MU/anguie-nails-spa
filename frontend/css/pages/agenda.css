@@ -355,6 +355,12 @@
         align-items: stretch;
     }
 
+    /* En columna, la base de 160px de arriba pasaría a ser el alto de
+       cada campo y dejaría un hueco enorme entre uno y otro. */
+    .agenda-filters .form-group {
+        flex: none;
+    }
+
     .agenda-filters__actions .btn {
         flex: 1;
     }

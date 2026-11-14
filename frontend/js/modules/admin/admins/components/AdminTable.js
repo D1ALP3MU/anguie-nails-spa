@@ -1,11 +1,12 @@
 import { escapeHtml } from "../../../../utils/html.js";
+import { ActionMenu } from "../../../../components/ui/ActionMenu.js";
 
 /**
  * Listado de administradores.
  *
- * La fila propia se marca y no ofrece el botón de baja: el backend
- * la rechaza igualmente, pero mostrarla invitaría a un clic que
- * solo puede fallar.
+ * La fila propia se marca y no ofrece el menú: la baja de una misma
+ * la rechaza el backend igualmente, y mostrarla invitaría a un clic
+ * que solo puede fallar.
  *
  * De paso eso cubre el caso del último administrador —si solo
  * queda uno, ese uno eres tú—, así que esa otra regla no se
@@ -31,7 +32,7 @@ export function AdminTable(admins, currentUserId) {
                     <tr>
                         <th>Nombre</th>
                         <th>Correo</th>
-                        <th>Acciones</th>
+                        <th class="actions"><span class="sr-only">Acciones</span></th>
                     </tr>
                 </thead>
 
@@ -43,23 +44,19 @@ export function AdminTable(admins, currentUserId) {
 
                         return `
                             <tr>
-                                <td>
+                                <td data-primary>
                                     ${escapeHtml(admin.name)}
                                     ${soyYo
                                         ? `<span class="admins-yo">tú</span>`
                                         : ""}
                                 </td>
-                                <td>${escapeHtml(admin.email)}</td>
-                                <td>
+                                <td data-label="Correo" class="wrap">${escapeHtml(admin.email)}</td>
+                                <td class="actions">
                                     ${soyYo
-                                        ? `<span class="agenda-table__closed">Sin acciones</span>`
-                                        : `<button
-                                               type="button"
-                                               class="btn btn-sm btn-danger"
-                                               data-delete-admin="${escapeHtml(admin.id)}"
-                                           >
-                                               Desactivar
-                                           </button>`}
+                                        ? ""
+                                        : ActionMenu([
+                                            { label: "Desactivar…", data: { "delete-admin": admin.id }, danger: true }
+                                        ], `Acciones para ${admin.name}`)}
                                 </td>
                             </tr>
                         `;

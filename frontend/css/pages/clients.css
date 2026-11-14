@@ -25,11 +25,22 @@
     color: var(--text-soft);
 }
 
+/* =====================================================
+    TABLAS DEL PANEL
+    Clientes, catálogo, equipo, administradores, historial
+    y facturación comparten esta tabla.
+   ===================================================== */
+
+/*
+ * Sin overflow: el menú «⋯» se despliega fuera de la celda, y un
+ * contenedor con desplazamiento lo recortaría. Lo que antes resolvía
+ * el desplazamiento horizontal lo resuelve ahora la vista en
+ * tarjetas, por debajo de 720px.
+ */
 .clients-table-wrapper {
     background: var(--white);
     border-radius: var(--r-xl);
     box-shadow: var(--sh-md);
-    overflow-x: auto;
     animation: fadeIn .3s ease;
 }
 
@@ -40,20 +51,189 @@
 
 .clients-table th,
 .clients-table td {
-    padding: 1.25rem 1.5rem;
+    padding: 0.85rem 1rem;
     text-align: left;
+    vertical-align: middle;
 }
 
+.clients-table th:first-child,
+.clients-table td:first-child {
+    padding-left: 1.5rem;
+}
+
+.clients-table th:last-child,
+.clients-table td:last-child {
+    padding-right: 1.25rem;
+}
+
+/* Encabezados discretos: los datos son lo que se lee. */
 .clients-table th {
+    font-size: var(--fs-xs);
     font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
 }
 
 .clients-table tbody tr {
     border-top: 1px solid var(--border-lt);
 }
 
-.clients-table tbody tr:hover {
+.clients-table tbody tr:first-child {
+    border-top: 0;
+}
+
+/* El fondo va en las celdas y no en la fila: sin overflow en el
+   contenedor, es la única forma de que la última fila respete sus
+   esquinas redondeadas. */
+.clients-table tbody tr:hover td {
     background: var(--beige-light);
+}
+
+.clients-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: var(--r-xl);
+}
+
+.clients-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: var(--r-xl);
+}
+
+/* La primera celda es el nombre de la fila. */
+.clients-table td[data-primary] {
+    font-weight: 500;
+}
+
+/* Cifras: a la derecha y de ancho fijo, para compararlas en columna. */
+.clients-table .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.clients-table .strong {
+    font-weight: 600;
+}
+
+.clients-table .capitalize {
+    text-transform: capitalize;
+}
+
+/* Correos largos: que partan antes que ensanchar la tabla. */
+.clients-table .wrap {
+    overflow-wrap: anywhere;
+}
+
+/* La columna del «⋯», tan estrecha como su contenido. */
+.clients-table .actions {
+    width: 1%;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.clients-table__link {
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: var(--border-field);
+    text-underline-offset: 3px;
+}
+
+.clients-table__link:hover {
+    color: var(--pink-accent);
+    text-decoration-color: currentColor;
+}
+
+.clients-table__sub {
+    display: block;
+    font-size: var(--fs-sm);
+    font-weight: 400;
+    color: var(--text-soft);
+    font-variant-numeric: tabular-nums;
+}
+
+.clients-table__none {
+    color: var(--text-muted);
+}
+
+/* =====================================================
+    TABLAS EN MÓVIL: cada fila es una tarjeta
+   ===================================================== */
+
+@media (max-width: 720px) {
+
+    .clients-table-wrapper {
+        background: none;
+        box-shadow: none;
+    }
+
+    .clients-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+
+    .clients-table,
+    .clients-table tbody,
+    .clients-table tr,
+    .clients-table td {
+        display: block;
+    }
+
+    .clients-table tbody tr {
+        position: relative;
+        margin-bottom: 10px;
+        padding: 14px 16px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+    }
+
+    .clients-table tbody tr:hover td {
+        background: none;
+    }
+
+    .clients-table td,
+    .clients-table td:first-child,
+    .clients-table td:last-child {
+        padding: 3px 0;
+    }
+
+    /* Cada dato con su etiqueta, que sustituye al encabezado. */
+    .clients-table td[data-label] {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 16px;
+        text-align: right;
+    }
+
+    .clients-table td[data-label]::before {
+        content: attr(data-label);
+        flex-shrink: 0;
+        font-size: var(--fs-sm);
+        color: var(--text-muted);
+        text-align: left;
+    }
+
+    /* El nombre, como título de la tarjeta; deja sitio al «⋯». */
+    .clients-table td[data-primary] {
+        padding: 0 44px 8px 0;
+        font-size: var(--fs-md);
+    }
+
+    .clients-table .actions {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: auto;
+        padding: 0;
+    }
+
+    .clients-table .actions:empty {
+        display: none;
+    }
 }
 
 .clients-empty {

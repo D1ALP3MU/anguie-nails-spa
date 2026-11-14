@@ -1,5 +1,6 @@
 import { formatCOP } from "../../../../../utils/currency.js";
 import { escapeHtml } from "../../../../../utils/html.js";
+import { formatDate } from "../../../../../utils/date.js";
 
 /**
  * Cifras de la clienta, calculadas sobre las citas que ya están
@@ -76,7 +77,7 @@ export function HistorySummary(appointments) {
         {
             etiqueta: "Última visita",
             valor: datos.ultimaVisita
-                ? escapeHtml(datos.ultimaVisita)
+                ? escapeHtml(formatDate(datos.ultimaVisita))
                 : "—",
             detalle: datos.ultimaVisita
                 ? "Última cita completada"

@@ -1,12 +1,13 @@
 import { escapeHtml } from "../../../../utils/html.js";
 import { formatCOP } from "../../../../utils/currency.js";
+import { ActionMenu } from "../../../../components/ui/ActionMenu.js";
 
 /**
  * Recorta un texto largo para que la tabla no se desborde.
  */
 function shorten(text, limit = 60) {
 
-    if (!text) return "Sin descripción";
+    if (!text) return "";
 
     return text.length > limit
         ? text.slice(0, limit).trimEnd() + "…"
@@ -32,9 +33,9 @@ export function ServiceTable(services) {
                     <tr>
                         <th>Servicio</th>
                         <th>Descripción</th>
-                        <th>Duración</th>
-                        <th>Precio</th>
-                        <th>Acciones</th>
+                        <th class="num">Duración</th>
+                        <th class="num">Precio</th>
+                        <th class="actions"><span class="sr-only">Acciones</span></th>
                     </tr>
                 </thead>
 
@@ -42,26 +43,19 @@ export function ServiceTable(services) {
 
                     ${services.map(service => `
                         <tr>
-                            <td>${escapeHtml(service.name)}</td>
-                            <td>${escapeHtml(shorten(service.description))}</td>
-                            <td>${escapeHtml(service.duration)} min</td>
-                            <td>${formatCOP(service.price)}</td>
-                            <td>
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-outline"
-                                    data-edit-service="${escapeHtml(service.id)}"
-                                >
-                                    Editar
-                                </button>
-
-                                <button
-                                    type="button"
-                                    class="btn btn-sm btn-danger"
-                                    data-delete-service="${escapeHtml(service.id)}"
-                                >
-                                    Retirar
-                                </button>
+                            <td data-primary>${escapeHtml(service.name)}</td>
+                            <td data-label="Descripción">
+                                ${service.description
+                                    ? escapeHtml(shorten(service.description))
+                                    : `<span class="clients-table__none">Sin descripción</span>`}
+                            </td>
+                            <td data-label="Duración" class="num">${escapeHtml(service.duration)} min</td>
+                            <td data-label="Precio" class="num">${formatCOP(service.price)}</td>
+                            <td class="actions">
+                                ${ActionMenu([
+                                    { label: "Editar", data: { "edit-service": service.id } },
+                                    { label: "Retirar del catálogo…", data: { "delete-service": service.id }, danger: true }
+                                ], `Acciones para ${service.name}`)}
                             </td>
                         </tr>
                     `).join("")}

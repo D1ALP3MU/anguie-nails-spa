@@ -1,5 +1,6 @@
 import { escapeHtml } from "../../../../../utils/html.js";
 import { formatCOP } from "../../../../../utils/currency.js";
+import { formatDate } from "../../../../../utils/date.js";
 
 /**
  * Estado de cobro de una cita pasada.
@@ -59,11 +60,10 @@ export function HistoryTable(appointments) {
                 <thead>
                     <tr>
                         <th>Fecha</th>
-                        <th>Hora</th>
                         <th>Servicio</th>
                         <th>Profesional</th>
                         <th>Estado</th>
-                        <th>Cobro</th>
+                        <th class="num">Cobro</th>
                     </tr>
                 </thead>
 
@@ -71,16 +71,18 @@ export function HistoryTable(appointments) {
 
                     ${recientes.map(appointment => `
                         <tr>
-                            <td>${escapeHtml(appointment.fecha)}</td>
-                            <td>${escapeHtml(appointment.hora.slice(0, 5))}</td>
-                            <td>${escapeHtml(appointment.servicio)}</td>
-                            <td>${escapeHtml(appointment.profesional)}</td>
-                            <td>
+                            <td data-primary>
+                                ${escapeHtml(formatDate(appointment.fecha))}
+                                <span class="clients-table__sub">${escapeHtml(appointment.hora.slice(0, 5))}</span>
+                            </td>
+                            <td data-label="Servicio">${escapeHtml(appointment.servicio)}</td>
+                            <td data-label="Profesional">${escapeHtml(appointment.profesional)}</td>
+                            <td data-label="Estado">
                                 <span class="agenda-estado agenda-estado--${escapeHtml(appointment.estado)}">
                                     ${escapeHtml(appointment.estado)}
                                 </span>
                             </td>
-                            <td>${paymentCell(appointment)}</td>
+                            <td data-label="Cobro" class="num">${paymentCell(appointment)}</td>
                         </tr>
                     `).join("")}
 

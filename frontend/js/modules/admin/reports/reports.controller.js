@@ -24,6 +24,23 @@ export function currentPeriod() {
     return { ...period };
 }
 
+const PRESETS = ["mes", "mes-anterior", "anio"];
+
+/**
+ * El atajo que coincide con el periodo actual, si alguno coincide.
+ * Se compara por fechas y no se guarda aparte: así un rango escrito a
+ * mano que resulte ser «este mes» también lo marca.
+ *
+ * @returns {string|null}
+ */
+export function activePreset() {
+
+    return PRESETS.find(nombre => {
+        const p = periodFor(nombre);
+        return p.desde === period.desde && p.hasta === period.hasta;
+    }) ?? null;
+}
+
 export function initReportsEvents() {
 
     document.addEventListener("submit", handleSubmit);
