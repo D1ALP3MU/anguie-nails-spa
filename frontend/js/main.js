@@ -19,6 +19,8 @@ import {
 
 import { initModalEvents } from "./components/ui/Modal.js";
 
+import { initActionMenuEvents } from "./components/ui/ActionMenu.js";
+
 document.addEventListener("DOMContentLoaded", () => {
 
     // El menú se repinta solo cuando cambia la sesión. Antes
@@ -35,6 +37,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Antes que el router: el cierre por cambio de ruta debe estar
     // escuchando desde la primera navegación.
     initModalEvents();
+
+    /*
+     * También antes que el router, y antes que cualquier página: así
+     * un clic en una opción del menú lo cierra primero y luego lo
+     * atiende el controlador de la página, que se registra después.
+     */
+    initActionMenuEvents();
 
     initRouter();
 

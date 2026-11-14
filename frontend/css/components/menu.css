@@ -1,0 +1,84 @@
+/* Menú de acciones «⋯» (components/ui/ActionMenu.js). */
+
+.menu {
+    position: relative;
+    display: inline-block;
+}
+
+/* Es un control: su borde usa --border-field, que llega al 3:1. */
+.menu__toggle {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border-field);
+    border-radius: 50%;
+    background: var(--white);
+    color: var(--text-soft);
+    font-size: var(--fs-md);
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        background-color var(--easy-f),
+        color var(--easy-f);
+}
+
+.menu__toggle:hover,
+.menu__toggle[aria-expanded="true"] {
+    background: var(--beige-light);
+    color: var(--text);
+}
+
+.menu__list {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 50;
+    min-width: 220px;
+    padding: 6px;
+    background: var(--white);
+    border: 1px solid var(--border-lt);
+    border-radius: var(--r-md);
+    box-shadow: var(--sh-lg);
+    text-align: left;
+}
+
+/* Cuando no cabe hacia abajo (lo decide ActionMenu.js al abrir). */
+.menu__list--up {
+    top: auto;
+    bottom: calc(100% + 6px);
+}
+
+.menu__item {
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    border: 0;
+    border-radius: var(--r-sm);
+    background: none;
+    color: var(--text);
+    font-size: var(--fs-sm);
+    text-align: left;
+    cursor: pointer;
+}
+
+.menu__item:hover {
+    background: var(--beige-light);
+}
+
+/* Las opciones reciben el foco por código al moverse con las
+   flechas, así que se marca con :focus y no solo :focus-visible. */
+.menu__item:focus {
+    outline: var(--focus-ring);
+    outline-offset: -2px;
+}
+
+.menu__item--danger {
+    color: var(--danger);
+}
+
+.menu__separator {
+    height: 1px;
+    margin: 6px 4px;
+    background: var(--border-lt);
+}

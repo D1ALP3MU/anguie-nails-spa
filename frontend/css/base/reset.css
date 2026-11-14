@@ -35,6 +35,9 @@ h3 {
     font-weight: 500;
     line-height: 1.2;
     color: var(--text);
+    /* Cormorant usa por defecto cifras de estilo antiguo, que bajan
+       de la línea: en «Jueves 17» el 7 parecía un subíndice. */
+    font-variant-numeric: lining-nums;
 }
 
 /* Foco visible en todo lo que se puede enfocar. Solo con teclado:
@@ -47,4 +50,11 @@ h3 {
 img {
     max-width: 100%;
     display: block;
+}
+
+/* El atributo hidden pierde frente a cualquier display de una clase
+   (un formulario con display: flex seguiría viéndose). Así siempre
+   gana. */
+[hidden] {
+    display: none !important;
 }

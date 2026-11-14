@@ -2,9 +2,16 @@
     padding: 4rem 2rem;
 }
 
+/* Encabezado de todas las páginas del panel: título a la izquierda,
+   acción principal a la derecha. En pantallas estrechas la acción
+   baja bajo el título. */
 .clients-page__header {
-    text-align: center;
-    margin-bottom: 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+    margin-bottom: 2rem;
 }
 
 /* Mismo título que las páginas públicas: Cormorant, sin negrita. */

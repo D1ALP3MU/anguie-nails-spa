@@ -1,0 +1,51 @@
+/*
+ * Selector segmentado: varias opciones excluyentes, una marcada.
+ * Cada opción es un botón con aria-pressed, que es lo que pinta la
+ * marcada.
+ */
+
+.segmented {
+    display: inline-flex;
+    gap: 2px;
+    padding: 4px;
+    background: var(--beige);
+    border-radius: var(--r-full);
+}
+
+.segmented__option {
+    padding: 0.45rem 1rem;
+    border: 0;
+    border-radius: var(--r-full);
+    background: transparent;
+    color: var(--text-soft);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background-color var(--easy-f),
+        color var(--easy-f);
+}
+
+.segmented__option:hover {
+    color: var(--text);
+}
+
+.segmented__option[aria-pressed="true"] {
+    background: var(--white);
+    color: var(--text);
+    box-shadow: var(--sh-sm);
+}
+
+@media (max-width: 720px) {
+
+    .segmented {
+        display: flex;
+        width: 100%;
+    }
+
+    .segmented__option {
+        flex: 1;
+        padding-inline: 0.5rem;
+    }
+}

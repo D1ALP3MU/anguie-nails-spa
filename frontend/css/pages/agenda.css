@@ -1,3 +1,329 @@
+/*
+ * Agenda: /admin/agenda
+ *
+ * Lista agrupada por día. Cada fila es una rejilla con áreas con
+ * nombre, para que la misma marca se recoloque en tres anchos:
+ * escritorio (una línea), intermedio (profesional bajo la clienta) y
+ * móvil (tarjeta).
+ *
+ * Al final van piezas que comparten otras páginas: los chips de
+ * estado (historial, facturación), .agenda-filters (el periodo de
+ * facturación) y el formulario de cobro.
+ */
+
+/* =====================================================
+    BARRA DE FILTROS
+   ===================================================== */
+
+.agenda-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 16px;
+    margin-bottom: 28px;
+}
+
+.agenda-toolbar__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.agenda-toolbar__filters select {
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--border-field);
+    border-radius: var(--r-full);
+    background: var(--white);
+    color: var(--text);
+    font: inherit;
+    font-size: var(--fs-sm);
+    cursor: pointer;
+}
+
+.agenda-toolbar__count {
+    margin-left: auto;
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+}
+
+/* Fechas a medida: plegadas bajo la barra hasta que se piden. */
+.agenda-fechas {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 16px;
+    background: var(--beige-light);
+    border-radius: var(--r-lg);
+}
+
+.agenda-fechas .form-group {
+    margin: 0;
+}
+
+.agenda-fechas input {
+    padding: 0.6rem 0.8rem;
+}
+
+/* =====================================================
+    DÍAS
+   ===================================================== */
+
+.agenda-day {
+    margin-bottom: 32px;
+}
+
+.agenda-day__title {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: var(--fs-lg);
+}
+
+.agenda-day__title span {
+    font-family: var(--font-b);
+    font-size: var(--fs-sm);
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+.agenda-day__list {
+    list-style: none;
+}
+
+/* Lo ya cerrado hoy, plegado. */
+.agenda-folded summary {
+    padding: 11px 8px;
+    border-bottom: 1px dashed var(--border);
+    font-size: var(--fs-sm);
+    color: var(--text-soft);
+    cursor: pointer;
+}
+
+.agenda-folded summary:hover {
+    color: var(--text);
+}
+
+/* =====================================================
+    FILA
+   ===================================================== */
+
+.agenda-row {
+    display: grid;
+    /* El importe necesita sitio para «por verificar · transferencia»
+       en una sola línea. */
+    grid-template-columns: 64px minmax(0, 1.6fr) minmax(0, 1fr) 120px 180px 150px 34px;
+    grid-template-areas: "time who pro estado money actions menu";
+    align-items: center;
+    gap: 16px;
+    padding: 12px 8px;
+    border-bottom: 1px solid var(--border-lt);
+}
+
+.agenda-row:hover {
+    background: var(--beige-light);
+}
+
+.agenda-row__time    { grid-area: time; }
+.agenda-row__who     { grid-area: who; }
+.agenda-row__pro     { grid-area: pro; }
+.agenda-row__estado  { grid-area: estado; }
+.agenda-row__money   { grid-area: money; }
+.agenda-row__actions { grid-area: actions; }
+.agenda-row__menu    { grid-area: menu; }
+
+.agenda-row__time {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.agenda-row__who {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.agenda-row__who strong {
+    font-weight: 500;
+}
+
+.agenda-row__who span,
+.agenda-row__pro {
+    font-size: var(--fs-sm);
+    color: var(--text-soft);
+}
+
+/* Importes a la derecha y con cifras de ancho fijo: así se comparan
+   de un vistazo, columna abajo. */
+.agenda-row__money {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-variant-numeric: tabular-nums;
+}
+
+.agenda-row__money small {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.agenda-row__paid {
+    font-weight: 600;
+    color: var(--success-ink);
+}
+
+.agenda-row__verify {
+    font-weight: 600;
+    color: var(--beige-ink);
+}
+
+.agenda-row__none {
+    color: var(--text-muted);
+}
+
+.agenda-row__actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* Una cancelada se lee, pero no reclama atención. */
+.agenda-row--cancelada .agenda-row__time,
+.agenda-row--cancelada .agenda-row__who strong {
+    color: var(--text-muted);
+}
+
+/* =====================================================
+    LÍNEA DE «AHORA»
+   ===================================================== */
+
+.agenda-now {
+    position: relative;
+    height: 0;
+    margin: 0 0 0 64px;
+    border-top: 2px solid var(--pink-accent);
+}
+
+.agenda-now span {
+    position: absolute;
+    left: -64px;
+    top: -11px;
+    padding: 1px 7px;
+    border: 1px solid var(--pink-accent);
+    border-radius: var(--r-full);
+    background: var(--white);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--pink-accent);
+}
+
+/* =====================================================
+    VACÍO
+   ===================================================== */
+
+.agenda-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 48px 24px;
+    border: 1px dashed var(--border);
+    border-radius: var(--r-lg);
+    color: var(--text-soft);
+    text-align: center;
+}
+
+/* =====================================================
+    ANCHO INTERMEDIO: la profesional baja bajo la clienta
+   ===================================================== */
+
+@media (max-width: 1180px) {
+
+    .agenda-row {
+        grid-template-columns: 56px minmax(0, 1fr) 110px 170px auto 34px;
+        grid-template-areas:
+            "time who estado money actions menu"
+            "time pro estado money actions menu";
+        row-gap: 2px;
+    }
+}
+
+/* =====================================================
+    MÓVIL: cada cita es una tarjeta
+   ===================================================== */
+
+@media (max-width: 720px) {
+
+    .agenda-toolbar__count {
+        margin-left: 0;
+        flex-basis: 100%;
+    }
+
+    .agenda-day__list {
+        padding-top: 12px;
+    }
+
+    /* El «⋯» sube junto al estado; la fila del botón principal solo
+       existe si hay botón (la celda vacía no ocupa sitio). */
+    .agenda-row {
+        grid-template-columns: 1fr auto auto;
+        grid-template-areas:
+            "time    estado  menu"
+            "who     who     who"
+            "pro     money   money"
+            "actions actions actions";
+        gap: 4px 10px;
+        margin-bottom: 10px;
+        padding: 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+    }
+
+    .agenda-row:hover {
+        background: none;
+    }
+
+    .agenda-row__time {
+        font-size: var(--fs-md);
+    }
+
+    .agenda-row__estado {
+        justify-self: end;
+    }
+
+    .agenda-row__actions {
+        margin-top: 8px;
+    }
+
+    .agenda-row__actions:empty {
+        display: none;
+    }
+
+    .agenda-row__actions .btn {
+        flex: 1;
+    }
+
+    .agenda-now {
+        margin: 4px 0 18px;
+    }
+
+    .agenda-now span {
+        left: 0;
+    }
+}
+
+/* =====================================================
+    COMPARTIDO CON OTRAS PÁGINAS
+   ===================================================== */
+
+/* Periodo de Facturación. */
 .agenda-filters {
     display: flex;
     flex-wrap: wrap;
@@ -22,50 +348,6 @@
     flex: 0 0 auto;
 }
 
-.agenda-resumen {
-    margin-bottom: 12px;
-    font-size: var(--fs-sm);
-    color: var(--text-muted);
-}
-
-/* Estado de la cita, con un color por significado. */
-.agenda-estado {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: var(--r-full);
-    font-size: var(--fs-xs);
-    font-weight: 600;
-    text-transform: capitalize;
-    white-space: nowrap;
-}
-
-/* El texto de cada estado usa la variante «-ink» de su color: la
-   versión «-dark» no llegaba al contraste mínimo sobre su fondo. */
-.agenda-estado--pendiente {
-    background: var(--beige);
-    color: var(--beige-ink);
-}
-
-.agenda-estado--confirmada {
-    background: var(--lilac-light);
-    color: var(--lilac-ink);
-}
-
-.agenda-estado--completada {
-    background: var(--success-light);
-    color: var(--success-ink);
-}
-
-.agenda-estado--cancelada {
-    background: var(--pink-light);
-    color: var(--pink-accent);
-}
-
-.agenda-table__closed {
-    font-size: var(--fs-sm);
-    color: var(--text-muted);
-}
-
 @media (max-width: 720px) {
 
     .agenda-filters {
@@ -78,25 +360,49 @@
     }
 }
 
-/* Celda de cobro: importe, forma de pago y acciones. */
-.agenda-cobro {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
+/* Estado de una cita o de un cobro, con un color por significado.
+   El texto usa la variante «-ink» de su color: la «-dark» no llegaba
+   al contraste mínimo sobre su fondo. */
+.agenda-estado {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: var(--r-full);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    text-transform: capitalize;
+    white-space: nowrap;
 }
 
+.agenda-estado--pendiente {
+    background: var(--beige);
+    color: var(--beige-ink);
+}
+
+.agenda-estado--confirmada {
+    background: var(--lilac-light);
+    color: var(--lilac-ink);
+}
+
+.agenda-estado--completada,
 .agenda-estado--pagado {
     background: var(--success-light);
     color: var(--success-ink);
 }
 
+.agenda-estado--cancelada,
 .agenda-estado--rechazado,
 .agenda-estado--reembolsado {
     background: var(--pink-light);
     color: var(--pink-accent);
 }
 
+/* «Sin acciones» y guiones de celda vacía. */
+.agenda-table__closed {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+}
+
+/* Formulario de cobro (modal). */
 .payment-form__resumen {
     padding: 12px 14px;
     margin-bottom: 4px;

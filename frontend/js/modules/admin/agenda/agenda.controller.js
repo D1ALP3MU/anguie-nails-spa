@@ -10,16 +10,28 @@ import { registerCleanup } from "../../../core/cleanup.js";
 import { renderRoute } from "../../../router/router.js";
 import { toastSuccess, toastError } from "../../../components/ui/Toast.js";
 import { confirmAction } from "../../../components/ui/ConfirmDialog.js";
+import { todayISO, addDays } from "../../../utils/date.js";
 
 /**
- * Filtros activos.
+ * Periodo y filtros activos.
  *
  * Viven en el módulo y no en la URL para no complicar el enrutado
  * por hash, que ya usa el fragmento para la ruta. La contrapartida
  * es que no se pueden compartir por enlace ni sobreviven a una
  * recarga completa.
+ *
+ * Por defecto, hoy: es lo que se mira al abrir la agenda. Antes
+ * abría con todo el histórico, empezando por lo más antiguo.
  */
-let filters = {};
+const DEFAULT_VIEW = {
+    periodo: "hoy",       // hoy | semana | todas | fechas
+    desde: "",            // solo con periodo «fechas»
+    hasta: "",
+    id_profesional: "",
+    estado: ""
+};
+
+let view = { ...DEFAULT_VIEW };
 
 /**
  * Citas del último render, para poder reenviarlas completas al
@@ -27,8 +39,29 @@ let filters = {};
  */
 let loaded = [];
 
+export function currentView() {
+    return { ...view };
+}
+
+/**
+ * Lo que se pide a la API: el periodo traducido a fechas.
+ */
 export function currentFilters() {
-    return { ...filters };
+
+    const hoy = todayISO();
+
+    const range = {
+        hoy: { desde: hoy, hasta: hoy },
+        semana: { desde: hoy, hasta: addDays(hoy, 6) },
+        todas: {},
+        fechas: { desde: view.desde, hasta: view.hasta }
+    }[view.periodo];
+
+    return {
+        ...range,
+        id_profesional: view.id_profesional,
+        estado: view.estado
+    };
 }
 
 export function initAgendaEvents(appointments) {
@@ -39,11 +72,15 @@ export function initAgendaEvents(appointments) {
 
     document.addEventListener("submit", handleSubmit);
 
+    document.addEventListener("change", handleFilterChange);
+
     registerCleanup(() => {
 
         document.removeEventListener("click", handleClick);
 
         document.removeEventListener("submit", handleSubmit);
+
+        document.removeEventListener("change", handleFilterChange);
     });
 }
 
@@ -57,30 +94,85 @@ function findAppointment(id) {
  */
 async function handleSubmit(event) {
 
-    await handleFilterSubmit(event);
+    await handleDatesSubmit(event);
 
     await handlePaymentSubmit(event);
 }
 
-async function handleFilterSubmit(event) {
+/**
+ * Los selectores de profesional y estado se aplican al cambiar.
+ */
+function handleFilterChange(event) {
 
-    const form = event.target.closest("#agenda-filters");
+    const select = event.target.closest("#agenda-filtros select");
+
+    if (!select) return;
+
+    view = { ...view, [select.name]: select.value };
+
+    renderRoute();
+}
+
+async function handleDatesSubmit(event) {
+
+    const form = event.target.closest("#agenda-fechas");
 
     if (!form) return;
 
     event.preventDefault();
 
-    filters = Object.fromEntries(
-        new FormData(form).entries()
-    );
+    const { desde, hasta } = Object.fromEntries(new FormData(form).entries());
+
+    if (!desde && !hasta) {
+        toastError("Elige al menos una fecha.");
+        return;
+    }
+
+    // Las cadenas AAAA-MM-DD se ordenan igual que las fechas.
+    if (desde && hasta && desde > hasta) {
+        toastError("La fecha inicial no puede ser posterior a la final.");
+        return;
+    }
+
+    view = { ...view, periodo: "fechas", desde, hasta };
 
     await renderRoute();
 }
 
+/**
+ * Despliega u oculta las fechas a medida. No repinta: solo muestra
+ * un formulario que ya está en la página.
+ */
+function toggleDates(button) {
+
+    const form = document.getElementById("agenda-fechas");
+
+    form.hidden = !form.hidden;
+
+    button.setAttribute("aria-expanded", String(!form.hidden));
+
+    if (!form.hidden) form.querySelector("input").focus();
+}
+
 function handleClick(event) {
 
+    const periodBtn = event.target.closest("[data-periodo]");
+
+    if (periodBtn) {
+        view = { ...view, periodo: periodBtn.dataset.periodo, desde: "", hasta: "" };
+        renderRoute();
+        return;
+    }
+
+    const datesBtn = event.target.closest("[data-toggle-fechas]");
+
+    if (datesBtn) {
+        toggleDates(datesBtn);
+        return;
+    }
+
     if (event.target.closest("[data-clear-filters]")) {
-        filters = {};
+        view = { ...DEFAULT_VIEW };
         renderRoute();
         return;
     }

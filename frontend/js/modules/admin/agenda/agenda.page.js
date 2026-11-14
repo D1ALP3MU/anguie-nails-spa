@@ -1,20 +1,23 @@
 import { fetchAgenda } from "./agenda.api.js";
 import { getProfessionals } from "../../professionals/professionals.service.js";
-import { AgendaFilters } from "./components/AgendaFilters.js";
-import { AgendaTable } from "./components/AgendaTable.js";
-import { initAgendaEvents, currentFilters } from "./agenda.controller.js";
+import { AgendaToolbar, PeriodSwitch } from "./components/AgendaToolbar.js";
+import { AgendaList } from "./components/AgendaList.js";
+import { initAgendaEvents, currentView, currentFilters } from "./agenda.controller.js";
+import { todayISO, formatLongDate } from "../../../utils/date.js";
 
 export async function AgendaPage() {
 
-    const filters = currentFilters();
+    const view = currentView();
 
     // Las dos peticiones son independientes: se piden a la vez.
     const [appointments, professionals] = await Promise.all([
-        fetchAgenda(filters),
+        fetchAgenda(currentFilters()),
         getProfessionals()
     ]);
 
     initAgendaEvents(appointments);
+
+    const hoy = formatLongDate(todayISO());
 
     return `
 
@@ -24,20 +27,16 @@ export async function AgendaPage() {
 
                 <div>
                     <h1>Agenda</h1>
-                    <p>Todas las citas del salón.</p>
+                    <p>${hoy.charAt(0).toUpperCase() + hoy.slice(1)}</p>
                 </div>
+
+                ${PeriodSwitch(view.periodo)}
 
             </div>
 
-            ${AgendaFilters(professionals, filters)}
+            ${AgendaToolbar(professionals, view, appointments)}
 
-            <p class="agenda-resumen">
-                ${appointments.length === 1
-                    ? "1 cita"
-                    : `${appointments.length} citas`}
-            </p>
-
-            ${AgendaTable(appointments)}
+            ${AgendaList(appointments, view)}
 
         </section>
 
