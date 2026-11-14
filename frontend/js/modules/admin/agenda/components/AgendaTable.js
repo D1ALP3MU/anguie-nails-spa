@@ -31,7 +31,7 @@ function paymentCell(appointment) {
         return `
             <button
                 type="button"
-                class="btn btn-outline"
+                class="btn btn-sm btn-outline"
                 data-charge-appointment="${escapeHtml(appointment.id_cita)}"
             >
                 Cobrar
@@ -53,11 +53,11 @@ function paymentCell(appointment) {
             </span>
 
             ${pendiente
-                ? `<button type="button" class="btn btn-outline"
+                ? `<button type="button" class="btn btn-sm btn-outline"
                        data-confirm-payment="${id}">Confirmar</button>`
                 : ""}
 
-            <button type="button" class="btn btn-danger"
+            <button type="button" class="btn btn-sm btn-danger"
                 data-void-payment="${id}">Anular</button>
 
         </div>
@@ -76,18 +76,18 @@ function actionsFor(appointment) {
 
     if (appointment.estado === "pendiente" && isUpcoming(appointment)) {
         buttons.push(`
-            <button type="button" class="btn btn-outline"
+            <button type="button" class="btn btn-sm btn-outline"
                 data-confirm-appointment="${id}">Confirmar</button>
         `);
     }
 
     buttons.push(`
-        <button type="button" class="btn btn-outline"
+        <button type="button" class="btn btn-sm btn-outline"
             data-complete-appointment="${id}">Completar</button>
     `);
 
     buttons.push(`
-        <button type="button" class="btn btn-danger"
+        <button type="button" class="btn btn-sm btn-danger"
             data-cancel-appointment="${id}">Cancelar</button>
     `);
 

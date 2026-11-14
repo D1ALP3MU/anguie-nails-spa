@@ -49,7 +49,7 @@ export function ClientTable(clients) {
                                         se puede abrir en otra pestaña.
                                       */ ""}
                                     <a
-                                        class="btn btn-outline"
+                                        class="btn btn-sm btn-outline"
                                         href="#/admin/clients/${escapeHtml(client.id)}/historial"
                                     >
                                         Historial
@@ -57,7 +57,7 @@ export function ClientTable(clients) {
 
                                     <button
                                         type="button"
-                                        class="btn btn-outline"
+                                        class="btn btn-sm btn-outline"
                                         data-edit-client="${client.id}"
                                     >
                                         Editar
@@ -65,7 +65,7 @@ export function ClientTable(clients) {
 
                                     <button
                                         type="button"
-                                        class="btn btn-danger"
+                                        class="btn btn-sm btn-danger"
                                         data-delete-client="${client.id}"
                                     >
                                         Eliminar

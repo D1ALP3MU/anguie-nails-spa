@@ -7,9 +7,20 @@
     margin-bottom: 3rem;
 }
 
+/* Mismo título que las páginas públicas: Cormorant, sin negrita. */
+.clients-page__header h1 {
+    font-size: var(--fs-2xl);
+    font-weight: 400;
+    margin-bottom: 6px;
+}
+
+.clients-page__header p {
+    color: var(--text-soft);
+}
+
 .clients-table-wrapper {
-    background: white;
-    border-radius: 24px;
+    background: var(--white);
+    border-radius: var(--r-xl);
     box-shadow: var(--sh-md);
     overflow-x: auto;
     animation: fadeIn .3s ease;
@@ -31,16 +42,16 @@
 }
 
 .clients-table tbody tr {
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--border-lt);
 }
 
 .clients-table tbody tr:hover {
-    background: #fafafa;
+    background: var(--beige-light);
 }
 
 .clients-empty {
-    background: white;
-    border-radius: 24px;
+    background: var(--white);
+    border-radius: var(--r-xl);
     padding: 2rem;
     box-shadow: var(--sh-md);
     text-align: center;

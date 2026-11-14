@@ -6,7 +6,7 @@
     display: inline-block;
     margin-left: 8px;
     padding: 2px 9px;
-    font-size: 0.72rem;
+    font-size: var(--fs-xs);
     text-transform: uppercase;
     letter-spacing: .05em;
     color: var(--text-soft);

@@ -12,13 +12,14 @@
 }
 
 .booking-card {
-    background: white;
+    background: var(--white);
     padding: 1.5rem;
-    border-radius: 20px;
+    border-radius: var(--r-lg);
     box-shadow: var(--sh-sm);
 }
 
 .booking-card h3 {
+    font-size: var(--fs-lg);
     margin-bottom: 1rem;
 }
 
@@ -31,7 +32,7 @@
 
 .booking-page__header h1 {
     font-family: var(--font-d);
-    font-size: 2.4rem;
+    font-size: var(--fs-2xl);
     font-weight: 400;
     color: var(--text);
     margin-bottom: 6px;

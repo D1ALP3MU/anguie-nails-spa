@@ -46,7 +46,7 @@ export function ProfessionalTable(professionals) {
                                 <td>
                                     <button
                                         type="button"
-                                        class="btn btn-outline"
+                                        class="btn btn-sm btn-outline"
                                         data-edit-professional="${escapeHtml(professional.id)}"
                                     >
                                         Editar
@@ -54,7 +54,7 @@ export function ProfessionalTable(professionals) {
 
                                     <button
                                         type="button"
-                                        class="btn btn-danger"
+                                        class="btn btn-sm btn-danger"
                                         data-delete-professional="${escapeHtml(professional.id)}"
                                     >
                                         Dar de baja

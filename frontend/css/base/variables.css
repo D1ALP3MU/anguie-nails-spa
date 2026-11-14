@@ -1,44 +1,96 @@
-/* :root {
-    --color-primary: #d4637a;
-    --color-bg: #fffafc;
-    --color-text: #3a2e35;
-} */
+/*
+ * Tokens de diseño.
+ *
+ * Todo color que lleve texto encima, o que sea texto, cumple el
+ * contraste AA de WCAG (4.5:1) contra los fondos donde se usa. Los
+ * valores se eligieron midiendo, no a ojo: si se cambia uno, hay
+ * que volver a medirlo.
+ */
 
 :root {
+
+    /* ---------- Marca ---------- */
+
     --pink: #F9C8D4;
     --pink-light: #FDE8EE;
-    --pink-dark: #E8919F;
-    --pink-accent: #D4637A;
+    --pink-faint: #FFFAFC;
+    /* Texto y fondo de botón: 5.4:1 sobre blanco, 4.6:1 sobre pink-light. */
+    --pink-accent: #B04560;
+    --pink-accent-hover: #963650;
+
     --lilac: #DDD0F0;
     --lilac-light: #F0EAFA;
     --lilac-dark: #9B7DC8;
+    --lilac-ink: #6A4FA0;
+
     --beige: #F5EFE6;
     --beige-light: #FDFAF6;
+    /* Solo decorativo (bordes): no llega al contraste de un texto. */
     --beige-dark: #C8A882;
+    --beige-ink: #7D5F36;
+
+    /* ---------- Estados ---------- */
+
+    --success: #4CAF7D;
+    --success-light: #E3F3EA;
+    --success-ink: #2E6E52;
+
+    /* Rojo ladrillo y no carmesí: el carmesí tiene el mismo tono que
+       el rosa de marca y una acción destructiva no se distinguía de
+       una normal. */
+    --danger: #B3261E;
+    --danger-hover: #8F1E18;
+    --danger-light: #FBE9E7;
+
+    /* ---------- Neutros ---------- */
+
     --white: #FFFFFF;
     --text: #3A2E35;
-    --text-soft: #7A6B72;
-    --text-muted: #A898A0;
-    --border: #EDE0E8;
-    --boder-lt: #F5EDF2;
+    --text-soft: #6E5F66;
+    --text-muted: #7E6E77;
 
-    --g-hero: linear-gradient(135deg, #FDE8EE 0%, #F0EAFA 50%, #F5EFE6 100%);
+    /* Separadores y bordes de tarjeta: decorativos. */
+    --border: #EDE0E8;
+    --border-lt: #F5EDF2;
+    /* Borde de campos de formulario: 3.2:1, el mínimo para que un
+       control se reconozca como tal. */
+    --border-field: #A08A96;
+
+    --overlay: rgba(58, 46, 53, .45);
+
     --g-pink: linear-gradient(135deg, var(--pink) 0%, var(--lilac) 100%);
-    --g-promo: linear-gradient(135deg, #F9C8D4 0%, #DDD0F0 100%);
+
+    /* ---------- Tipografía ---------- */
 
     --font-d: 'Cormorant Garamond', Georgia, serif;
     --font-b: 'DM Sans', system-ui, sans-serif;
 
+    /* Escala. Ningún tamaño fuera de estos. */
+    --fs-xs: 0.75rem;       /* etiquetas en mayúsculas */
+    --fs-sm: 0.875rem;      /* ayudas, metadatos, botones pequeños */
+    --fs-base: 1rem;        /* texto corriente */
+    --fs-md: 1.125rem;      /* importes destacados */
+    --fs-lg: 1.375rem;      /* títulos de sección y de tarjeta */
+    --fs-xl: 1.875rem;      /* cifras, títulos de diálogo */
+    --fs-2xl: 2.375rem;     /* títulos de página */
+    --fs-display: clamp(2.5rem, 1.6rem + 3vw, 4rem); /* portada */
+
+    /* ---------- Forma ---------- */
+
     --r-sm: 8px;
     --r-md: 12px;
     --r-lg: 20px;
-    --r-xl: 28px;
+    --r-xl: 24px;
     --r-full: 9999px;
 
     --sh-sm: 0 2px 8px rgba(180,100,120,.08);
     --sh-md: 0 4px 20px rgba(180,100,120,.13);
     --sh-lg: 0 8px 40px rgba(180,100,120,.17);
-    --sh-pink: 0 4px 24px rgba(212,99,122,.28);
+
+    /* Anillo de foco: el mismo en todos los controles. */
+    --focus-ring: 2px solid var(--pink-accent);
+
+    /* ---------- Medidas ---------- */
 
     --nav-h: 72px;
     --side-w: 240px;

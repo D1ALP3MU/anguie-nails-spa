@@ -25,6 +25,25 @@ button {
     font: inherit;
 }
 
+/* Un solo sistema de títulos: Cormorant para títulos, DM Sans para
+   todo lo demás. Antes cada página decidía, y el panel y los modales
+   salían en DM Sans negrita con el tamaño por defecto del navegador. */
+h1,
+h2,
+h3 {
+    font-family: var(--font-d);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--text);
+}
+
+/* Foco visible en todo lo que se puede enfocar. Solo con teclado:
+   :focus-visible no lo pinta al hacer clic con el ratón. */
+:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 2px;
+}
+
 img {
     max-width: 100%;
     display: block;

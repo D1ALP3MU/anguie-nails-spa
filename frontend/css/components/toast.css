@@ -21,14 +21,14 @@
     background: var(--white);
     border-left: 4px solid var(--lilac-dark);
     box-shadow: var(--sh-lg);
-    font-size: 0.92rem;
+    font-size: var(--fs-base);
     color: var(--text);
     animation: toastIn .22s ease;
     transition: opacity var(--easy), transform var(--easy);
 }
 
 .toast--success {
-    border-left-color: #4CAF7D;
+    border-left-color: var(--success);
 }
 
 .toast--error {
@@ -49,7 +49,7 @@
     border: none;
     background: none;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: var(--fs-md);
     line-height: 1;
     color: var(--text-muted);
     padding: 0 2px;

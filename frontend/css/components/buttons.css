@@ -1,46 +1,102 @@
+/*
+ * Botones.
+ *
+ * Variantes: primario (relleno), contorno, peligro (contorno) y
+ * peligro sólido, reservado a la confirmación de una acción
+ * destructiva. Tamaños: normal y .btn-sm, para tablas.
+ *
+ * Todos llevan borde, transparente si no se ve, para que un botón
+ * relleno y uno de contorno midan lo mismo puestos uno al lado del
+ * otro.
+ */
+
 .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: none;
+    border: 1px solid transparent;
     padding: 0.8rem 1.4rem;
-    border-radius: 999px;
+    border-radius: var(--r-full);
     cursor: pointer;
     /* Tamaño explícito para que <button> y <a> con .btn midan lo
        mismo: ya no dependen de lo que cada uno herede. */
-    font-size: 0.95rem;
+    font-size: var(--fs-base);
     line-height: 1.25;
     font-weight: 600;
-    transition: 0.3s ease;
+    white-space: nowrap;
+    transition:
+        background-color var(--easy-f),
+        border-color var(--easy-f),
+        color var(--easy-f);
 }
+
+.btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.btn-sm {
+    padding: 0.45rem 0.95rem;
+    font-size: var(--fs-sm);
+}
+
+/* ---------- Primario ---------- */
 
 .btn-primary {
     background: var(--pink-accent);
     color: var(--white);
 }
 
-.btn-primary:hover {
-    opacity: 0.9;
+.btn-primary:hover:not(:disabled) {
+    background: var(--pink-accent-hover);
 }
 
+/* ---------- Contorno ---------- */
+
+/* Al pasar por encima se tiñe y no se rellena: en una tabla, un botón
+   que se vuelve rosa intenso compite con el primario. */
 .btn-outline {
-    border: 1px solid var(--pink-accent);
+    border-color: var(--pink-accent);
     background: transparent;
     color: var(--pink-accent);
 }
 
-.btn-outline:hover {
-    background: var(--pink-accent);
-    color: var(--white);
+.btn-outline:hover:not(:disabled) {
+    background: var(--pink-light);
 }
+
+/* ---------- Peligro ---------- */
 
 .btn-danger {
+    border-color: var(--danger);
     background: transparent;
-    border: 1px solid crimson;
-    color: crimson;
+    color: var(--danger);
 }
 
-.btn-danger:hover {
-    background: crimson;
+.btn-danger:hover:not(:disabled) {
+    background: var(--danger-light);
+}
+
+.btn-danger-solid {
+    background: var(--danger);
     color: var(--white);
+}
+
+.btn-danger-solid:hover:not(:disabled) {
+    background: var(--danger-hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .btn {
+        transition: none;
+    }
+
+    .btn:active:not(:disabled) {
+        transform: none;
+    }
 }

@@ -24,7 +24,7 @@
 
 .agenda-resumen {
     margin-bottom: 12px;
-    font-size: 0.9rem;
+    font-size: var(--fs-sm);
     color: var(--text-muted);
 }
 
@@ -33,24 +33,27 @@
     display: inline-block;
     padding: 3px 10px;
     border-radius: var(--r-full);
-    font-size: 0.78rem;
+    font-size: var(--fs-xs);
+    font-weight: 600;
     text-transform: capitalize;
     white-space: nowrap;
 }
 
+/* El texto de cada estado usa la variante «-ink» de su color: la
+   versión «-dark» no llegaba al contraste mínimo sobre su fondo. */
 .agenda-estado--pendiente {
     background: var(--beige);
-    color: var(--beige-dark);
+    color: var(--beige-ink);
 }
 
 .agenda-estado--confirmada {
     background: var(--lilac-light);
-    color: var(--lilac-dark);
+    color: var(--lilac-ink);
 }
 
 .agenda-estado--completada {
-    background: #E3F3EA;
-    color: #33795A;
+    background: var(--success-light);
+    color: var(--success-ink);
 }
 
 .agenda-estado--cancelada {
@@ -59,7 +62,7 @@
 }
 
 .agenda-table__closed {
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     color: var(--text-muted);
 }
 
@@ -84,8 +87,8 @@
 }
 
 .agenda-estado--pagado {
-    background: #E3F3EA;
-    color: #33795A;
+    background: var(--success-light);
+    color: var(--success-ink);
 }
 
 .agenda-estado--rechazado,
@@ -99,21 +102,21 @@
     margin-bottom: 4px;
     background: var(--beige-light);
     border-radius: var(--r-md);
-    font-size: 0.92rem;
+    font-size: var(--fs-base);
     color: var(--text-soft);
 }
 
 .payment-form__resumen strong {
     display: block;
     margin-top: 4px;
-    font-size: 1.15rem;
+    font-size: var(--fs-md);
     color: var(--pink-accent);
 }
 
 .form-hint {
     display: block;
     margin-top: 4px;
-    font-size: 0.8rem;
+    font-size: var(--fs-sm);
     color: var(--text-muted);
 }
 

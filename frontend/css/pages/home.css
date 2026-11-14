@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: center;
     padding: 4rem 2rem;
-    background: #fffafc;
+    background: var(--pink-faint);
 }
 
 .hero__content {
@@ -12,7 +12,9 @@
 }
 
 .hero h1 {
-    font-size: 4rem;
+    font-size: var(--fs-display);
+    font-weight: 400;
+    line-height: 1.05;
     margin: 1rem 0;
 }
 

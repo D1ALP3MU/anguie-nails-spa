@@ -55,7 +55,7 @@ export function AdminTable(admins, currentUserId) {
                                         ? `<span class="agenda-table__closed">Sin acciones</span>`
                                         : `<button
                                                type="button"
-                                               class="btn btn-danger"
+                                               class="btn btn-sm btn-danger"
                                                data-delete-admin="${escapeHtml(admin.id)}"
                                            >
                                                Desactivar

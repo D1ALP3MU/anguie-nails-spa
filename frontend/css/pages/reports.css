@@ -14,13 +14,13 @@
     box-shadow: var(--sh-sm);
 }
 
-.reporte-tarjeta--exito  { border-left-color: #4CAF7D; }
+.reporte-tarjeta--exito  { border-left-color: var(--success); }
 .reporte-tarjeta--aviso  { border-left-color: var(--beige-dark); }
 .reporte-tarjeta--deuda  { border-left-color: var(--pink-accent); }
 .reporte-tarjeta--neutro { border-left-color: var(--text-muted); }
 
 .reporte-tarjeta__etiqueta {
-    font-size: 0.82rem;
+    font-size: var(--fs-sm);
     text-transform: uppercase;
     letter-spacing: .04em;
     color: var(--text-muted);
@@ -29,7 +29,7 @@
 
 .reporte-tarjeta__valor {
     font-family: var(--font-d);
-    font-size: 1.9rem;
+    font-size: var(--fs-xl);
     font-weight: 500;
     color: var(--text);
     line-height: 1.1;
@@ -40,7 +40,7 @@
 
 .reporte-tarjeta__detalle {
     margin-top: 6px;
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     color: var(--text-soft);
 }
 
@@ -50,7 +50,7 @@
 
 .reporte-bloque h2 {
     font-family: var(--font-d);
-    font-size: 1.4rem;
+    font-size: var(--fs-lg);
     font-weight: 500;
     color: var(--text);
     margin-bottom: 14px;
@@ -71,7 +71,7 @@
     width: 90px;
     height: 7px;
     margin-right: 8px;
-    background: var(--boder-lt);
+    background: var(--border-lt);
     border-radius: var(--r-full);
     overflow: hidden;
 }

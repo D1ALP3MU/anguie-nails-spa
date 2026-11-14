@@ -6,7 +6,7 @@
     align-items: center;
     justify-content: center;
     padding: 20px;
-    background: rgba(58, 46, 53, .45);
+    background: var(--overlay);
     animation: fadeIn .18s ease;
 }
 
@@ -22,7 +22,7 @@
 
 .confirm__title {
     font-family: var(--font-d);
-    font-size: 1.5rem;
+    font-size: var(--fs-lg);
     font-weight: 500;
     color: var(--text);
     margin-bottom: 10px;

@@ -30,14 +30,14 @@
 
 .service-card__content h3 {
     font-family: var(--font-d);
-    font-size: 1.35rem;
+    font-size: var(--fs-lg);
     font-weight: 500;
     color: var(--text);
 }
 
 .service-card__content p {
     color: var(--text-soft);
-    font-size: 0.94rem;
+    font-size: var(--fs-base);
     line-height: 1.5;
     flex-grow: 1;
 }
@@ -47,16 +47,16 @@
     align-items: center;
     justify-content: space-between;
     padding-top: 12px;
-    border-top: 1px solid var(--boder-lt);
+    border-top: 1px solid var(--border-lt);
 }
 
 .service-card__meta span {
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     color: var(--text-muted);
 }
 
 .service-card__meta strong {
-    font-size: 1.1rem;
+    font-size: var(--fs-md);
     font-weight: 600;
     color: var(--pink-accent);
 }

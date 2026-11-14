@@ -49,7 +49,7 @@ export function ServiceTable(services) {
                             <td>
                                 <button
                                     type="button"
-                                    class="btn btn-outline"
+                                    class="btn btn-sm btn-outline"
                                     data-edit-service="${escapeHtml(service.id)}"
                                 >
                                     Editar
@@ -57,7 +57,7 @@ export function ServiceTable(services) {
 
                                 <button
                                     type="button"
-                                    class="btn btn-danger"
+                                    class="btn btn-sm btn-danger"
                                     data-delete-service="${escapeHtml(service.id)}"
                                 >
                                     Retirar

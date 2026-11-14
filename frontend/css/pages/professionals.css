@@ -11,7 +11,7 @@
 
 .professionals-page__header h1 {
     font-family: var(--font-d);
-    font-size: 2.6rem;
+    font-size: var(--fs-2xl);
     font-weight: 400;
     color: var(--text);
     margin-bottom: 8px;
@@ -48,7 +48,7 @@
 
 .professional-card__content h3 {
     font-family: var(--font-d);
-    font-size: 1.3rem;
+    font-size: var(--fs-lg);
     font-weight: 500;
     color: var(--text);
     margin-bottom: 6px;
@@ -56,12 +56,12 @@
 
 .professional-card__content p {
     color: var(--pink-accent);
-    font-size: 0.92rem;
+    font-size: var(--fs-base);
     margin-bottom: 10px;
 }
 
 .professional-card__content span {
     display: inline-block;
-    font-size: 0.85rem;
+    font-size: var(--fs-sm);
     color: var(--text-muted);
 }

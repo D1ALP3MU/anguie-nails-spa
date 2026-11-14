@@ -47,7 +47,7 @@ export function confirmAction({
                     </button>
 
                     <button
-                        class="btn ${danger ? "btn-danger" : "btn-primary"}"
+                        class="btn ${danger ? "btn-danger-solid" : "btn-primary"}"
                         data-confirm-accept
                     >
                         ${escapeHtml(confirmText)}
