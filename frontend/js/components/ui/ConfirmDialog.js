@@ -1,4 +1,5 @@
 import { escapeHtml } from "../../utils/html.js";
+import { trapFocus } from "../../utils/focus.js";
 
 /**
  * Diálogo de confirmación.
@@ -8,6 +9,9 @@ import { escapeHtml } from "../../utils/html.js";
  *
  * Usa su propia clase de superposición, y no .modal-overlay, para
  * no chocar con los manejadores que cierran los modales de formulario.
+ *
+ * Si la acción es destructiva, el foco inicial va a «Cancelar»: así
+ * un Enter dado por inercia no anula ni borra nada.
  */
 export function confirmAction({
     title = "Confirmar",
@@ -24,11 +28,17 @@ export function confirmAction({
         overlay.className = "confirm-overlay";
 
         overlay.innerHTML = `
-            <div class="confirm" role="alertdialog" aria-modal="true">
+            <div
+                class="confirm"
+                role="alertdialog"
+                aria-modal="true"
+                aria-labelledby="confirm-title"
+                aria-describedby="confirm-message"
+            >
 
-                <h2 class="confirm__title">${escapeHtml(title)}</h2>
+                <h2 class="confirm__title" id="confirm-title">${escapeHtml(title)}</h2>
 
-                <p class="confirm__message">${escapeHtml(message)}</p>
+                <p class="confirm__message" id="confirm-message">${escapeHtml(message)}</p>
 
                 <div class="confirm__actions">
 
@@ -48,18 +58,37 @@ export function confirmAction({
             </div>
         `;
 
+        const returnFocusTo = document.activeElement;
+
         const close = (result) => {
 
             document.removeEventListener("keydown", onKeydown);
 
+            window.removeEventListener("hashchange", onNavigate);
+
             overlay.remove();
+
+            if (returnFocusTo?.isConnected) {
+                returnFocusTo.focus();
+            }
 
             resolve(result);
         };
 
         function onKeydown(event) {
 
-            if (event.key === "Escape") close(false);
+            if (event.key === "Escape") {
+                close(false);
+                return;
+            }
+
+            trapFocus(overlay.querySelector(".confirm"), event);
+        }
+
+        // Navegar con el diálogo abierto equivale a no confirmar.
+        function onNavigate() {
+
+            close(false);
         }
 
         overlay.addEventListener("click", event => {
@@ -82,8 +111,12 @@ export function confirmAction({
 
         document.addEventListener("keydown", onKeydown);
 
+        window.addEventListener("hashchange", onNavigate);
+
         document.body.appendChild(overlay);
 
-        overlay.querySelector("[data-confirm-accept]").focus();
+        overlay.querySelector(
+            danger ? "[data-confirm-cancel]" : "[data-confirm-accept]"
+        ).focus();
     });
 }

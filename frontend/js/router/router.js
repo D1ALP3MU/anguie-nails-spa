@@ -18,7 +18,6 @@ import { ProfilePage } from "../modules/profile/profile.page.js";
 import { store } from "../state/store.js";
 import { ROLES } from "../constants/roles.js";
 import { saveRedirect } from "../api/session.js";
-import { escapeHtml } from "../utils/html.js";
 import {
     LoginPage,
     RegisterPage
@@ -220,7 +219,10 @@ export async function renderRoute() {
 
         if (!matched) {
             app.innerHTML = Layout(
-                ErrorState("<h1>404 página no encontrada</h1>")
+                ErrorState({
+                    title: "Página no encontrada",
+                    message: "La dirección no existe o ha cambiado."
+                })
             );
 
             return;
@@ -237,18 +239,21 @@ export async function renderRoute() {
 
         if (access === "forbidden") {
             app.innerHTML = Layout(
-                ErrorState(
-                    "<h1>No tienes permiso para ver esta página</h1>"
-                )
+                ErrorState({
+                    title: "No tienes acceso a esta página",
+                    message: "Está reservada al equipo del salón."
+                })
             );
 
             return;
         }
 
         // SHOW LOADING
+        // Dentro del Layout: si no, el menú lateral desaparece mientras
+        // carga cada página y reaparece al terminar.
         const loader = routeLoaders[path];
 
-        app.innerHTML = loader ? loader() : Loading();
+        app.innerHTML = Layout(loader ? loader() : Loading());
 
         // LOAD PAGE
         const html = Layout(await route.page(params));
@@ -262,10 +267,10 @@ export async function renderRoute() {
         console.error(error);
 
         app.innerHTML = Layout(
-            ErrorState(
-                `<h1>Error cargando la página</h1>
-                 <p>${escapeHtml(error.message)}</p>`
-            )
+            ErrorState({
+                title: "No pudimos cargar la página",
+                message: error.message
+            })
         );
 
     }

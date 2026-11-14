@@ -1,4 +1,5 @@
 import { escapeHtml } from "../../../utils/html.js";
+import { todayISO } from "../../../utils/date.js";
 
 /**
  * Formulario de reserva.
@@ -56,7 +57,7 @@ export function BookingForm(serviceId, professionals) {
                     type="date"
                     id="date"
                     name="date"
-                    min="${new Date().toISOString().slice(0, 10)}"
+                    min="${todayISO()}"
                     required
                 >
 

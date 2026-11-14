@@ -1,4 +1,4 @@
-import { Modal } from "../../../components/ui/Modal.js";
+import { openModal, closeModal, isModalOpen } from "../../../components/ui/Modal.js";
 import { ClientForm } from "./components/ClientForm.js";
 import {
     createClient,
@@ -68,24 +68,6 @@ function handleDocumentClick(event) {
         handleClientDelete(
             Number(deleteButton.dataset.deleteClient)
         );
-        return;
-    }
-
-    const closeButton = event.target.closest(
-        "[data-close-modal]"
-    );
-
-    if (closeButton) {
-        closeModal();
-        return;
-    }
-
-    if (
-        event.target.classList.contains(
-            "modal-overlay"
-        )
-    ) {
-        closeModal();
     }
 }
 
@@ -182,32 +164,12 @@ async function handleClientDelete(id) {
 
 function openCreateClientModal() {
 
-    const existingModal = document.querySelector(
-        ".modal-overlay"
-    );
-
-    if (existingModal) {
-        return;
-    }
-
-    const modalHTML = Modal({
-        title: "Nuevo cliente",
-        content: ClientForm()
-    });
-
-    document.body.insertAdjacentHTML(
-        "beforeend",
-        modalHTML
-    );
+    openModal("Nuevo cliente", ClientForm());
 }
 
 async function openEditClientModal(id) {
 
-    const existingModal = document.querySelector(
-        ".modal-overlay"
-    );
-
-    if (existingModal) {
+    if (isModalOpen()) {
         return;
     }
 
@@ -215,15 +177,7 @@ async function openEditClientModal(id) {
 
         const client = await fetchClient(id);
 
-        const modalHTML = Modal({
-            title: "Editar cliente",
-            content: ClientForm(client)
-        });
-
-        document.body.insertAdjacentHTML(
-            "beforeend",
-            modalHTML
-        );
+        openModal("Editar cliente", ClientForm(client));
 
     } catch (error) {
 
@@ -236,16 +190,5 @@ async function openEditClientModal(id) {
             error.message ||
             "No fue posible cargar el cliente."
         );
-    }
-}
-
-function closeModal() {
-
-    const modal = document.querySelector(
-        ".modal-overlay"
-    );
-
-    if (modal) {
-        modal.remove();
     }
 }

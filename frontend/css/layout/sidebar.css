@@ -206,14 +206,27 @@
         border-bottom: 1px solid var(--border);
     }
 
+    /*
+     * Cerrado, el cajón queda oculto y no solo desplazado: si no, su
+     * sombra se asoma por el borde izquierdo de cada página y el
+     * tabulador recorre enlaces que no se ven.
+     *
+     * Al cerrar, la visibilidad cambia al terminar el deslizamiento,
+     * para que la animación llegue a verse.
+     */
     .sidebar {
         transform: translateX(-100%);
+        visibility: hidden;
         box-shadow: var(--sh-lg);
-        transition: transform var(--easy);
+        transition:
+            transform var(--easy),
+            visibility 0s linear 0.25s;
     }
 
     body.menu-open .sidebar {
         transform: translateX(0);
+        visibility: visible;
+        transition: transform var(--easy);
     }
 
     .sidebar__overlay {

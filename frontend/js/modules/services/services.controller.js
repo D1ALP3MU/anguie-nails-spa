@@ -1,4 +1,4 @@
-import { Modal } from "../../../js/components/ui/Modal.js";
+import { openModal, closeModal, isModalOpen } from "../../components/ui/Modal.js";
 import { BookingForm } from "../booking/components/BookingForm.js";
 import { isEmpty, isPasteDate } from "../../../js/utils/validation.js";
 import { FormError } from "../../components/ui/FormError.js";
@@ -52,20 +52,6 @@ async function handleDocumentClick(event) {
         await openBookingModal(serviceId);
 
     }
-
-    const closeButton = event.target.closest("[data-close-modal]");
-
-    if (closeButton) {
-
-        closeModal();
-
-    }
-
-    if (event.target.classList.contains("modal-overlay")) {
-
-        closeModal();
-
-    }
 }
 
 async function openBookingModal(serviceId) {
@@ -84,29 +70,14 @@ async function openBookingModal(serviceId) {
         return;
     }
 
-    const existingModal = document.querySelector(".modal-overlay");
-
-    if (existingModal) return;
+    if (isModalOpen()) return;
 
     const professionals = await getProfessionals();
 
-    const modalHTML = Modal({
-        title: "Reservar cita",
-        content: BookingForm(
-            serviceId,
-            professionals
-        ),
-    });
-
-    document.body.insertAdjacentHTML("beforeend", modalHTML);
-}
-
-function closeModal() {
-    const modal = document.querySelector(".modal-overlay");
-
-    if (modal) {
-        modal.remove();
-    }
+    openModal(
+        "Reservar cita",
+        BookingForm(serviceId, professionals)
+    );
 }
 
 async function handleBookingSubmit(event) {

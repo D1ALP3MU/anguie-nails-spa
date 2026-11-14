@@ -1,4 +1,4 @@
-import { Modal } from "../../../components/ui/Modal.js";
+import { openModal, closeModal } from "../../../components/ui/Modal.js";
 import { AdminForm } from "./components/AdminForm.js";
 import { createAdmin, deleteAdmin } from "./admins.api.js";
 import { registerCleanup } from "../../../core/cleanup.js";
@@ -32,15 +32,6 @@ function handleDocumentClick(event) {
     if (deleteButton) {
         handleDelete(Number(deleteButton.dataset.deleteAdmin));
         return;
-    }
-
-    if (event.target.closest("[data-close-modal]")) {
-        closeModal();
-        return;
-    }
-
-    if (event.target.classList.contains("modal-overlay")) {
-        closeModal();
     }
 }
 
@@ -114,19 +105,4 @@ async function handleDelete(id) {
             error.message || "No fue posible desactivar el administrador."
         );
     }
-}
-
-function openModal(title, content) {
-
-    if (document.querySelector(".modal-overlay")) return;
-
-    document.body.insertAdjacentHTML(
-        "beforeend",
-        Modal({ title, content })
-    );
-}
-
-function closeModal() {
-
-    document.querySelector(".modal-overlay")?.remove();
 }

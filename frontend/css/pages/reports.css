@@ -33,6 +33,9 @@
     font-weight: 500;
     color: var(--text);
     line-height: 1.1;
+    /* Cormorant trae por defecto cifras de estilo antiguo, en las que
+       el 0 se confunde con una «o». */
+    font-variant-numeric: lining-nums tabular-nums;
 }
 
 .reporte-tarjeta__detalle {

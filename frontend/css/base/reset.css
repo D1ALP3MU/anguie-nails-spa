@@ -18,6 +18,13 @@ a {
     color: inherit;
 }
 
+/* Los botones no heredan la tipografía: sin esto salen en la fuente
+   del sistema (Arial en Windows) mientras un enlace con la misma
+   clase .btn sale en DM Sans. */
+button {
+    font: inherit;
+}
+
 img {
     max-width: 100%;
     display: block;

@@ -1,5 +1,6 @@
 import { registerCleanup } from "../../../core/cleanup.js";
 import { renderRoute } from "../../../router/router.js";
+import { toISODate as iso } from "../../../utils/date.js";
 
 /**
  * Periodo del informe.
@@ -12,8 +13,6 @@ let period = defaultPeriod();
 function defaultPeriod() {
 
     const hoy = new Date();
-
-    const iso = (fecha) => fecha.toISOString().slice(0, 10);
 
     return {
         desde: iso(new Date(hoy.getFullYear(), hoy.getMonth(), 1)),
@@ -69,8 +68,6 @@ function handleClick(event) {
 function periodFor(nombre) {
 
     const hoy = new Date();
-
-    const iso = (fecha) => fecha.toISOString().slice(0, 10);
 
     if (nombre === "mes-anterior") {
 

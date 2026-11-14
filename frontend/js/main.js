@@ -17,6 +17,8 @@ import {
     initSidebarEvents
 } from "./components/layout/Sidebar.js";
 
+import { initModalEvents } from "./components/ui/Modal.js";
+
 document.addEventListener("DOMContentLoaded", () => {
 
     // El menú se repinta solo cuando cambia la sesión. Antes
@@ -29,6 +31,10 @@ document.addEventListener("DOMContentLoaded", () => {
     initAuthEvents();
 
     initSidebarEvents();
+
+    // Antes que el router: el cierre por cambio de ruta debe estar
+    // escuchando desde la primera navegación.
+    initModalEvents();
 
     initRouter();
 

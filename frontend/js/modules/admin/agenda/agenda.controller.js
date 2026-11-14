@@ -4,7 +4,7 @@ import {
     confirmPayment,
     voidPayment
 } from "./payments.api.js";
-import { Modal } from "../../../components/ui/Modal.js";
+import { openModal, closeModal, isModalOpen } from "../../../components/ui/Modal.js";
 import { PaymentForm } from "./components/PaymentForm.js";
 import { registerCleanup } from "../../../core/cleanup.js";
 import { renderRoute } from "../../../router/router.js";
@@ -124,16 +124,6 @@ function handleClick(event) {
 
     if (voidBtn) {
         handleVoidPayment(Number(voidBtn.dataset.voidPayment));
-        return;
-    }
-
-    if (event.target.closest("[data-close-modal]")) {
-        closeModal();
-        return;
-    }
-
-    if (event.target.classList.contains("modal-overlay")) {
-        closeModal();
     }
 }
 
@@ -145,19 +135,13 @@ function handleClick(event) {
 
 function openPaymentModal(appointmentId) {
 
-    if (document.querySelector(".modal-overlay")) return;
+    if (isModalOpen()) return;
 
     const appointment = findAppointment(appointmentId);
 
     if (!appointment) return;
 
-    document.body.insertAdjacentHTML(
-        "beforeend",
-        Modal({
-            title: "Registrar cobro",
-            content: PaymentForm(appointment)
-        })
-    );
+    openModal("Registrar cobro", PaymentForm(appointment));
 }
 
 async function handlePaymentSubmit(event) {
@@ -244,11 +228,6 @@ async function handleVoidPayment(id) {
 
         toastError(error.message || "No fue posible anular el cobro.");
     }
-}
-
-function closeModal() {
-
-    document.querySelector(".modal-overlay")?.remove();
 }
 
 async function applyStatus(id, estado) {

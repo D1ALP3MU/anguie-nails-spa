@@ -1,4 +1,4 @@
-import { Modal } from "../../../components/ui/Modal.js";
+import { openModal, closeModal, isModalOpen } from "../../../components/ui/Modal.js";
 import { ServiceForm } from "./components/ServiceForm.js";
 import {
     createService,
@@ -44,15 +44,6 @@ function handleDocumentClick(event) {
     if (deleteButton) {
         handleDelete(Number(deleteButton.dataset.deleteService));
         return;
-    }
-
-    if (event.target.closest("[data-close-modal]")) {
-        closeModal();
-        return;
-    }
-
-    if (event.target.classList.contains("modal-overlay")) {
-        closeModal();
     }
 }
 
@@ -141,7 +132,7 @@ async function handleDelete(id) {
 
 async function openEditModal(id) {
 
-    if (document.querySelector(".modal-overlay")) return;
+    if (isModalOpen()) return;
 
     try {
 
@@ -155,19 +146,4 @@ async function openEditModal(id) {
 
         toastError("No fue posible cargar el servicio.");
     }
-}
-
-function openModal(title, content) {
-
-    if (document.querySelector(".modal-overlay")) return;
-
-    document.body.insertAdjacentHTML(
-        "beforeend",
-        Modal({ title, content })
-    );
-}
-
-function closeModal() {
-
-    document.querySelector(".modal-overlay")?.remove();
 }
