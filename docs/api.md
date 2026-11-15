@@ -360,6 +360,48 @@ Baja lógica: desactiva el usuario y el cliente desaparece del listado, pero la 
 
 ---
 
+## Horario y horas libres
+
+El horario se configura en el `.env` (`SALON_DIAS`, `SALON_APERTURA`, `SALON_CIERRE`, `SALON_INTERVALO`, `SALON_ANTELACION_MAX_DIAS`; ver `.env.example`). Sin esas variables rige: lunes a sábado, de 9:00 a 19:00, horas cada 30 minutos, hasta 8 semanas vista.
+
+### `GET /api/schedule` · público
+
+```json
+{
+  "dias": [1, 2, 3, 4, 5, 6],
+  "apertura": "09:00",
+  "cierre": "19:00",
+  "intervalo": 30,
+  "antelacion_max_dias": 56
+}
+```
+
+`dias` va del 1 (lunes) al 7 (domingo). Sirve para marcar los días cerrados sin consultar las horas libres de cada uno.
+
+### `GET /api/availability` · autenticado
+
+Horas en que una profesional puede atender un servicio un día dado.
+
+| Parámetro | |
+| --- | --- |
+| `id_profesional` | Obligatorio |
+| `id_servicio` | Obligatorio: su duración decide qué horas caben |
+| `fecha` | Obligatorio, `YYYY-MM-DD` |
+
+```json
+{
+  "fecha": "2026-11-23",
+  "abierto": true,
+  "horas": ["09:00", "09:30", "11:30", "12:00"]
+}
+```
+
+Una hora aparece si se puede reservar con `POST /api/appointments`: el servicio entero cabe en el horario, no está en el pasado y no se cruza con otra cita de la profesional. Las dos comprobaciones usan la misma regla, así que lo que se ofrece es lo que se acepta; la única excepción es que otra persona reserve esa hora entre la consulta y la reserva, y eso lo resuelve el `409`.
+
+`horas` llega vacía si el salón no abre ese día (`abierto: false`), si el día ya pasó o si está fuera del plazo de reserva.
+
+**422** si falta un parámetro o el servicio o la profesional no existen o están inactivos.
+
 ## Citas
 
 ### `GET /api/appointments` · autenticado
@@ -427,11 +469,13 @@ Errores posibles:
 
 | Código | Motivo |
 | --- | --- |
-| `422` | Formato inválido, fecha pasada, o servicio/profesional inexistente o inactivo |
+| `422` | Formato inválido, fecha pasada, fuera del horario del salón o del plazo de reserva, o servicio/profesional inexistente o inactivo |
 | `409` | La profesional ya tiene una cita que se cruza con ese horario |
 | `403` | El usuario autenticado no tiene perfil de clienta asociado |
 
 El cruce se calcula con la duración del servicio, no solo con la hora de inicio: una cita de 60 minutos a las 10:00 bloquea cualquier solicitud entre las 10:00 y las 11:00. Una cita contigua sí se acepta —las 11:00 en punto quedan libres— y una cita cancelada libera su horario.
+
+La cita entera debe caber en el [horario del salón](#horario-y-horas-libres), y la fecha no puede pasar del plazo de reserva. Al reprogramar con `PUT` estas dos reglas solo se exigen si la cita cambia de fecha, de hora o de servicio: una cita aceptada antes de que existiera el horario se puede seguir confirmando o completando sin moverla.
 
 ### `GET /api/appointments/{id}` · dueño o administrador
 
@@ -555,7 +599,8 @@ TOKEN=$(curl -s -X POST http://localhost:8001/api/auth/login \
   -d '{"email":"ana@example.com","password":"Password123"}' \
   | php -r 'echo json_decode(file_get_contents("php://stdin"),true)["data"]["token"];')
 
-# Reservar
+# Reservar. Cambia la fecha por un día de lunes a sábado dentro de las
+# próximas 8 semanas: fuera del horario o del plazo, la API responde 422.
 curl -X POST http://localhost:8001/api/appointments \
   -H "Authorization: Bearer $TOKEN" \
   -H 'Content-Type: application/json' \

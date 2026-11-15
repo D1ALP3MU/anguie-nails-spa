@@ -252,6 +252,46 @@ class AppointmentRepository
     }
 
     /**
+     * Intervalos ocupados de un profesional en un día.
+     *
+     * Usa los mismos criterios que hasOverlap() —las canceladas no
+     * ocupan, la duración sale del servicio— para que las horas que
+     * se ofrecen como libres sean exactamente las que luego se
+     * aceptan al reservar.
+     *
+     * @param int $professionalId ID del profesional.
+     * @param string $date Fecha en formato Y-m-d.
+     *
+     * @return array<array{inicio: string, fin: string}> Horas H:i:s.
+     *         El fin puede pasar de 24:00 si el servicio cruza la
+     *         medianoche.
+     */
+    public function findBusyIntervals(int $professionalId, string $date): array
+    {
+        $sql = "
+            SELECT
+                c.hora AS inicio,
+                ADDTIME(c.hora, SEC_TO_TIME(s.duracion * 60)) AS fin
+            FROM citas c
+            INNER JOIN servicios s
+                ON s.id_servicio = c.id_servicio
+            WHERE c.id_profesional = :id_profesional
+                AND c.fecha = :fecha
+                AND c.estado <> 'cancelada'
+            ORDER BY c.hora
+        ";
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
+            'id_profesional' => $professionalId,
+            'fecha' => $date
+        ]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Crea una nueva cita.
      *
      * @param array $data Datos de la cita.

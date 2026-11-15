@@ -15,6 +15,7 @@ import { ReportsPage } from "../modules/admin/reports/reports.page.js";
 import { AdminsPage } from "../modules/admin/admins/admins.page.js";
 import { ProfessionalsPage } from "../modules/professionals/professionals.page.js";
 import { ProfilePage } from "../modules/profile/profile.page.js";
+import { ReservePage } from "../modules/reserve/reserve.page.js";
 import { store } from "../state/store.js";
 import { ROLES } from "../constants/roles.js";
 import { saveRedirect } from "../api/session.js";
@@ -42,6 +43,9 @@ const routes = {
     "/services": { page: ServicesPage },
     "/professionals": { page: ProfessionalsPage },
     "/booking": { page: BookingPage, auth: true },
+    // Solo clientas: una administradora no tiene perfil de clienta
+    // y la API rechazaría la reserva al final del formulario.
+    "/reservar/{id}": { page: ReservePage, roles: [ROLES.CLIENT] },
     "/profile": { page: ProfilePage, auth: true },
     "/admin/clients": { page: ClientsPage, roles: [ROLES.ADMIN] },
     "/admin/clients/{id}/historial": {
@@ -241,7 +245,7 @@ export async function renderRoute() {
             app.innerHTML = Layout(
                 ErrorState({
                     title: "No tienes acceso a esta página",
-                    message: "Está reservada al equipo del salón."
+                    message: "Tu cuenta no tiene permiso para verla."
                 })
             );
 

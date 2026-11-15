@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use DateTimeImmutable;
+use App\Config\SalonSchedule;
 use App\Constants\Roles;
 use App\Repositories\AppointmentRepository;
 use App\Repositories\ClientRepository;
@@ -46,7 +47,8 @@ class AppointmentService
         private ClientRepository $clientRepository,
         private ServiceRepository $serviceRepository,
         private ProfessionalRepository $professionalRepository,
-        private PaymentRepository $paymentRepository
+        private PaymentRepository $paymentRepository,
+        private SalonSchedule $schedule
     ) {}
 
     /**
@@ -67,7 +69,7 @@ class AppointmentService
 
         AppointmentValidator::validate($data);
 
-        $service = $this->assertBookable($data);
+        $service = $this->assertBookable($data, null, true);
 
         // El precio se congela al reservar: subir la tarifa más
         // adelante no debe revaluar esta cita.
@@ -228,8 +230,18 @@ class AppointmentService
 
         AppointmentValidator::validate($data);
 
+        /*
+         * El horario del salón solo se exige si el hueco cambia: otra
+         * fecha, otra hora u otro servicio (que dura distinto). Una
+         * cita ya aceptada fuera de horario —anterior a esta regla—
+         * debe poder confirmarse o completarse sin moverla.
+         */
+        $slotChanged = $data['fecha'] !== ($appointment['fecha'] ?? null)
+            || $data['hora'] !== substr((string) ($appointment['hora'] ?? ''), 0, 5)
+            || (int) $data['id_servicio'] !== (int) ($appointment['id_servicio'] ?? 0);
+
         // Al reprogramar, la propia cita no cuenta como conflicto.
-        $service = $this->assertBookable($data, $id);
+        $service = $this->assertBookable($data, $id, $slotChanged);
 
         // Cambiar de servicio trae su tarifa actual; mover el horario
         // o el estado conserva el precio ya acordado con la clienta.
@@ -280,11 +292,14 @@ class AppointmentService
      * Verifica que la cita se pueda agendar.
      *
      * Comprueba que el servicio y el profesional existan y estén
-     * activos, que el horario no esté en el pasado y que el
-     * profesional no tenga otra cita cruzada en ese intervalo.
+     * activos, que el horario no esté en el pasado, que caiga dentro
+     * del horario del salón y que el profesional no tenga otra cita
+     * cruzada en ese intervalo.
      *
      * @param array $data Datos ya validados en formato.
      * @param int|null $excludeId Cita a excluir del cruce (al reprogramar).
+     * @param bool $checkSchedule Exigir el horario del salón: al crear,
+     *                            o al mover una cita a otro hueco.
      *
      * @return array El servicio de la cita, para congelar su precio.
      *
@@ -293,7 +308,8 @@ class AppointmentService
      */
     private function assertBookable(
         array $data,
-        ?int $excludeId = null
+        ?int $excludeId = null,
+        bool $checkSchedule = true
     ): array {
         $service = $this->serviceRepository->findById(
             (int) $data['id_servicio']
@@ -338,6 +354,10 @@ class AppointmentService
             '+' . (int) $service['duracion'] . ' minutes'
         );
 
+        if ($checkSchedule) {
+            $this->assertWithinSchedule($start, $end);
+        }
+
         // Si el servicio cruza la medianoche se compara hasta el
         // final del día: la agenda se organiza por fecha.
         $endTime = $end->format('Y-m-d') === $start->format('Y-m-d')
@@ -359,6 +379,44 @@ class AppointmentService
         }
 
         return $service;
+    }
+
+    /**
+     * Exige que la cita caiga dentro del horario del salón y del
+     * plazo máximo de reserva.
+     *
+     * Es la misma regla con la que AvailabilityService calcula las
+     * horas libres: el frontend solo ofrece horas que esto acepta, y
+     * esto rechaza lo que se pida a mano a la API fuera de ellas.
+     *
+     * @throws ValidationException
+     */
+    private function assertWithinSchedule(
+        DateTimeImmutable $start,
+        DateTimeImmutable $end
+    ): void {
+        $schedule = $this->schedule;
+
+        if ($start > $schedule->lastBookableDay(new DateTimeImmutable())->setTime(23, 59, 59)) {
+            throw new ValidationException([
+                'fecha' => 'Solo se puede reservar con hasta '
+                    . $schedule->describeMaxAhead() . ' de antelación.'
+            ]);
+        }
+
+        if (!$schedule->isOpenOn($start)) {
+            throw new ValidationException([
+                'fecha' => 'El salón no abre ese día. Atiende '
+                    . $schedule->describeDays() . '.'
+            ]);
+        }
+
+        if (!$schedule->fits($start, $end)) {
+            throw new ValidationException([
+                'hora' => 'La cita debe empezar y terminar dentro del horario del salón, '
+                    . $schedule->describeHours() . '.'
+            ]);
+        }
     }
 
     /**

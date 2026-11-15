@@ -1,17 +1,14 @@
 import { ServiceCard } from "./components/ServiceCard.js";
 
-import { initServicesEvents } from "./services.controller.js";
-
 import { fetchServices } from "./services.api.js";
 
-
+/*
+ * Catálogo público. No necesita controlador: «Reservar» es un enlace
+ * a #/reservar/{id}, que es donde ocurre la reserva.
+ */
 export async function ServicesPage() {
 
-    console.log("ServicesPage loaded");
-
     const services = await fetchServices();
-
-    initServicesEvents();
 
     return `
 

@@ -39,9 +39,16 @@ async function request(endpoint, options = {}) {
     }
 
     if (!response.ok) {
-        throw new Error(
+
+        const error = new Error(
             buildErrorMessage(data)
         );
+
+        // Para distinguir, por ejemplo, un horario recién ocupado
+        // (409) de un dato mal escrito (422).
+        error.status = response.status;
+
+        throw error;
     }
 
     return data;

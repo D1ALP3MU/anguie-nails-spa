@@ -19,12 +19,17 @@ export function ServiceCard(service) {
                 <strong>${formatCOP(service.price)}</strong>
             </div>
 
-            <button class="btn btn-primary" 
-                    data-book-service="${escapeHtml(service.id)}"
-                    aria-label="Reservar servicio ${title}"
-                >
+            ${/*
+                Enlace y no botón: la reserva tiene página propia, y
+                si hace falta iniciar sesión, al volver se llega aquí.
+              */ ""}
+            <a
+                class="btn btn-primary"
+                href="#/reservar/${encodeURIComponent(service.id)}"
+                aria-label="Reservar ${title}"
+            >
                 Reservar
-            </button>
+            </a>
         
         </div>
     

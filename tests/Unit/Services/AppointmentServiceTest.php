@@ -15,6 +15,7 @@ use App\Repositories\PaymentRepository;
 use App\Repositories\ProfessionalRepository;
 use App\Repositories\ServiceRepository;
 use App\Services\AppointmentService;
+use App\Config\SalonSchedule;
 
 /**
  * Reglas de acceso y de agenda de las citas.
@@ -55,7 +56,10 @@ class AppointmentServiceTest extends TestCase
             $this->clients,
             $this->services,
             $this->professionals,
-            $this->payments
+            $this->payments,
+            // El horario tiene sus propias pruebas; aquí no debe
+            // depender del día ni de la hora de ejecución.
+            SalonSchedule::alwaysOpen()
         );
 
         // Por defecto: el usuario 10 es el cliente 5.
@@ -657,5 +661,165 @@ class AppointmentServiceTest extends TestCase
             ]),
             self::ADMIN_USER
         );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Horario del salón
+    |--------------------------------------------------------------------------
+    | Con el horario real: lunes a sábado, 9:00 a 19:00, 8 semanas.
+    | El servicio de prueba (id 2) dura 60 minutos.
+    */
+
+    private function withRealSchedule(): AppointmentService
+    {
+        return new AppointmentService(
+            $this->appointments,
+            $this->clients,
+            $this->services,
+            $this->professionals,
+            $this->payments,
+            new SalonSchedule([])
+        );
+    }
+
+    /**
+     * Un lunes de dentro de 8 a 14 días: siempre futuro, siempre día
+     * de apertura y siempre dentro del plazo de reserva.
+     */
+    private static function nextMonday(): \DateTimeImmutable
+    {
+        return (new \DateTimeImmutable('today'))
+            ->modify('next monday')
+            ->modify('+7 days');
+    }
+
+    /**
+     * Ejecuta y devuelve el campo del error de validación.
+     */
+    private function validationField(callable $action): string
+    {
+        try {
+            $action();
+        } catch (ValidationException $e) {
+            return array_key_first($e->getErrors());
+        }
+
+        $this->fail('Se esperaba un error de validación.');
+    }
+
+    #[Test]
+    public function no_se_reserva_el_dia_que_el_salon_no_abre(): void
+    {
+        $domingo = self::nextMonday()->modify('-1 day');
+
+        $this->appointments->expects($this->never())->method('create');
+
+        $this->assertSame('fecha', $this->validationField(
+            fn () => $this->withRealSchedule()->create(
+                $this->validPayload(['fecha' => $domingo->format('Y-m-d')]),
+                self::CLIENT_USER
+            )
+        ));
+    }
+
+    #[Test]
+    public function la_cita_debe_terminar_antes_del_cierre(): void
+    {
+        // Empieza a las 18:30 y dura 60 minutos: acabaría a las 19:30.
+        $this->appointments->expects($this->never())->method('create');
+
+        $this->assertSame('hora', $this->validationField(
+            fn () => $this->withRealSchedule()->create(
+                $this->validPayload([
+                    'fecha' => self::nextMonday()->format('Y-m-d'),
+                    'hora' => '18:30'
+                ]),
+                self::CLIENT_USER
+            )
+        ));
+    }
+
+    #[Test]
+    public function la_ultima_hora_que_cabe_se_acepta(): void
+    {
+        // 18:00 + 60 minutos = 19:00 justo.
+        $this->appointments->expects($this->once())->method('create')->willReturn(1);
+
+        $this->withRealSchedule()->create(
+            $this->validPayload([
+                'fecha' => self::nextMonday()->format('Y-m-d'),
+                'hora' => '18:00'
+            ]),
+            self::CLIENT_USER
+        );
+    }
+
+    #[Test]
+    public function no_se_reserva_mas_alla_del_plazo(): void
+    {
+        // Un lunes a más de 8 semanas vista.
+        $lejos = self::nextMonday()->modify('+8 weeks');
+
+        $this->appointments->expects($this->never())->method('create');
+
+        $this->assertSame('fecha', $this->validationField(
+            fn () => $this->withRealSchedule()->create(
+                $this->validPayload(['fecha' => $lejos->format('Y-m-d')]),
+                self::CLIENT_USER
+            )
+        ));
+    }
+
+    #[Test]
+    public function una_cita_antigua_fuera_de_horario_se_puede_confirmar(): void
+    {
+        /*
+         * Se reservó un domingo a las 7:00, antes de que existiera el
+         * horario. Confirmarla no la mueve: no hay por qué rechazarla.
+         */
+        $domingo = self::nextMonday()->modify('-1 day')->format('Y-m-d');
+
+        $this->appointments
+            ->method('findById')
+            ->willReturn(self::appointmentRow(['fecha' => $domingo, 'hora' => '07:00:00']));
+
+        $this->appointments->expects($this->once())->method('update');
+
+        $this->withRealSchedule()->update(
+            1,
+            $this->validPayload([
+                'id_cliente' => 5,
+                'fecha' => $domingo,
+                'hora' => '07:00',
+                'estado' => 'confirmada'
+            ]),
+            self::ADMIN_USER
+        );
+    }
+
+    #[Test]
+    public function mover_una_cita_fuera_de_horario_se_rechaza(): void
+    {
+        $lunes = self::nextMonday()->format('Y-m-d');
+
+        $this->appointments
+            ->method('findById')
+            ->willReturn(self::appointmentRow(['fecha' => $lunes, 'hora' => '10:00:00']));
+
+        $this->appointments->expects($this->never())->method('update');
+
+        $this->assertSame('hora', $this->validationField(
+            fn () => $this->withRealSchedule()->update(
+                1,
+                $this->validPayload([
+                    'id_cliente' => 5,
+                    'fecha' => $lunes,
+                    'hora' => '20:00',
+                    'estado' => 'pendiente'
+                ]),
+                self::ADMIN_USER
+            )
+        ));
     }
 }

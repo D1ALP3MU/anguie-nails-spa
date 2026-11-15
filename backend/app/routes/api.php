@@ -5,6 +5,7 @@ use App\Constants\Roles;
 use App\Controllers\AdminController;
 use App\Controllers\AppointmentController;
 use App\Controllers\AuthController;
+use App\Controllers\AvailabilityController;
 use App\Controllers\ClientController;
 use App\Controllers\PaymentController;
 use App\Controllers\ProfessionalController;
@@ -126,6 +127,19 @@ return [
 
     Route::delete('/api/clients/{id}', ClientController::class, 'delete')
         ->allowRoles(Roles::ADMIN),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Horario y horas libres
+    |--------------------------------------------------------------------------
+    | El horario es público, como los servicios. Las horas libres
+    | exigen sesión: solo las necesita quien va a reservar, y no hay
+    | por qué exponer la ocupación del salón a cualquiera.
+    */
+    Route::get('/api/schedule', AvailabilityController::class, 'schedule'),
+
+    Route::get('/api/availability', AvailabilityController::class, 'index')
+        ->requireAuth(),
 
     /*
     |--------------------------------------------------------------------------

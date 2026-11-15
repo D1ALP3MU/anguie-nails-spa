@@ -5,6 +5,7 @@ namespace Tests\Integration\Api;
 use PDO;
 use PHPUnit\Framework\Attributes\Test;
 use App\Constants\Roles;
+use App\Config\SalonSchedule;
 use App\Core\Container;
 use App\Core\Request;
 use App\Core\Router;
@@ -46,6 +47,9 @@ class PaymentFlowTest extends IntegrationTestCase
         $container = new Container();
 
         $container->bind(PDO::class, $this->db);
+
+        // Las pruebas de cobros no tratan del horario del salón.
+        $container->bind(SalonSchedule::class, SalonSchedule::alwaysOpen());
 
         $this->router = new Router(
             $container,

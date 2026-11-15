@@ -20,7 +20,7 @@ export function Hero() {
 
                 <div class="hero__actions">
 
-                    <a href="#/booking" class="btn btn-primary">
+                    <a href="#/services" class="btn btn-primary">
                         Reservar ahora
                     </a>
                 

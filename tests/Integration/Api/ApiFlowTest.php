@@ -5,6 +5,7 @@ namespace Tests\Integration\Api;
 use PDO;
 use PHPUnit\Framework\Attributes\Test;
 use App\Constants\Roles;
+use App\Config\SalonSchedule;
 use App\Core\Container;
 use App\Core\Request;
 use App\Core\Router;
@@ -51,6 +52,10 @@ class ApiFlowTest extends IntegrationTestCase
         $container = new Container();
 
         $container->bind(PDO::class, $this->db);
+
+        // Estas pruebas no tratan del horario del salón: con él real
+        // dependerían del día en que se ejecutan (ver ScheduleFlowTest).
+        $container->bind(SalonSchedule::class, SalonSchedule::alwaysOpen());
 
         $this->router = new Router(
             $container,
