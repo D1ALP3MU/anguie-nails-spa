@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once __DIR__ . '/../app/config/env.php';
+require_once __DIR__ . '/../app/Config/env.php';
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -75,7 +75,7 @@ try {
 
     $router = new Router(
         $container,
-        require __DIR__ . '/../app/routes/api.php'
+        require __DIR__ . '/../app/Routes/api.php'
     );
 
     $router->dispatch(

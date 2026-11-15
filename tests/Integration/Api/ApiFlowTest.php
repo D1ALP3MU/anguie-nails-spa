@@ -59,7 +59,7 @@ class ApiFlowTest extends IntegrationTestCase
 
         $this->router = new Router(
             $container,
-            require dirname(__DIR__, 3) . '/backend/app/routes/api.php'
+            require dirname(__DIR__, 3) . '/backend/app/Routes/api.php'
         );
 
         $this->clientId = $this->createClient('ana@example.com', 'Ana');
