@@ -18,7 +18,7 @@ export async function ServicesPage() {
         <section class="services-page">
 
             <div class="services-page__header">
-                <h1>Nuestros Servicios</h1>
+                <h1>Nuestros servicios</h1>
                 <p>Experiencias premium para ti.</p>
             </div>
 

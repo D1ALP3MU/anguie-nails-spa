@@ -67,7 +67,7 @@ class ClientController
         $this->service->delete($id);
 
         Response::success([
-            'message' => 'Cliente eliminado correctamente.'
+            'message' => 'Clienta eliminada correctamente.'
         ]);
     }
 

@@ -53,7 +53,7 @@ class AppointmentValidator
             || $data['id_cliente'] === ''
         ) {
             $errors['id_cliente'] =
-                'El cliente es obligatorio.';
+                'La clienta es obligatoria.';
             return;
         }
 
@@ -65,7 +65,7 @@ class AppointmentValidator
             || (int) $data['id_cliente'] <= 0
         ) {
             $errors['id_cliente'] =
-                'El ID del cliente debe ser un número entero mayor a cero.';
+                'El ID de la clienta debe ser un número entero mayor a cero.';
         }
     }
 
@@ -103,7 +103,7 @@ class AppointmentValidator
             || $data['id_profesional'] === ''
         ) {
             $errors['id_profesional'] =
-                'El profesional es obligatorio.';
+                'La profesional es obligatoria.';
             return;
         }
 
@@ -115,7 +115,7 @@ class AppointmentValidator
             || (int) $data['id_profesional'] <= 0
         ) {
             $errors['id_profesional'] =
-                'El ID del profesional debe ser un número entero mayor a cero.';
+                'El ID de la profesional debe ser un número entero mayor a cero.';
         }
     }
 

@@ -204,7 +204,7 @@ class ClientService
 
         if ($client === null) {
             throw new NotFoundException(
-                'Cliente no encontrado.'
+                'Clienta no encontrada.'
             );
         }
 
@@ -249,7 +249,7 @@ class ClientService
             !== (int) ($authUser['id_usuario'] ?? 0)
         ) {
             throw new NotFoundException(
-                'Cliente no encontrado.'
+                'Clienta no encontrada.'
             );
         }
     }
@@ -268,13 +268,13 @@ class ClientService
 
         if ($client === null) {
             throw new NotFoundException(
-                'Cliente no encontrado.'
+                'Clienta no encontrada.'
             );
         }
 
         if (!(bool) $client['activo']) {
             throw new ConflictException(
-                'El cliente ya se encuentra desactivado.'
+                'La clienta ya se encuentra desactivada.'
             );
         }
 

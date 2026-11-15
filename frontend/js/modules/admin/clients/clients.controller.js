@@ -100,13 +100,13 @@ async function handleClientSubmit(event) {
                 data
             );
 
-            toastSuccess("Cliente actualizado correctamente.");
+            toastSuccess("Clienta actualizada correctamente.");
 
         } else {
 
             await createClient(data);
 
-            toastSuccess("Cliente creado correctamente.");
+            toastSuccess("Clienta creada correctamente.");
         }
 
         closeModal();
@@ -122,7 +122,7 @@ async function handleClientSubmit(event) {
 
         toastError(
             error.message ||
-            "No fue posible guardar el cliente."
+            "No fue posible guardar la clienta."
         );
     }
 }
@@ -130,8 +130,8 @@ async function handleClientSubmit(event) {
 async function handleClientDelete(id) {
 
     const confirmed = await confirmAction({
-        title: "Eliminar cliente",
-        message: "El cliente dejará de aparecer en el listado. Sus citas se conservan.",
+        title: "Eliminar clienta",
+        message: "La clienta dejará de aparecer en el listado. Sus citas se conservan.",
         confirmText: "Eliminar",
         danger: true
     });
@@ -144,7 +144,7 @@ async function handleClientDelete(id) {
 
         await deleteClient(id);
 
-        toastSuccess("Cliente eliminado correctamente.");
+        toastSuccess("Clienta eliminada correctamente.");
 
         await renderRoute();
 
@@ -157,14 +157,14 @@ async function handleClientDelete(id) {
 
         toastError(
             error.message ||
-            "No fue posible eliminar el cliente."
+            "No fue posible eliminar la clienta."
         );
     }
 }
 
 function openCreateClientModal() {
 
-    openModal("Nuevo cliente", ClientForm());
+    openModal("Nueva clienta", ClientForm());
 }
 
 async function openEditClientModal(id) {
@@ -177,7 +177,7 @@ async function openEditClientModal(id) {
 
         const client = await fetchClient(id);
 
-        openModal("Editar cliente", ClientForm(client));
+        openModal("Editar clienta", ClientForm(client));
 
     } catch (error) {
 
@@ -188,7 +188,7 @@ async function openEditClientModal(id) {
 
         toastError(
             error.message ||
-            "No fue posible cargar el cliente."
+            "No fue posible cargar la clienta."
         );
     }
 }

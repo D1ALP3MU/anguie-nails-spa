@@ -67,7 +67,7 @@ class ProfessionalValidator
         $name = trim($data['nombre'] ?? '');
 
         if ($name === '') {
-            $errors['nombre'] = 'El nombre del profesional es obligatorio.';
+            $errors['nombre'] = 'El nombre de la profesional es obligatorio.';
         } elseif (mb_strlen($name) < self::MIN_NAME_LENGTH) {
             $errors['nombre'] =
                 'El nombre debe tener al menos '

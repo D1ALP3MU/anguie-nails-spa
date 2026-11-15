@@ -131,7 +131,7 @@ export function Sidebar() {
                             class="btn btn-outline"
                             data-action="login"
                         >
-                            Iniciar Sesión
+                            Iniciar sesión
                         </button>
 
                         <button

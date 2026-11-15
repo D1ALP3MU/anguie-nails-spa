@@ -144,7 +144,7 @@ class AppointmentService
 
         $references = [
             'id_profesional' =>
-                'El profesional debe identificarse con un número entero.',
+                'La profesional debe identificarse con un número entero.',
             'id_cliente' =>
                 'La clienta debe identificarse con un número entero.'
         ];
@@ -311,7 +311,7 @@ class AppointmentService
 
         if ($professional === null || !(bool) $professional['activo']) {
             throw new ValidationException([
-                'id_profesional' => 'El profesional seleccionado no está disponible.'
+                'id_profesional' => 'La profesional seleccionada no está disponible.'
             ]);
         }
 
@@ -354,7 +354,7 @@ class AppointmentService
 
         if ($hasOverlap) {
             throw new ConflictException(
-                'El profesional ya tiene una cita agendada en ese horario.'
+                'La profesional ya tiene una cita agendada en ese horario.'
             );
         }
 
@@ -410,7 +410,7 @@ class AppointmentService
 
         if ($client === null) {
             throw new ForbiddenException(
-                'El usuario autenticado no tiene un perfil de cliente asociado.'
+                'El usuario autenticado no tiene un perfil de clienta asociado.'
             );
         }
 

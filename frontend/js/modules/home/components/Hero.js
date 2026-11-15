@@ -21,7 +21,7 @@ export function Hero() {
                 <div class="hero__actions">
 
                     <a href="#/booking" class="btn btn-primary">
-                        Reservar Ahora
+                        Reservar ahora
                     </a>
                 
                 </div>

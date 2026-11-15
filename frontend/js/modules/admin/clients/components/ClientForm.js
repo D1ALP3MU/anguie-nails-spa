@@ -80,7 +80,7 @@ export function ClientForm(client = null) {
                 type="submit"
                 class="btn btn-primary"
             >
-                ${isEdit ? "Actualizar cliente" : "Crear cliente"}
+                ${isEdit ? "Guardar cambios" : "Crear clienta"}
             </button>
 
         </form>

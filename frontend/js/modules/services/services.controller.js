@@ -103,7 +103,7 @@ async function handleBookingSubmit(event) {
     if (isEmpty(professionalId)) {
         showFieldError(
             form.elements.professionalId,
-            "Debes seleccionar un profesional"
+            "Debes seleccionar una profesional"
         );
 
         hasErrors = true;

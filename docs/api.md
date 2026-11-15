@@ -428,8 +428,8 @@ Errores posibles:
 | Código | Motivo |
 | --- | --- |
 | `422` | Formato inválido, fecha pasada, o servicio/profesional inexistente o inactivo |
-| `409` | El profesional ya tiene una cita que se cruza con ese horario |
-| `403` | El usuario autenticado no tiene perfil de cliente asociado |
+| `409` | La profesional ya tiene una cita que se cruza con ese horario |
+| `403` | El usuario autenticado no tiene perfil de clienta asociado |
 
 El cruce se calcula con la duración del servicio, no solo con la hora de inicio: una cita de 60 minutos a las 10:00 bloquea cualquier solicitud entre las 10:00 y las 11:00. Una cita contigua sí se acepta —las 11:00 en punto quedan libres— y una cita cancelada libera su horario.
 

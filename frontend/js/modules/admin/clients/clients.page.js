@@ -28,7 +28,7 @@ export async function ClientsPage() {
                     class="btn btn-primary"
                     data-create-client
                 >
-                    Nuevo Cliente
+                    Nueva clienta
                 </button>
 
             </div>

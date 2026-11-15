@@ -16,7 +16,7 @@ export async function ProfessionalsPage() {
                 </h1>
 
                 <p>
-                    Conoce a nuestros profesionales.
+                    Conoce a las profesionales del salón.
                 </p>
 
             </div>

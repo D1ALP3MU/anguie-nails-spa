@@ -83,7 +83,7 @@ class ProfessionalController
         $this->service->delete($id);
 
         Response::success([
-            'message' => 'Profesional dado de baja correctamente.'
+            'message' => 'Profesional dada de baja correctamente.'
         ]);
     }
 }

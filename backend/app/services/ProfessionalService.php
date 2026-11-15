@@ -48,7 +48,7 @@ class ProfessionalService
 
         if ($professional === null) {
             throw new NotFoundException(
-                'Profesional no encontrado.'
+                'Profesional no encontrada.'
             );
         }
 
@@ -108,7 +108,7 @@ class ProfessionalService
 
         if (!(bool) $professional['activo']) {
             throw new ConflictException(
-                'El profesional ya se encuentra desactivado.'
+                'La profesional ya se encuentra desactivada.'
             );
         }
 
@@ -122,7 +122,7 @@ class ProfessionalService
 
         if ($pending > 0) {
             throw new ConflictException(
-                'No es posible dar de baja al profesional: tiene '
+                'No es posible dar de baja a la profesional: tiene '
                 . $pending
                 . ($pending === 1 ? ' cita pendiente.' : ' citas pendientes.')
                 . ' Reprográmalas o cancélalas primero.'
@@ -173,7 +173,7 @@ class ProfessionalService
 
         if ($professional === null) {
             throw new NotFoundException(
-                'Profesional no encontrado.'
+                'Profesional no encontrada.'
             );
         }
 

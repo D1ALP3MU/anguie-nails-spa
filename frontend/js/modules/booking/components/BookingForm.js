@@ -32,7 +32,7 @@ export function BookingForm(serviceId, professionals) {
                 >
 
                     <option value="">
-                        Selecciona un profesional
+                        Selecciona una profesional
                     </option>
 
                     ${professionals.map(professional => `

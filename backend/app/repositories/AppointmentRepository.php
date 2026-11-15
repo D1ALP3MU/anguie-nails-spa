@@ -368,7 +368,7 @@ class AppointmentRepository
 
             if ($this->isSlotCollision($e)) {
                 throw new ConflictException(
-                    'El profesional ya tiene una cita agendada en ese horario.'
+                    'La profesional ya tiene una cita agendada en ese horario.'
                 );
             }
 
