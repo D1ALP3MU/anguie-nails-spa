@@ -10,8 +10,25 @@ import { registerCleanup } from "../../../core/cleanup.js";
 import { renderRoute } from "../../../router/router.js";
 import { toastSuccess, toastError } from "../../../components/ui/Toast.js";
 import { confirmAction } from "../../../components/ui/ConfirmDialog.js";
+import { ClientResults, filterClients, countText } from "./components/ClientResults.js";
 
-export function initClientsEvents() {
+/**
+ * Texto buscado. Vive en el módulo, como los filtros de la agenda:
+ * se conserva al abrir el historial de una clienta y volver, pero no
+ * tras recargar la página.
+ */
+let query = "";
+
+/** Clientas del último render, sobre las que se filtra. */
+let loaded = [];
+
+export function currentQuery() {
+    return query;
+}
+
+export function initClientsEvents(clients) {
+
+    loaded = clients;
 
     document.addEventListener(
         "click",
@@ -21,6 +38,11 @@ export function initClientsEvents() {
     document.addEventListener(
         "submit",
         handleClientSubmit
+    );
+
+    document.addEventListener(
+        "input",
+        handleSearchInput
     );
 
     registerCleanup(() => {
@@ -35,10 +57,73 @@ export function initClientsEvents() {
             handleClientSubmit
         );
 
+        document.removeEventListener(
+            "input",
+            handleSearchInput
+        );
+
     });
 }
 
+/*
+|--------------------------------------------------------------------------
+| Búsqueda
+|--------------------------------------------------------------------------
+| Se filtra en el navegador: la API ya entrega todas las clientas, así
+| que cada tecla da el resultado al instante y sin pedir nada.
+*/
+
+function handleSearchInput(event) {
+
+    if (event.target.id !== "clients-search") return;
+
+    query = event.target.value;
+
+    paintResults();
+}
+
+/**
+ * Repinta la tabla y el contador, pero no la caja de búsqueda: así
+ * no se pierde el foco ni la posición del cursor mientras se escribe.
+ */
+function paintResults() {
+
+    const results = document.getElementById("clients-results");
+    const count = document.getElementById("clients-count");
+
+    if (results) {
+        results.innerHTML = ClientResults(loaded, query);
+    }
+
+    if (count) {
+        count.textContent = countText(
+            filterClients(loaded, query).length,
+            loaded.length,
+            query
+        );
+    }
+}
+
+function clearSearch() {
+
+    query = "";
+
+    const input = document.getElementById("clients-search");
+
+    if (input) {
+        input.value = "";
+        input.focus();
+    }
+
+    paintResults();
+}
+
 function handleDocumentClick(event) {
+
+    if (event.target.closest("[data-clear-search]")) {
+        clearSearch();
+        return;
+    }
 
     const createButton = event.target.closest(
         "[data-create-client]"

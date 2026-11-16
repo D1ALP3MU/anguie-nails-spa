@@ -26,6 +26,63 @@
 }
 
 /* =====================================================
+    BUSCADOR DE CLIENTAS
+   ===================================================== */
+
+.clients-search {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    margin-bottom: 20px;
+}
+
+/* La lupa va de fondo: no es un control, solo indica qué es la caja. */
+.clients-search input {
+    flex: 1 1 320px;
+    max-width: 520px;
+    padding: 0.7rem 1rem 0.7rem 2.6rem;
+    border: 1px solid var(--border-field);
+    border-radius: var(--r-full);
+    background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%237E6E77' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='8' cy='8' r='6'/%3E%3Cpath d='m13 13 4 4'/%3E%3C/svg%3E") no-repeat 1rem center;
+    color: var(--text);
+    font: inherit;
+    transition:
+        border-color var(--easy-f),
+        box-shadow var(--easy-f);
+}
+
+.clients-search input::placeholder {
+    color: var(--text-muted);
+}
+
+/* La «×» de borrar que añaden Chrome y Safari sale azul por defecto:
+   se conserva, porque es útil, pero con el color de la paleta. */
+.clients-search input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' stroke='%23B04560' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M2 2l10 10M12 2 2 12'/%3E%3C/svg%3E") no-repeat center;
+    cursor: pointer;
+}
+
+.clients-search input:focus {
+    outline: none;
+    border-color: var(--pink-accent);
+    box-shadow: 0 0 0 3px var(--pink-light);
+}
+
+.clients-search__count {
+    font-size: var(--fs-sm);
+    color: var(--text-muted);
+}
+
+.clients-empty .btn {
+    margin-top: 12px;
+}
+
+/* =====================================================
     TABLAS DEL PANEL
     Clientes, catálogo, equipo, administradores, historial
     y facturación comparten esta tabla.
