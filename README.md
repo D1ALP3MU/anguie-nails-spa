@@ -10,15 +10,16 @@ Backend en PHP sin framework, con arquitectura por capas. Frontend en JavaScript
 
 ### Para la clienta
 
-Se registra, consulta el catálogo y el equipo, reserva con la profesional que prefiere y gestiona sus propias citas.
+Se registra, consulta el catálogo y el equipo, y reserva eligiendo profesional, día y hora entre **las horas que de verdad están libres**. En «Mis citas» ve primero la próxima y puede cancelar las que siguen pendientes.
 
 ### Para el salón
 
-Panel con seis pantallas: **agenda** del día con filtros y cambio de estado, **catálogo** de servicios, **equipo**, **clientas**, **facturación** y **administradores**.
+Panel con seis pantallas: **agenda** agrupada por día, que abre en hoy y muestra en cada cita la siguiente acción que toca; **catálogo** de servicios; **equipo**; **clientas**, con buscador y el historial de cada una; **facturación**; y **administradores**.
 
 ### Reglas que el sistema hace cumplir
 
 - **Una profesional no atiende dos citas a la vez.** El cruce se calcula con la duración de cada servicio, no solo con la hora de inicio, y una restricción en la base lo respalda ante reservas simultáneas.
+- **Solo se reserva dentro del horario del salón.** La cita entera debe caber entre la apertura y el cierre, en un día de apertura y dentro del plazo de reserva. Las horas que se ofrecen se calculan con la misma regla con la que después se acepta la reserva.
 - **Cada quien ve solo lo suyo.** El identificador de clienta se resuelve desde el token; enviarlo en la petición no sirve de nada.
 - **No se pierde historial.** Todas las bajas son lógicas: servicios, clientas, profesionales, citas y cobros dejan de contar, pero sus datos permanecen.
 - **Una cita tiene como mucho un cobro vigente.** Anularlo la deja cobrable otra vez y el cobro anulado queda como constancia.
@@ -77,6 +78,10 @@ cp .env.example .env
 Editar `.env` con las credenciales de la base de datos y una clave JWT propia.
 
 > `APP_TIMEZONE` debe coincidir con la zona horaria de MySQL. De ese reloj dependen las reglas de la agenda, y la aplicación lo fija por su cuenta en lugar de confiar en el `php.ini` del servidor.
+
+> **Horario del salón.** Las variables `SALON_DIAS`, `SALON_APERTURA`, `SALON_CIERRE`, `SALON_INTERVALO` y `SALON_ANTELACION_MAX_DIAS` son opcionales: sin ellas rige lunes a sábado, de 9:00 a 19:00, horas cada 30 minutos y hasta 8 semanas vista. Deciden qué horas se ofrecen al reservar, cuáles acepta la API y el horario que muestra el pie de página. Formato y explicación en `.env.example`.
+>
+> Los datos de contacto que muestra el pie —dirección, WhatsApp e Instagram— están en `frontend/js/config/salon.js`.
 
 > `JWT_SECRET` debe tener **32 bytes como mínimo**: HS256 rechaza claves más cortas y el inicio de sesión dejaría de funcionar. Se puede generar una con:
 >
@@ -170,6 +175,8 @@ Referencia completa con formatos de petición y respuesta en [`docs/api.md`](doc
 | `GET` | `/api/clients/{id}` | Administrador o el propio cliente |
 | `PUT` | `/api/clients/{id}` | Administrador o el propio cliente |
 | `DELETE` | `/api/clients/{id}` | Administrador |
+| `GET` | `/api/schedule` | Público |
+| `GET` | `/api/availability` | Autenticado |
 | `GET` | `/api/appointments` | Autenticado, filtrado por dueño |
 | `POST` | `/api/appointments` | Autenticado |
 | `GET` | `/api/appointments/{id}` | Dueño o administrador |
@@ -191,18 +198,18 @@ anguie-nails/
 │
 ├── backend/
 │   ├── app/
+│   │   ├── Config/         Entorno, conexión PDO y horario del salón
 │   │   ├── Constants/      Roles del sistema
+│   │   ├── Controllers/    Entrada y salida HTTP
 │   │   ├── Core/           Contenedor, enrutador y definición de rutas
 │   │   ├── Exceptions/     Excepciones de dominio y su traducción a HTTP
+│   │   ├── Helpers/        JWT y contraseñas
 │   │   ├── Middleware/     Autenticación y autorización
-│   │   ├── config/         Carga del entorno y conexión PDO
-│   │   ├── controllers/    Entrada y salida HTTP
-│   │   ├── helpers/        JWT y contraseñas
-│   │   ├── repositories/   Acceso a datos: todo el SQL vive aquí
-│   │   ├── responses/      Formato uniforme de respuesta
-│   │   ├── routes/         Tabla de rutas
-│   │   ├── services/       Lógica de negocio
-│   │   └── validators/     Validación de formato
+│   │   ├── Repositories/   Acceso a datos: todo el SQL vive aquí
+│   │   ├── Responses/      Formato uniforme de respuesta
+│   │   ├── Routes/         Tabla de rutas
+│   │   ├── Services/       Lógica de negocio
+│   │   └── Validators/     Validación de formato
 │   └── public/             Punto de entrada
 │
 ├── database/
@@ -216,16 +223,19 @@ anguie-nails/
 │   └── js/
 │       ├── api/            Cliente HTTP y sesión
 │       ├── components/     Componentes de interfaz reutilizables
+│       ├── config/         URL de la API y datos de contacto del salón
 │       ├── constants/      Espejo de constantes del backend
 │       ├── core/           Bus de eventos y limpieza de listeners
 │       ├── modules/        Un módulo por funcionalidad
 │       │   ├── admin/       agenda · clients · professionals
-│       │   │                services · reports
+│       │   │                services · reports · admins
 │       │   ├── auth/        registro e inicio de sesión
-│       │   ├── booking/     citas de la clienta
+│       │   ├── booking/     «Mis citas» de la clienta
 │       │   ├── home/
 │       │   ├── professionals/
-│       │   └── services/     catálogo público
+│       │   ├── profile/     «Mi cuenta» y cambio de contraseña
+│       │   ├── reserve/     reservar: profesional, día y hora libre
+│       │   └── services/    catálogo público
 │       ├── router/         Enrutado por hash con guardas
 │       ├── state/          Estado compartido
 │       └── utils/          Utilidades sin estado
@@ -245,6 +255,7 @@ anguie-nails/
 - [`docs/api.md`](docs/api.md) — referencia de endpoints
 - [`docs/decisions.md`](docs/decisions.md) — registro de decisiones técnicas
 - [`docs/actualizacion-php.md`](docs/actualizacion-php.md) — por qué y cómo actualizar la versión de PHP
+- [`docs/roadmap.md`](docs/roadmap.md) — lo que falta, en orden
 - [`CHANGELOG.md`](CHANGELOG.md) — historial de cambios
 - [`docs/releases/`](docs/releases) — notas de cada versión publicada
 
@@ -259,20 +270,26 @@ En desarrollo.
 - Autenticación con JWT y autorización por rol
 - Registro de clientes en una sola transacción
 - Catálogo de servicios con CRUD administrativo
-- Agenda de citas con detección de cruce de horarios
+- Horario del salón configurable, y reserva que solo ofrece horas libres
+- Agenda de citas con detección de cruce de horarios, agrupada por día
 - Registro de cobros, con un cobro vigente por cita
 - Informe de facturación con desglose por forma de pago, profesional y servicio
 - Panel administrativo completo: agenda, catálogo, equipo, clientas y facturación
-- Historial por clienta, con sus cifras y todas sus citas
+- Buscador de clientas e historial de cada una, con sus cifras y todas sus citas
+- «Mis citas» con la próxima cita destacada
 - Cambio de contraseña desde «Mi cuenta»
 - Alta y baja de administradores desde el panel
+- Interfaz adaptada a móvil y usable con teclado y lector de pantalla
 - Enrutado declarativo con guardas por ruta
-- Suite de 380 pruebas automatizadas
+- Suite de 418 pruebas automatizadas
 
 ### Pendiente
 
 - Notificaciones por correo
 - Forzar el cambio de la contraseña temporal en el primer inicio de sesión
+- Política de tratamiento de datos personales (Ley 1581 de 2012) y su aceptación en el registro
+
+Detalle y orden en [`docs/roadmap.md`](docs/roadmap.md).
 
 ### Limitaciones conocidas
 

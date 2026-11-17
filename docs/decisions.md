@@ -175,3 +175,35 @@ Anular distingue dos casos, porque la diferencia importa al cuadrar caja: un cob
 Además había **dos relojes**: `AppointmentService` comparaba contra el de PHP y `ProfessionalRepository` contra el de MySQL. Podían discrepar hasta en un día.
 
 **Consecuencia:** `APP_TIMEZONE` es obligatoria en el entorno y debe coincidir con la zona de MySQL, porque ambos leen fechas almacenadas sin huso. Las pruebas fijan la misma zona en su arranque, para que no dependan de la máquina que las ejecute.
+
+---
+
+## 013 · El horario del salón: una sola regla para ofrecer y para aceptar
+
+**Fecha:** 2026-11-14
+**Estado:** Aceptada
+
+El horario del salón —días de apertura, horas, intervalo entre horas y antelación máxima— se configura en el `.env` y lo representa `Config\SalonSchedule`. La misma regla decide las horas que `GET /api/availability` ofrece y las reservas que `POST /api/appointments` acepta: el servicio entero dentro del horario, no en el pasado y sin cruzarse con otra cita de la profesional.
+
+Al reprogramar con `PUT`, el horario y el plazo solo se exigen si la cita cambia de fecha, de hora o de servicio.
+
+**Motivo:** la reserva pedía la hora en un campo libre y la API aceptaba cualquiera, incluidas las tres de la madrugada; el choque con otra cita se descubría al enviar. Ofrecer solo las horas libres resuelve lo primero, pero si el cálculo de las horas y la validación fueran por separado, tarde o temprano divergirían: el formulario ofrecería horas que la API rechaza, o al revés. Por eso comparten la regla y los criterios de ocupación (`findBusyIntervals()` usa los mismos que `hasOverlap()`).
+
+La excepción al reprogramar existe porque confirmar o completar una cita reenvía la cita entera. Sin ella, una cita aceptada antes de que existiera el horario —o antes de cambiarlo— no se podría confirmar ni completar sin moverla, aunque el salón ya se hubiera comprometido con ella.
+
+**Consecuencia:** cambiar el horario en el `.env` cambia a la vez lo que se puede reservar, lo que acepta la API y lo que anuncia el pie de página. Una configuración mal escrita hace fallar la reserva con un error explícito en lugar de aplicarse a medias. Las pruebas que no tratan del horario usan `SalonSchedule::alwaysOpen()`, para no depender del día en que se ejecutan.
+
+---
+
+## 014 · Los comportamientos de interfaz que sobreviven al cambio de ruta se registran una sola vez
+
+**Fecha:** 2026-11-13
+**Estado:** Aceptada
+
+El modal, el menú «⋯» y el botón de mostrar contraseña registran sus manejadores una sola vez, en `main.js`, delegados en `document`, y no se retiran al navegar. El resto de listeners siguen siendo de cada página y se retiran con `registerCleanup()`.
+
+**Motivo:** el modal se inserta en `<body>`, fuera de `#app`, así que sigue en pantalla aunque cambie la ruta. Su cierre dependía de los listeners de la página que lo abrió, que la limpieza de rutas retira al navegar: al pulsar «atrás» con el modal abierto, quedaba encima de la página nueva y no se podía cerrar ni con la X, ni con Escape, ni pulsando fuera. La única salida era recargar.
+
+El menú y el botón de contraseña no tienen ese problema por sí mismos, pero aparecen en muchas páginas y no dependen de ninguna: repetir su lógica en cada controlador era la forma de que alguno se quedara sin ella.
+
+**Consecuencia:** cada componente solo abre, cierra y mueve el foco; la acción la sigue atendiendo el controlador de la página, a través de los mismos atributos `data-*`. Un componente nuevo con este perfil —que vive fuera de `#app` o aparece en muchas páginas sin pertenecer a ninguna— debe seguir el mismo modelo.

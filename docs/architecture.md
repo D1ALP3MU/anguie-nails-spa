@@ -83,7 +83,11 @@ $container->bind(PDO::class, (new Database())->connect());
 $controller = $container->get(AppointmentController::class);
 ```
 
-Eso arma por sí solo el controlador, su servicio y los cuatro repositorios que necesita. Las instancias se reutilizan durante la petición.
+Eso arma por sí solo el controlador, su servicio, los cinco repositorios que este usa y el horario del salón. Las instancias se reutilizan durante la petición.
+
+Un parámetro de tipo básico con valor por defecto recibe ese valor. Es lo que permite que `Config\SalonSchedule` se construya sin registrarla: su constructor admite la configuración y, si no se le pasa, la lee de `$_ENV`. Las pruebas que no tratan del horario sí la registran, con `SalonSchedule::alwaysOpen()` (ver [Pruebas](#pruebas)).
+
+Una interfaz no se puede construir por reflexión: si algún día se inyecta una, habrá que registrar su implementación con `bind()`, como el PDO.
 
 ### `Core\Request`
 
@@ -142,6 +146,20 @@ La regla central del negocio —un profesional no puede atender dos citas a la v
 
 **En la base de datos**, el índice `uq_citas_agenda` es la red de seguridad ante dos peticiones simultáneas. Como las citas se cancelan de forma lógica, un `UNIQUE` corriente dejaría el horario bloqueado para siempre; se usa una columna generada que vale `NULL` cuando la cita está cancelada, y MySQL admite `NULL` repetidos en un índice único.
 
+### Horario del salón
+
+`Config\SalonSchedule` lee del `.env` qué días abre el salón, de qué hora a qué hora, cada cuánto se ofrecen horas y con cuánta antelación se puede reservar. Una configuración mal escrita lanza una excepción al construirse: es preferible un error claro a aceptar citas a deshoras sin que nadie lo note.
+
+Tres piezas lo usan, y **las tres aplican la misma regla**:
+
+- `AvailabilityService::freeSlots()` calcula las horas libres que ofrece la página de reserva: las del horario en que cabe el servicio entero, que no están en el pasado y que no se cruzan con otra cita de la profesional. Los intervalos ocupados salen de `AppointmentRepository::findBusyIntervals()`, con los mismos criterios que `hasOverlap()`.
+- `AppointmentService::assertBookable()` rechaza la reserva que no cumple esa misma regla, por si alguien pide a mano a la API lo que el formulario no ofrece.
+- `GET /api/schedule` entrega el horario al frontend, que con él marca los días cerrados y lo muestra en el pie de página.
+
+Así **lo que se ofrece es lo que se acepta**. La única diferencia posible es que dos clientas elijan la misma hora a la vez, y esa la resuelve la reserva con un `409`.
+
+Al reprogramar, el horario solo se exige si la cita cambia de fecha, de hora o de servicio. Una cita aceptada antes de que existiera el horario —o antes de cambiarlo— se puede seguir confirmando y completando sin moverla. Decisión 013.
+
 ---
 
 ## El reloj
@@ -155,6 +173,8 @@ Ninguna consulta usa `CURDATE()` ni `NOW()`. Las fechas de corte llegan como par
 `APP_TIMEZONE` debe coincidir con la zona de MySQL de todos modos, porque ambos leen las mismas fechas almacenadas sin huso.
 
 Las pruebas fijan la misma zona en `tests/bootstrap.php`: sin eso pasarían o fallarían según la máquina que las ejecute.
+
+El frontend calcula «hoy» con la hora local del navegador (`utils/date.js`) para lo que es de presentación: qué día abre la agenda, dónde va la línea de la hora actual, qué día marca la tira de la reserva. Nunca con `toISOString()`, que convierte a UTC y en Colombia da el día siguiente desde las siete de la tarde. **Lo que decide si una cita es válida es siempre el backend**: el navegador no valida fechas.
 
 ---
 
@@ -175,9 +195,9 @@ modules/<funcionalidad>/
 Por hash, con guardas declaradas junto a cada ruta:
 
 ```js
-"/booking": { page: BookingPage, auth: true },
-"/clients": { page: ClientsPage, roles: [ROLES.ADMIN] },
-"/login":   { page: LoginPage, guestOnly: true },
+"/booking":        { page: BookingPage, auth: true },
+"/admin/clients":  { page: ClientsPage, roles: [ROLES.ADMIN] },
+"/login":          { page: LoginPage, guestOnly: true },
 ```
 
 Son guardas **de interfaz, no de seguridad**: evitan mostrar una pantalla inútil, pero la API vuelve a comprobar autenticación y rol en cada petición.
@@ -192,17 +212,33 @@ export async function ClientHistoryPage({ id })
 
 Las rutas literales se resuelven por clave y solo si ninguna coincide se recorren las que tienen parámetros, de modo que un patrón nunca secuestra una dirección fija. Los tramos se comparan uno a uno en vez de construirse una expresión regular: es lo que evita que un punto en la dirección actúe como comodín, que fue un fallo real en `Core\Route`.
 
+Cada página registra sus listeners al montarse y los retira con `registerCleanup()` al navegar, porque el marcado se repinta entero en cada ruta.
+
+### Comportamientos globales
+
+Hay tres comportamientos que **no** siguen esa regla: el modal (`components/ui/Modal.js`), el menú «⋯» (`ActionMenu.js`) y el botón de mostrar contraseña (`PasswordInput.js`). Sus manejadores se registran **una sola vez**, en `main.js`, y nunca se retiran.
+
+El motivo es el modal: se inserta en `<body>`, fuera de `#app`, así que sobrevive al cambio de ruta. Cuando su cierre dependía de los listeners de la página que lo abrió, pulsar «atrás» con el modal abierto lo dejaba encima de la página nueva y sin forma de cerrarlo: la limpieza de rutas ya había retirado esos listeners. El menú y el botón de contraseña siguen el mismo modelo porque aparecen en muchas páginas y no tienen nada propio de ninguna.
+
+Los tres se apoyan en atributos `data-*` y en delegación sobre `document`: el controlador de cada página sigue atendiendo sus propias acciones —por ejemplo, la opción «Editar» de un menú es un botón con el mismo `data-edit-client` de siempre—, y el componente solo se ocupa de abrir, cerrar y mover el foco. Decisión 014.
+
+### Datos del salón
+
+Los datos de contacto que muestra el pie —dirección, WhatsApp, Instagram— están en `config/salon.js`, un único sitio. El horario no: se pide a `GET /api/schedule` al arrancar (`state/salonSchedule.js`), sin retrasar la primera página, y el pie se completa en cuanto llega. Si la API no responde, el pie se pinta sin ese bloque.
+
 ### Sesión y estado
 
 `api/session.js` es el único punto de acceso al almacenamiento de la sesión. Vive en la capa de API, y no en el módulo de autenticación, para que `http.js` pueda limpiarla ante un 401 sin importar `auth.service.js`, que a su vez importa `http.js`.
 
-`http.js` intercepta los 401: borra la sesión, recuerda la ruta pretendida y redirige a login. Sin eso, la interfaz seguiría mostrando al usuario como conectado mientras todas las peticiones fallan.
+`http.js` intercepta los 401 **de las peticiones que llevaban sesión**: borra la sesión, recuerda la ruta pretendida y redirige a login. Sin eso, la interfaz seguiría mostrando al usuario como conectado mientras todas las peticiones fallan. Un 401 sin sesión —al iniciarla con una contraseña equivocada— es un error normal y muestra el mensaje de la API; antes se anunciaba como «sesión caducada».
+
+Los errores que lanza `http.js` llevan el código HTTP en `error.status`, para distinguir, por ejemplo, una hora que alguien acaba de ocupar (`409`) de un dato mal escrito (`422`).
 
 Las escrituras del usuario en sesión pasan por `state/actions.js::setUser`, que emite `userChanged` por el bus de `core/events.js`. La barra de navegación se suscribe y se repinta sola, sin depender de que cambie el hash.
 
 ### Escapado
 
-Todo dato que provenga del usuario se pasa por `utils/html.js::escapeHtml` antes de interpolarlo. El caso más expuesto son las notas de una cita: texto libre de 1000 caracteres que se muestra en la página de citas.
+Todo dato que provenga del usuario se pasa por `utils/html.js::escapeHtml` antes de interpolarlo. El caso más expuesto son las notas de una cita: texto libre de 1000 caracteres que se muestra en la página de citas. Otro es el buscador de clientas, que repite lo escrito en el aviso de «ninguna coincide».
 
 ---
 
@@ -216,3 +252,11 @@ tests/Integration/   MySQL real, base desechable
 Las unitarias sustituyen los repositorios por dobles y comprueban decisiones: permisos, reglas, validaciones.
 
 Las de integración comprueban lo que un doble no puede: el SQL del cruce de horarios, la restricción única de la agenda y que las transacciones deshagan de verdad. Usan `DB_NAME_TEST`, una base que se crea y destruye en cada ejecución a partir de `database/schema.sql`, y se omiten solas si no hay MySQL.
+
+**Ninguna prueba depende del día en que se ejecuta.** Las que no tratan del horario del salón reciben `SalonSchedule::alwaysOpen()`, que acepta cualquier día y hora: con el horario real, una prueba que reserva «dentro de 30 días» fallaría cuando esa fecha cayera en domingo. Las que sí tratan del horario usan fechas fijas de día conocido, o «un lunes de dentro de 8 a 14 días», que siempre es futuro, siempre es día de apertura y siempre cae dentro del plazo.
+
+### Mayúsculas en las rutas
+
+Windows no distingue mayúsculas en los nombres de archivo; Linux sí. El autoload PSR-4 busca `App\Controllers\X` en `backend/app/Controllers/X.php` con esa grafía exacta, así que una carpeta guardada en Git como `controllers` funciona en desarrollo y rompe la API en producción. Pasó: hasta noviembre de 2026, 33 de las 48 clases no habrían cargado en un servidor Linux.
+
+Al crear una carpeta o un archivo de clase, su nombre debe coincidir exactamente con el namespace y la clase. Para renombrar solo las mayúsculas en Windows hay que hacerlo en dos pasos, porque Git no ve la diferencia: `git mv carpeta carpeta_tmp` y luego `git mv carpeta_tmp Carpeta`.

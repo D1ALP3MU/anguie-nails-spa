@@ -10,10 +10,20 @@ El detalle commit a commit está en `git log`; aquí se resume lo que cambia de 
 
 ### Eliminado
 
+- El modal de reserva y la validación de fechas en el navegador. La reserva tiene página propia, y el backend es quien decide qué horas se pueden reservar.
 - Las tablas `productos`, `carrito_items`, `pedidos` y `pedido_items`. Estaban en el esquema desde el inicio sin que ningún código las usara: correspondían a una tienda en línea que no se va a construir. Migración en `database/migrations/002_elimina_tienda.sql`.
 
 ### Añadido
 
+- Horario del salón, configurable en el `.env` (`SALON_DIAS`, `SALON_APERTURA`, `SALON_CIERRE`, `SALON_INTERVALO`, `SALON_ANTELACION_MAX_DIAS`). Sin las variables rige lunes a sábado, de 9:00 a 19:00, cada 30 minutos y hasta 8 semanas vista. Antes se podía reservar a cualquier hora de cualquier día, incluidas las tres de la madrugada.
+- `GET /api/schedule`, público, con el horario, y `GET /api/availability`, con las horas libres de una profesional un día para un servicio. Se calculan con la misma regla de solapes con la que se acepta la reserva, así que lo que se ofrece es lo que se acepta.
+- Página de reserva propia (`#/reservar/{id}`) en lugar del modal: se elige profesional, día en una tira semanal y hora entre las libres, con un resumen fijo del servicio, la fecha y el precio. Antes la hora era un campo libre y el choque se descubría al enviar; el modal ni siquiera decía qué servicio se estaba reservando. Si otra persona ocupa la hora a la vez, avisa y vuelve a pedir las horas.
+- «Mis citas» con la próxima cita destacada —fecha, cuánto falta, profesional y precio—, las demás próximas debajo y el historial plegado. Antes eran tarjetas de texto plano con la fecha en formato ISO.
+- La agenda abre en el día de hoy, agrupa las citas por día, marca la hora actual y pliega lo ya cerrado. Cada cita muestra una sola acción, la siguiente que toca —confirmar, completar o cobrar— y el resto va en un menú «⋯». Antes abría con todo el histórico, empezando por agosto.
+- Menú «⋯» reutilizable, manejable con teclado. Lo usan la agenda y todas las tablas del panel, que pasan a mostrarse como tarjetas en móvil.
+- Buscador de clientas por nombre, correo, teléfono y dirección, sin importar tildes ni mayúsculas.
+- Botón para mostrar la contraseña en los siete campos de contraseña, accesible por teclado y lector de pantalla.
+- Pie de página con la marca, el horario —el mismo del `.env`—, la dirección con enlace a Google Maps, WhatsApp e Instagram. En el panel, un pie mínimo. En la portada y en «Nuestro equipo», una franja para reservar.
 - Alta y baja de administradores desde el panel (`/api/admins`). Antes la única vía era insertar la fila por SQL. El alta crea solo el usuario, sin perfil en `clientes`, con una contraseña temporal que la persona cambia desde «Mi cuenta». Dos reglas lo sostienen: no se desactiva al último administrador ni se desactiva nadie a sí mismo. El primero sigue creándose por SQL al instalar.
 - Página «Mi cuenta» con cambio de contraseña (`PUT /api/profile/password`). No existía forma de cambiarla: la única salida era editarla en la base de datos. Hay que escribir la actual, y el usuario se resuelve desde el token, así que nadie puede cambiar la ajena. Los tokens ya emitidos siguen valiendo hasta que expiren, porque la sesión es sin estado.
 - Historial de la clienta: ficha con sus datos, sus cifras —citas, total pagado, lo que queda por cobrar y la última visita— y todas sus citas de la más reciente a la más antigua. Se llega desde el listado de clientes y tiene dirección propia, así que se puede abrir en otra pestaña.
@@ -29,6 +39,16 @@ El detalle commit a commit está en `git log`; aquí se resume lo que cambia de 
 
 ### Corregido
 
+- En un servidor Linux la API no arrancaba. Git guardaba ocho carpetas de `backend/app` en minúscula y `Database.php` como `database.php`, mientras que los namespaces van en mayúscula. En Windows no se nota; en Linux el autoload no encontraba 33 de las 48 clases.
+- No se podía reservar para el mismo día. El navegador calculaba «hoy» en UTC, y en Colombia una fecha sin hora es la tarde del día anterior: la validación rechazaba el día en curso a cualquier hora.
+- Al pulsar «atrás» con el modal de reserva abierto, el modal se quedaba encima de la página siguiente y no se podía cerrar ni con la X, ni con Escape, ni pulsando fuera. Los modales tampoco respondían a Escape ni recibían el foco al abrirse.
+- Al iniciar sesión con una contraseña equivocada aparecía «Tu sesión no es válida o expiró». El cliente HTTP trataba cualquier 401 como sesión caducada; ahora solo cuando la petición llevaba sesión.
+- En el alta de clientas, el navegador podía ofrecer o rellenar la contraseña guardada de la propia administradora: al campo le faltaba `autocomplete="new-password"`.
+- «Reservar ahora», en la portada, llevaba a «Mis citas» en lugar del catálogo.
+- Los botones se pintaban en Arial, porque los controles de formulario no heredan la tipografía; un enlace con la misma clase salía en DM Sans.
+- El menú lateral desaparecía mientras cargaba cada página.
+- En los importes y los títulos, el 0 de Cormorant se leía como una «o»: la fuente usa por defecto cifras de estilo antiguo.
+- En móvil, el formulario de fechas de la agenda y de facturación ocupaba media pantalla con huecos entre los campos.
 - `.env.example` no se podía analizar: usaba `#` para los comentarios y el analizador INI de PHP solo reconoce `;`. Quien siguiera el README y copiara la plantilla se encontraba con que la aplicación no arrancaba.
 
 - La aplicación fija su propia zona horaria en lugar de heredar la del `php.ini`. Con la configuración que trae XAMPP, en horario europeo, PHP creía que ya era el día siguiente desde media tarde y rechazaba reservas legítimas del mismo día con «No es posible agendar una cita en un horario que ya pasó».
@@ -36,6 +56,12 @@ El detalle commit a commit está en `git log`; aquí se resume lo que cambia de 
 
 ### Cambiado
 
+- La API rechaza las reservas fuera del horario del salón o del plazo de reserva. Al reprogramar, la regla solo se aplica si la cita cambia de fecha, de hora o de servicio: una cita aceptada antes de existir el horario se puede seguir confirmando y completando.
+- Colores con contraste AA medido: el rosa de marca pasa de `#D4637A` a `#B04560`, y se oscurecen el texto atenuado, los chips de estado y el borde de los campos. Las acciones destructivas usan un rojo propio, distinto del rosa de marca, con el que antes se confundían.
+- Una escala de ocho tamaños de letra sustituye a los 31 valores sueltos, y todos los títulos pasan a Cormorant, también los del panel y los modales.
+- Los botones tienen estados de hover, pulsado y desactivado, y hay foco visible con teclado en toda la interfaz. En los diálogos que destruyen algo, el foco inicial va a «Cancelar».
+- Encabezado común en el panel, con el título a la izquierda y la acción a la derecha, y tablas compactas con las cifras alineadas a la derecha.
+- «Clienta» en singular en el panel y en los mensajes de la API, y el equipo en femenino en todas partes. Antes la misma aplicación decía «Clienta» en la agenda y «Nuevo Cliente» en el listado.
 - La navegación pasa de una barra superior a un menú lateral. En escritorio queda fija a la izquierda; por debajo de 900px se esconde y se abre como cajón desde una barra superior con botón de hamburguesa. El espacio vertical permite agrupar las rutas del panel bajo un rótulo «Administración» y mostrar siempre el nombre de la usuaria, que la barra superior ocultaba por debajo de 640px.
 
 ---
