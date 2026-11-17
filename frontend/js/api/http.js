@@ -29,7 +29,13 @@ async function request(endpoint, options = {}) {
         .json()
         .catch(() => ({}));
 
-    if (response.status === 401) {
+    /*
+     * Un 401 solo significa «la sesión caducó» si se envió una. Sin
+     * token —al iniciar sesión— es un error como cualquier otro: unas
+     * credenciales mal escritas deben decir eso, no que la sesión
+     * expiró.
+     */
+    if (response.status === 401 && token) {
 
         handleExpiredSession();
 
