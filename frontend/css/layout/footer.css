@@ -1,22 +1,260 @@
-footer {
-    padding: 1.5rem 2rem;
-    text-align: center;
-}
-
-footer p {
-    margin: 0;
-    line-height: 1.5;
-}
-
-/**
- * Responsive styles
+/*
+ * Pie de página (components/layout/Footer.js) y franja de reservar.
+ *
+ * Completo en las páginas de cara a las clientas, sobre fondo
+ * ciruela —el color del texto de la marca— para que el final de la
+ * página se lea como tal. En el panel, una línea mínima.
  */
-@media (max-width: 768px) {
-    footer {
-        padding: 1.5rem 1rem;
+
+/* =====================================================
+    FRANJA «RESERVAR CITA»
+   ===================================================== */
+
+.cta-band {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px 24px;
+    /* Margen arriba: en la portada, sin él quedaba pegada al borde
+       del fondo rosado. */
+    margin: 2.5rem 2rem 3rem;
+    padding: 28px 32px;
+    border-radius: var(--r-xl);
+    background: linear-gradient(135deg, var(--pink-light), var(--lilac-light));
+}
+
+.cta-band h2 {
+    font-size: var(--fs-xl);
+}
+
+.cta-band p {
+    color: var(--text-soft);
+}
+
+/* =====================================================
+    PIE COMPLETO
+   ===================================================== */
+
+.site-footer {
+    padding: 48px 2rem 0;
+    background: var(--plum-900);
+    color: var(--on-plum);
+}
+
+.site-footer__grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1.2fr;
+    gap: 32px;
+    max-width: var(--max-w);
+    padding-bottom: 36px;
+}
+
+.site-footer__brand {
+    font-family: var(--font-d);
+    font-size: var(--fs-xl);
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.site-footer__tagline {
+    margin: 6px 0 18px;
+    font-size: var(--fs-sm);
+    color: var(--on-plum-soft);
+}
+
+/* Rótulos de columna: discretos, no títulos de sección. */
+.site-footer__title {
+    margin-bottom: 12px;
+    font-family: var(--font-b);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pink);
+}
+
+.site-footer__hours {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 16px;
+    font-size: var(--fs-sm);
+}
+
+.site-footer__hours dt {
+    color: var(--on-plum-soft);
+}
+
+.site-footer__hours dd {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.site-footer__address {
+    margin-bottom: 6px;
+    font-size: var(--fs-sm);
+    font-style: normal;
+    line-height: 1.7;
+}
+
+.site-footer__link {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--pink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.site-footer__link:hover {
+    color: var(--on-plum);
+}
+
+.site-footer__whatsapp {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 9px 16px;
+    border-radius: var(--r-full);
+    background: var(--pink);
+    color: var(--plum-900);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background-color var(--easy-f);
+}
+
+.site-footer__whatsapp:hover {
+    background: var(--on-plum);
+}
+
+/* Las direcciones son una columna: el enlace de WhatsApp, en su línea. */
+.site-footer__col > .site-footer__link {
+    display: inline-block;
+}
+
+.site-footer__col > .site-footer__whatsapp {
+    display: flex;
+    width: fit-content;
+}
+
+.site-footer__social {
+    display: flex;
+    gap: 10px;
+}
+
+.site-footer__social a {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--on-plum-border);
+    border-radius: 50%;
+    color: var(--on-plum);
+    transition:
+        background-color var(--easy-f),
+        border-color var(--easy-f);
+}
+
+.site-footer__social a:hover {
+    background: var(--plum-line);
+    border-color: var(--on-plum-soft);
+}
+
+.site-footer svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.site-footer__whatsapp svg {
+    width: 18px;
+    height: 18px;
+}
+
+.site-footer__bottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    max-width: var(--max-w);
+    padding: 18px 0 22px;
+    border-top: 1px solid var(--plum-line);
+    font-size: var(--fs-xs);
+    color: var(--on-plum-muted);
+}
+
+.site-footer__bottom a {
+    color: var(--on-plum-muted);
+}
+
+.site-footer__bottom a:hover {
+    color: var(--on-plum);
+}
+
+/* Sobre fondo oscuro, el anillo de foco rosa oscuro no se vería. */
+.site-footer :focus-visible {
+    outline-color: var(--pink);
+}
+
+/* =====================================================
+    PIE MÍNIMO (panel de administración)
+   ===================================================== */
+
+.site-footer--minimal {
+    padding: 14px 2rem;
+    background: none;
+    border-top: 1px solid var(--border-lt);
+    color: var(--text-muted);
+    font-size: var(--fs-xs);
+}
+
+/* =====================================================
+    MÓVIL
+   ===================================================== */
+
+@media (max-width: 900px) {
+
+    .cta-band {
+        margin: 2rem 1.25rem 2.5rem;
     }
 
-    footer p {
-        max-width: 100%;
+    .site-footer {
+        padding: 36px 1.25rem 0;
+    }
+
+    .site-footer--minimal {
+        padding: 14px 1.25rem;
+    }
+}
+
+@media (max-width: 720px) {
+
+    .cta-band {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 22px;
+        text-align: center;
+    }
+
+    .site-footer__grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+    }
+
+    .site-footer__bottom {
+        flex-direction: column;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .site-footer__whatsapp,
+    .site-footer__social a {
+        transition: none;
     }
 }

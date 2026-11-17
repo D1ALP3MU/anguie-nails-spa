@@ -58,6 +58,15 @@
 
     --overlay: rgba(58, 46, 53, .45);
 
+    /* Pie de página, sobre fondo ciruela. Contraste medido contra
+       --plum-900: texto 12.7, suave 7.8, atenuado 6.1, borde 3.4. */
+    --plum-900: #2F252B;
+    --plum-line: #4A3D44;
+    --on-plum: #F4ECF0;
+    --on-plum-soft: #C9B8C1;
+    --on-plum-muted: #B3A2AB;
+    --on-plum-border: #84747D;
+
     --g-pink: linear-gradient(135deg, var(--pink) 0%, var(--lilac) 100%);
 
     /* ---------- Tipografía ---------- */

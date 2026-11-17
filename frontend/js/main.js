@@ -23,6 +23,12 @@ import { initActionMenuEvents } from "./components/ui/ActionMenu.js";
 
 import { initPasswordToggles } from "./components/ui/PasswordInput.js";
 
+import { Footer } from "./components/layout/Footer.js";
+
+import { footerVariant } from "./components/layout/Layout.js";
+
+import { loadSalonSchedule } from "./state/salonSchedule.js";
+
 document.addEventListener("DOMContentLoaded", () => {
 
     // El menú se repinta solo cuando cambia la sesión. Antes
@@ -51,7 +57,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     initRouter();
 
+    /*
+     * El horario del pie llega aparte, sin retrasar la primera página:
+     * se pinta sin él y se completa en cuanto responde la API. Las
+     * páginas siguientes ya lo encuentran cargado.
+     */
+    loadSalonSchedule().then(refreshFooter);
+
 });
+
+function refreshFooter() {
+
+    const footer = document.querySelector(".site-footer");
+
+    if (!footer) return;
+
+    const markup = document.createElement("div");
+
+    markup.innerHTML = Footer(footerVariant());
+
+    footer.replaceWith(markup.firstElementChild);
+}
 
 function refreshSidebar() {
 
