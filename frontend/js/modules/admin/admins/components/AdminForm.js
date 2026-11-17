@@ -1,9 +1,14 @@
+import { PasswordInput } from "../../../../components/ui/PasswordInput.js";
+
 /**
  * Alta de administrador.
  *
  * La contraseña es temporal y se la pasas tú a la persona; ella la
  * cambia desde «Mi cuenta» al entrar. El aviso está en el
  * formulario porque es la parte del flujo que se olvida.
+ *
+ * Va oculta, como todas, para protegerla de miradas por encima del
+ * hombro; el botón de mostrarla permite leerla antes de pasarla.
  */
 export function AdminForm() {
 
@@ -40,16 +45,15 @@ export function AdminForm() {
 
             <div class="form-group">
                 <label for="admin-password">Contraseña temporal</label>
-                <input
-                    type="text"
-                    id="admin-password"
-                    name="password"
-                    autocomplete="off"
-                    minlength="8"
-                    maxlength="255"
-                    required
-                >
-                <p class="form-ayuda">
+                ${PasswordInput({
+                    id: "admin-password",
+                    name: "password",
+                    autocomplete: "new-password",
+                    minlength: 8,
+                    maxlength: 255,
+                    describedBy: "admin-password-ayuda"
+                })}
+                <p class="form-ayuda" id="admin-password-ayuda">
                     Al menos 8 caracteres. Pásasela en persona y
                     pídele que la cambie desde «Mi cuenta».
                 </p>

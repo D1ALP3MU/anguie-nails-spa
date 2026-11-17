@@ -1,4 +1,5 @@
 import { escapeHtml } from "../../../../utils/html.js";
+import { PasswordInput } from "../../../../components/ui/PasswordInput.js";
 
 export function ClientForm(client = null) {
 
@@ -43,13 +44,17 @@ export function ClientForm(client = null) {
             ${!isEdit ? `
                 <div class="form-group">
                     <label for="client-password">Contraseña</label>
-                    <input
-                        type="password"
-                        id="client-password"
-                        name="password"
-                        placeholder="Mínimo 8 caracteres"
-                        required
-                    >
+                    ${/*
+                        «new-password»: sin él, el navegador puede rellenar
+                        aquí la contraseña guardada de la administradora,
+                        porque el formulario tiene correo y contraseña.
+                      */ ""}
+                    ${PasswordInput({
+                        id: "client-password",
+                        name: "password",
+                        autocomplete: "new-password",
+                        placeholder: "Mínimo 8 caracteres"
+                    })}
                 </div>
             ` : ""}
 

@@ -21,6 +21,8 @@ import { initModalEvents } from "./components/ui/Modal.js";
 
 import { initActionMenuEvents } from "./components/ui/ActionMenu.js";
 
+import { initPasswordToggles } from "./components/ui/PasswordInput.js";
+
 document.addEventListener("DOMContentLoaded", () => {
 
     // El menú se repinta solo cuando cambia la sesión. Antes
@@ -44,6 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
      * atiende el controlador de la página, que se registra después.
      */
     initActionMenuEvents();
+
+    initPasswordToggles();
 
     initRouter();
 

@@ -1,3 +1,5 @@
+import { PasswordInput } from "../../../components/ui/PasswordInput.js";
+
 export function RegisterForm() {
 
     return `
@@ -47,15 +49,13 @@ export function RegisterForm() {
                     Contraseña
                 </label>
 
-                <input
-                    type="password"
-                    id="register-password"
-                    name="password"
-                    placeholder="Mínimo 8 caracteres"
-                    autocomplete="new-password"
-                    minlength="8"
-                    required
-                >
+                ${PasswordInput({
+                    id: "register-password",
+                    name: "password",
+                    autocomplete: "new-password",
+                    placeholder: "Mínimo 8 caracteres",
+                    minlength: 8
+                })}
 
             </div>
 

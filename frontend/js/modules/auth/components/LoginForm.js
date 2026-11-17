@@ -1,3 +1,10 @@
+import { PasswordInput } from "../../../components/ui/PasswordInput.js";
+
+/*
+ * `username` y `current-password` le dicen al gestor de contraseñas
+ * del navegador qué es cada campo, para que ofrezca y rellene bien
+ * la cuenta guardada.
+ */
 export function LoginForm() {
 
     return `
@@ -18,6 +25,7 @@ export function LoginForm() {
                     id="login-email"
                     name="email"
                     placeholder="tu@email.com"
+                    autocomplete="username"
                     required
                 >
 
@@ -29,14 +37,13 @@ export function LoginForm() {
                     Contraseña
                 </label>
 
-                <input
-                    type="password"
-                    id="login-password"
-                    name="password"
-                    placeholder="Tu contraseña"
-                    minlength="8"
-                    required
-                >
+                ${PasswordInput({
+                    id: "login-password",
+                    name: "password",
+                    autocomplete: "current-password",
+                    placeholder: "Tu contraseña",
+                    minlength: 8
+                })}
 
             </div>
 

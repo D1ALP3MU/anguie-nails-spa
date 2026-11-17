@@ -45,6 +45,73 @@
     width: 100%;
 }
 
+/* ---------- Contraseña con botón de mostrar ----------
+   (components/ui/PasswordInput.js) */
+
+.password-field {
+    position: relative;
+}
+
+/* Hueco a la derecha para que el texto no pase por debajo del botón. */
+.password-field input {
+    padding-right: 3.25rem;
+}
+
+/* Edge añade su propio ojo a los campos de contraseña: con el
+   nuestro saldrían dos. */
+.password-field input::-ms-reveal,
+.password-field input::-ms-clear {
+    display: none;
+}
+
+/* Dos clases para ganarle a «.form-group button { width: 100% }». */
+.form-group .password-field__toggle,
+.password-field__toggle {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+
+    border: 0;
+    border-radius: var(--r-full);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition:
+        background-color var(--easy-f),
+        color var(--easy-f);
+}
+
+.password-field__toggle:hover {
+    background: var(--beige-light);
+    color: var(--text);
+}
+
+.password-field__toggle svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* El icono dice lo que pasará al pulsar: ojo para mostrar, ojo
+   tachado para volver a ocultar. */
+.password-field__hide,
+.password-field__toggle[aria-pressed="true"] .password-field__show {
+    display: none;
+}
+
+.password-field__toggle[aria-pressed="true"] .password-field__hide {
+    display: block;
+}
+
 .form-error {
     color: var(--danger);
     font-size: var(--fs-sm);

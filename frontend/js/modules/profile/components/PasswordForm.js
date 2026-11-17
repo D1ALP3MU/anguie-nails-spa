@@ -1,7 +1,12 @@
+import { PasswordInput } from "../../../components/ui/PasswordInput.js";
+
 /*
  * Los tres campos llevan `autocomplete` para que el gestor de
  * contraseñas del navegador ofrezca la actual y guarde la nueva
  * en lugar de rellenarlas todas con lo mismo.
+ *
+ * Cada uno tiene su propio botón de mostrar: así se comprueba solo
+ * la que se está escribiendo.
  */
 export function PasswordForm() {
 
@@ -15,13 +20,11 @@ export function PasswordForm() {
                     Contraseña actual
                 </label>
 
-                <input
-                    type="password"
-                    id="password-actual"
-                    name="password_actual"
-                    autocomplete="current-password"
-                    required
-                >
+                ${PasswordInput({
+                    id: "password-actual",
+                    name: "password_actual",
+                    autocomplete: "current-password"
+                })}
 
             </div>
 
@@ -31,16 +34,15 @@ export function PasswordForm() {
                     Contraseña nueva
                 </label>
 
-                <input
-                    type="password"
-                    id="password-nueva"
-                    name="password_nueva"
-                    autocomplete="new-password"
-                    minlength="8"
-                    required
-                >
+                ${PasswordInput({
+                    id: "password-nueva",
+                    name: "password_nueva",
+                    autocomplete: "new-password",
+                    minlength: 8,
+                    describedBy: "password-nueva-ayuda"
+                })}
 
-                <p class="form-ayuda">
+                <p class="form-ayuda" id="password-nueva-ayuda">
                     Al menos 8 caracteres, y distinta de la actual.
                 </p>
 
@@ -52,14 +54,12 @@ export function PasswordForm() {
                     Repite la contraseña nueva
                 </label>
 
-                <input
-                    type="password"
-                    id="password-confirmacion"
-                    name="password_confirmacion"
-                    autocomplete="new-password"
-                    minlength="8"
-                    required
-                >
+                ${PasswordInput({
+                    id: "password-confirmacion",
+                    name: "password_confirmacion",
+                    autocomplete: "new-password",
+                    minlength: 8
+                })}
 
             </div>
 
